@@ -28,6 +28,17 @@ import . "github.com/pbenner/autodiff/logarithmetic"
 
 /* -------------------------------------------------------------------------- */
 
+const jAtac      =  0
+const jH3k27ac   =  2
+const jH3k27me1  =  4
+const jH3k9me1   =  6
+const jH3k4me1   =  8
+const jH3k4me3   = 10
+const jH3k4me3o1 = 12
+const jControl   = 14
+
+/* -------------------------------------------------------------------------- */
+
 type BasicClassifier struct {
 }
 
@@ -111,19 +122,19 @@ type ClassifierPA struct {
 func (obj ClassifierPA) Eval(s Scalar, x ConstMatrix) error {
   r := 0.0
   { // atac peak at the center
-    r += obj.PeakAtCenter(x, 0)
+    r += obj.PeakAtCenter(x, jAtac)
   }
   { // h3k27ac peak at any position
-    r += obj.PeakAny(x, 2)
+    r += obj.PeakAny(x, jH3k27ac)
   }
   { // h3k4me3 peak at any position
-    r += obj.PeakAny(x, 4)
+    r += obj.PeakAny(x, jH3k4me3)
   }
   { // h3k4me3o1 peak at any position
-    r += obj.PeakAny(x, 6)
+    r += obj.PeakAny(x, jH3k4me3o1)
   }
   { // no control peak at all positions
-    r += obj.NoPeakAll(x, 8)
+    r += obj.NoPeakAll(x, jControl)
   }
   s.SetValue(r)
   return nil
