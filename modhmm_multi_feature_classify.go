@@ -84,6 +84,10 @@ func modhmm_multi_feature_classify(config ConfigModHmm, state string) {
     filenameResult1 = config.MultiFeatureClass.PA
     filenameResult1 = config.MultiFeatureClassExp.PA
     classifier = ClassifierPA{}
+  case "pb":
+    filenameResult1 = config.MultiFeatureClass.PB
+    filenameResult1 = config.MultiFeatureClassExp.PB
+    classifier = ClassifierPB{}
   default:
     log.Fatal("unknown state: %s", state)
   }

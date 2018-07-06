@@ -30,7 +30,7 @@ import . "github.com/pbenner/autodiff/logarithmetic"
 
 const jAtac      =  0
 const jH3k27ac   =  2
-const jH3k27me1  =  4
+const jH3k27me3  =  4
 const jH3k9me1   =  6
 const jH3k4me1   =  8
 const jH3k4me3   = 10
@@ -146,4 +146,39 @@ func (ClassifierPA) Dims() (int, int) {
 
 func (ClassifierPA) CloneMatrixBatchClassifier() MatrixBatchClassifier {
   return ClassifierPA{}
+}
+
+/* -------------------------------------------------------------------------- */
+
+type ClassifierPB struct {
+  BasicClassifier
+}
+
+func (obj ClassifierPB) Eval(s Scalar, x ConstMatrix) error {
+  r := 0.0
+  { // atac peak at the center
+    //r += obj.PeakAtCenter(x, jAtac)
+  }
+  { // h3k27me3 peak at any position
+    r += obj.PeakAny(x, jH3k27me3)
+  }
+  { // h3k4me3 peak at any position
+    r += obj.PeakAny(x, jH3k4me3)
+  }
+  { // h3k4me3o1 peak at any position
+    r += obj.PeakAny(x, jH3k4me3o1)
+  }
+  { // no control peak at all positions
+    r += obj.NoPeakAll(x, jControl)
+  }
+  s.SetValue(r)
+  return nil
+}
+
+func (ClassifierPB) Dims() (int, int) {
+  return 10, 5
+}
+
+func (ClassifierPB) CloneMatrixBatchClassifier() MatrixBatchClassifier {
+  return ClassifierPB{}
 }
