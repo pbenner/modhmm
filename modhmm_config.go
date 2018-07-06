@@ -48,6 +48,7 @@ type ConfigFeaturePaths struct {
   h3k4me1    string `json:"H3K4me1"`
   h3k4me3    string `json:"H3K4me3"`
   h3k4me3o1  string `json:"H3K4me3o1"`
+  control    string `json:"Control"`
 }
 
 func (config *ConfigFeaturePaths) CompletePaths(prefix, suffix string) {
@@ -58,6 +59,7 @@ func (config *ConfigFeaturePaths) CompletePaths(prefix, suffix string) {
   config.h3k4me1   = completePath(prefix, config.h3k4me1,   fmt.Sprintf("h3k4me1%s", suffix))
   config.h3k4me3   = completePath(prefix, config.h3k4me3,   fmt.Sprintf("h3k4me3%s", suffix))
   config.h3k4me3o1 = completePath(prefix, config.h3k4me3o1, fmt.Sprintf("h3k4me3o1%s", suffix))
+  config.control   = completePath(prefix, config.control,   fmt.Sprintf("control%s", suffix))
 }
 
 /* -------------------------------------------------------------------------- */
@@ -75,6 +77,9 @@ type ConfigModHmm struct {
   SessionConfig
   SingleFeatureData   ConfigFeaturePaths
   SingleFeatureJson   ConfigFeaturePaths
+  SingleFeatureComp   ConfigFeaturePaths
+  SingleFeatureFg     ConfigFeaturePaths
+  SingleFeatureBg     ConfigFeaturePaths
   SingleFeaturePrefix string             `json:"Single Feature Prefix"`
 }
 
@@ -113,6 +118,9 @@ func (config *ConfigModHmm) CompletePaths() {
   }
   config.SingleFeatureData.CompletePaths(config.SingleFeaturePrefix, ".bw")
   config.SingleFeatureJson.CompletePaths(config.SingleFeaturePrefix, ".json")
+  config.SingleFeatureComp.CompletePaths(config.SingleFeaturePrefix, ".components.json")
+  config.SingleFeatureFg  .CompletePaths(config.SingleFeaturePrefix, ".fg.bw")
+  config.SingleFeatureBg  .CompletePaths(config.SingleFeaturePrefix, ".bg.bw")
 }
 
 /* -------------------------------------------------------------------------- */
@@ -126,6 +134,7 @@ func (config ConfigFeaturePaths) String() string {
   fmt.Fprintf(&buffer, " -> H3K4me1              : %v\n", config.h3k4me1)
   fmt.Fprintf(&buffer, " -> H3K4me3              : %v\n", config.h3k4me3)
   fmt.Fprintf(&buffer, " -> H3K4me3o1            : %v\n", config.h3k4me3o1)
+  fmt.Fprintf(&buffer, " -> Control              : %v\n", config.control)
 
   return buffer.String()
 }
@@ -138,6 +147,12 @@ func (config ConfigModHmm) String() string {
   fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureData.String())
   fmt.Fprintf(&buffer, "Single-feature mixture distributions:\n")
   fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureJson.String())
+  fmt.Fprintf(&buffer, "Single-feature foreground mixture components:\n")
+  fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureComp.String())
+  fmt.Fprintf(&buffer, "Single-feature foreground classifications:\n")
+  fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureFg.String())
+  fmt.Fprintf(&buffer, "Single-feature background classifications:\n")
+  fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureBg.String())
   fmt.Fprintf(&buffer, "ModHmm options:\n")
   fmt.Fprintf(&buffer, " -> Single Feature Prefix: %v\n", config.SingleFeaturePrefix)
 

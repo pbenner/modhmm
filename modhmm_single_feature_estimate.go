@@ -112,9 +112,26 @@ func newContinuousEstimator(config ConfigModHmm, n_lognormal, n_exponential int)
 
 /* -------------------------------------------------------------------------- */
 
-func estimate(config ConfigModHmm, feature string, n []int) {
+func single_feature_estimate(config ConfigModHmm, estimator VectorEstimator, filenameIn, filenameOut string) {
+  if err := ImportAndEstimateOnSingleTrack(config.SessionConfig, estimator, filenameIn); err != nil {
+    log.Fatal(err)
+  }
+  result := estimator.GetEstimate().(*vectorDistribution.ScalarIid).Distribution.(*scalarDistribution.Mixture)
+
+  printStderr(config, 1, "Exporting distribution to `%s'... ", filenameOut)
+  if err := ExportDistribution(filenameOut, result); err != nil {
+    printStderr(config, 1, "failed\n")
+    log.Fatal(err)
+  }
+  printStderr(config, 1, "done\n")
+}
+
+/* -------------------------------------------------------------------------- */
+
+func modhmm_single_feature_estimate(config ConfigModHmm, feature string, n []int) {
   var estimator VectorEstimator
 
+  localConfig := config
   filenameIn  := ""
   filenameOut := ""
   discrete    := true
@@ -142,6 +159,9 @@ func estimate(config ConfigModHmm, feature string, n []int) {
     filenameIn  = config.SingleFeatureData.h3k4me3o1
     filenameOut = config.SingleFeatureJson.h3k4me3o1
     discrete    = false
+  case "control":
+    filenameIn  = config.SingleFeatureData.control
+    filenameOut = config.SingleFeatureJson.control
   default:
     log.Fatal("unknown feature: %s", feature)
   }
@@ -153,20 +173,14 @@ func estimate(config ConfigModHmm, feature string, n []int) {
     log.Fatalf("feature `%s' is continuous and requires two integer arguments", feature)
   }
   if discrete {
+    localConfig.BinSummaryStatistics = "discrete mean"
     estimator = newEstimator(config, n[0], n[1], n[2])
   } else {
+    localConfig.BinSummaryStatistics = "mean"
     estimator = newContinuousEstimator(config, n[0], n[1])
   }
 
-  localConfig := config.SessionConfig
-  localConfig.BinSummaryStatistics = "discrete mean"
-
-  if err := ImportAndEstimateOnSingleTrack(localConfig, estimator, filenameIn); err != nil {
-    log.Fatal(err)
-  }
-  result := estimator.GetEstimate().(*vectorDistribution.ScalarIid).Distribution.(*scalarDistribution.Mixture)
-
-  ExportDistribution(filenameOut, result)
+  single_feature_estimate(localConfig, estimator, filenameIn, filenameOut)
 }
 
 /* -------------------------------------------------------------------------- */
@@ -214,5 +228,5 @@ func modhmm_single_feature_estimate_main(config ConfigModHmm, args []string) {
     }
   }
 
-  estimate(config, feature, n)
+  modhmm_single_feature_estimate(config, feature, n)
 }

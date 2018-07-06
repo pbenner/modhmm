@@ -39,7 +39,7 @@ func main() {
     " Commands:\n" +
     "     estimate-single-feature-mixture - estimate mixture distribution for single\n" +
     "                                       feature enrichment analysis\n" +
-    "     validate                        - validate positively classified regions\n")
+    "     classify-single-feature         - call enriched regions in single feature data\n")
   options.Parse(os.Args)
 
   config := DefaultModHmmConfig()
@@ -81,6 +81,8 @@ func main() {
   switch command {
   case "estimate-single-feature-mixture":
     modhmm_single_feature_estimate_main(config, options.Args())
+  case "classify-single-feature":
+    modhmm_single_feature_classify_main(config, options.Args())
   default:
     options.PrintUsage(os.Stderr)
     os.Exit(1)
