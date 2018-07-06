@@ -40,7 +40,7 @@ func completePath(prefix, mypath, def string) string {
 
 /* -------------------------------------------------------------------------- */
 
-type ConfigFeaturePaths struct {
+type ConfigSingleFeaturePaths struct {
   atac       string `json:"ATAC"`
   h3k27ac    string `json:"H3K27ac"`
   h3k27me3   string `json:"H3K27me3"`
@@ -51,7 +51,7 @@ type ConfigFeaturePaths struct {
   control    string `json:"Control"`
 }
 
-func (config *ConfigFeaturePaths) CompletePaths(prefix, suffix string) {
+func (config *ConfigSingleFeaturePaths) CompletePaths(prefix, suffix string) {
   config.atac      = completePath(prefix, config.atac,      fmt.Sprintf("atac%s", suffix))
   config.h3k27ac   = completePath(prefix, config.h3k27ac,   fmt.Sprintf("h3k27ac%s", suffix))
   config.h3k27me3  = completePath(prefix, config.h3k27me3,  fmt.Sprintf("h3k27me3%s", suffix))
@@ -64,23 +64,47 @@ func (config *ConfigFeaturePaths) CompletePaths(prefix, suffix string) {
 
 /* -------------------------------------------------------------------------- */
 
-type ConfigClassifierPaths struct {
+type ConfigMultiFeaturePaths struct {
   EA       string
   EP       string
   PA       string
   PB       string
+  TR       string
+  TL       string
+  R1       string
+  R2       string
+  CL       string
+  NS       string
+}
+
+func (config *ConfigMultiFeaturePaths) CompletePaths(prefix, suffix string) {
+  config.EA = completePath(prefix, config.EA, fmt.Sprintf("classification-EA%s", suffix))
+  config.EP = completePath(prefix, config.EP, fmt.Sprintf("classification-EP%s", suffix))
+  config.PA = completePath(prefix, config.PA, fmt.Sprintf("classification-PA%s", suffix))
+  config.PB = completePath(prefix, config.PB, fmt.Sprintf("classification-PB%s", suffix))
+  config.TR = completePath(prefix, config.TR, fmt.Sprintf("classification-TR%s", suffix))
+  config.TL = completePath(prefix, config.TL, fmt.Sprintf("classification-TL%s", suffix))
+  config.R1 = completePath(prefix, config.R1, fmt.Sprintf("classification-R1%s", suffix))
+  config.R2 = completePath(prefix, config.R2, fmt.Sprintf("classification-R2%s", suffix))
+  config.CL = completePath(prefix, config.CL, fmt.Sprintf("classification-CL%s", suffix))
+  config.NS = completePath(prefix, config.NS, fmt.Sprintf("classification-NS%s", suffix))
 }
 
 /* -------------------------------------------------------------------------- */
 
 type ConfigModHmm struct {
   SessionConfig
-  SingleFeatureData   ConfigFeaturePaths
-  SingleFeatureJson   ConfigFeaturePaths
-  SingleFeatureComp   ConfigFeaturePaths
-  SingleFeatureFg     ConfigFeaturePaths
-  SingleFeatureBg     ConfigFeaturePaths
+  SingleFeatureData    ConfigSingleFeaturePaths
+  SingleFeatureJson    ConfigSingleFeaturePaths
+  SingleFeatureComp    ConfigSingleFeaturePaths
+  SingleFeatureFg      ConfigSingleFeaturePaths
+  SingleFeatureBg      ConfigSingleFeaturePaths
+  MultiFeatureClass    ConfigMultiFeaturePaths
+  MultiFeatureClassExp ConfigMultiFeaturePaths
+  Prefix string                          `json:"Prefix"`
   SingleFeaturePrefix string             `json:"Single Feature Prefix"`
+  SingleFeatureMixturePrefix string      `json:"Single Feature Mixture Prefix"`
+   MultiFeaturePrefix string             `json:"Multi Feature Prefix"`
 }
 
 /* -------------------------------------------------------------------------- */
@@ -113,19 +137,30 @@ func DefaultModHmmConfig() ConfigModHmm {
 }
 
 func (config *ConfigModHmm) CompletePaths() {
-  if config.SingleFeaturePrefix == "" {
-    config.SingleFeaturePrefix = "."
+  if config.Prefix == "" {
+    config.Prefix = "."
   }
-  config.SingleFeatureData.CompletePaths(config.SingleFeaturePrefix, ".bw")
-  config.SingleFeatureJson.CompletePaths(config.SingleFeaturePrefix, ".json")
-  config.SingleFeatureComp.CompletePaths(config.SingleFeaturePrefix, ".components.json")
-  config.SingleFeatureFg  .CompletePaths(config.SingleFeaturePrefix, ".fg.bw")
-  config.SingleFeatureBg  .CompletePaths(config.SingleFeaturePrefix, ".bg.bw")
+  if config.SingleFeaturePrefix == "" {
+    config.SingleFeaturePrefix = config.Prefix
+  }
+  if config.SingleFeatureMixturePrefix == "" {
+    config.SingleFeatureMixturePrefix = config.Prefix
+  }
+  if config.MultiFeaturePrefix == "" {
+    config.MultiFeaturePrefix = config.Prefix
+  }
+  config.SingleFeatureData   .CompletePaths(config.SingleFeaturePrefix, ".bw")
+  config.SingleFeatureJson   .CompletePaths(config.SingleFeatureMixturePrefix, ".json")
+  config.SingleFeatureComp   .CompletePaths(config.SingleFeatureMixturePrefix, ".components.json")
+  config.SingleFeatureFg     .CompletePaths(config.SingleFeaturePrefix, ".fg.bw")
+  config.SingleFeatureBg     .CompletePaths(config.SingleFeaturePrefix, ".bg.bw")
+  config.MultiFeatureClass   .CompletePaths(config.MultiFeaturePrefix, ".bw")
+  config.MultiFeatureClassExp.CompletePaths(config.MultiFeaturePrefix, ".exp.bw")
 }
 
 /* -------------------------------------------------------------------------- */
 
-func (config ConfigFeaturePaths) String() string {
+func (config ConfigSingleFeaturePaths) String() string {
   var buffer bytes.Buffer
 
   fmt.Fprintf(&buffer, " -> ATAC                 : %v\n", config.atac)
@@ -135,6 +170,23 @@ func (config ConfigFeaturePaths) String() string {
   fmt.Fprintf(&buffer, " -> H3K4me3              : %v\n", config.h3k4me3)
   fmt.Fprintf(&buffer, " -> H3K4me3o1            : %v\n", config.h3k4me3o1)
   fmt.Fprintf(&buffer, " -> Control              : %v\n", config.control)
+
+  return buffer.String()
+}
+
+func (config ConfigMultiFeaturePaths) String() string {
+  var buffer bytes.Buffer
+
+  fmt.Fprintf(&buffer, " -> PA                   : %v\n", config.PA)
+  fmt.Fprintf(&buffer, " -> PB                   : %v\n", config.PB)
+  fmt.Fprintf(&buffer, " -> EA                   : %v\n", config.EA)
+  fmt.Fprintf(&buffer, " -> EP                   : %v\n", config.EP)
+  fmt.Fprintf(&buffer, " -> TR                   : %v\n", config.TR)
+  fmt.Fprintf(&buffer, " -> TL                   : %v\n", config.TL)
+  fmt.Fprintf(&buffer, " -> R1                   : %v\n", config.R1)
+  fmt.Fprintf(&buffer, " -> R2                   : %v\n", config.R2)
+  fmt.Fprintf(&buffer, " -> CL                   : %v\n", config.CL)
+  fmt.Fprintf(&buffer, " -> NS                   : %v\n", config.NS)
 
   return buffer.String()
 }
@@ -153,8 +205,15 @@ func (config ConfigModHmm) String() string {
   fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureFg.String())
   fmt.Fprintf(&buffer, "Single-feature background classifications:\n")
   fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureBg.String())
+  fmt.Fprintf(&buffer, "Multi-feature classifications (log-scale):\n")
+  fmt.Fprintf(&buffer, "%v\n", config.MultiFeatureClass.String())
+  fmt.Fprintf(&buffer, "Multi-feature classifications:\n")
+  fmt.Fprintf(&buffer, "%v\n", config.MultiFeatureClassExp.String())
   fmt.Fprintf(&buffer, "ModHmm options:\n")
-  fmt.Fprintf(&buffer, " -> Single Feature Prefix: %v\n", config.SingleFeaturePrefix)
+  fmt.Fprintf(&buffer, " -> Single Feature Prefix        : %v\n", config.Prefix)
+  fmt.Fprintf(&buffer, " -> Single Feature Prefix        : %v\n", config.SingleFeaturePrefix)
+  fmt.Fprintf(&buffer, " -> Single Feature Mixture Prefix: %v\n", config.SingleFeaturePrefix)
+  fmt.Fprintf(&buffer, " ->  Multi Feature Prefix        : %v\n", config. MultiFeaturePrefix)
 
   return buffer.String()
 }
