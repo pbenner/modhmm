@@ -48,6 +48,8 @@ type ConfigSingleFeaturePaths struct {
   h3k4me1    string `json:"H3K4me1"`
   h3k4me3    string `json:"H3K4me3"`
   h3k4me3o1  string `json:"H3K4me3o1"`
+  rna        string `json:"RNA"`
+  rnaLow     string `json:"RNA low"`
   control    string `json:"Control"`
 }
 
@@ -59,6 +61,8 @@ func (config *ConfigSingleFeaturePaths) CompletePaths(prefix, suffix string) {
   config.h3k4me1   = completePath(prefix, config.h3k4me1,   fmt.Sprintf("h3k4me1%s", suffix))
   config.h3k4me3   = completePath(prefix, config.h3k4me3,   fmt.Sprintf("h3k4me3%s", suffix))
   config.h3k4me3o1 = completePath(prefix, config.h3k4me3o1, fmt.Sprintf("h3k4me3o1%s", suffix))
+  config.rna       = completePath(prefix, config.rna,       fmt.Sprintf("rna%s", suffix))
+  config.rnaLow    = completePath(prefix, config.rnaLow,    fmt.Sprintf("rna-low%s", suffix))
   config.control   = completePath(prefix, config.control,   fmt.Sprintf("control%s", suffix))
 }
 
@@ -169,6 +173,8 @@ func (config ConfigSingleFeaturePaths) String() string {
   fmt.Fprintf(&buffer, " -> H3K4me1              : %v\n", config.h3k4me1)
   fmt.Fprintf(&buffer, " -> H3K4me3              : %v\n", config.h3k4me3)
   fmt.Fprintf(&buffer, " -> H3K4me3o1            : %v\n", config.h3k4me3o1)
+  fmt.Fprintf(&buffer, " -> RNA                  : %v\n", config.rna)
+  fmt.Fprintf(&buffer, " -> RNA (low)            : %v\n", config.rnaLow)
   fmt.Fprintf(&buffer, " -> Control              : %v\n", config.control)
 
   return buffer.String()

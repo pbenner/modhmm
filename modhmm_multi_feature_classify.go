@@ -71,6 +71,10 @@ func modhmm_multi_feature_classify(config ConfigModHmm, state string) {
     config.SingleFeatureBg.h3k4me3,
     config.SingleFeatureFg.h3k4me3o1,
     config.SingleFeatureBg.h3k4me3o1,
+    config.SingleFeatureFg.rna,
+    config.SingleFeatureBg.rna,
+    config.SingleFeatureFg.rnaLow,
+    config.SingleFeatureBg.rnaLow,
     config.SingleFeatureFg.control,
     config.SingleFeatureBg.control }
 
@@ -88,6 +92,22 @@ func modhmm_multi_feature_classify(config ConfigModHmm, state string) {
     filenameResult1 = config.MultiFeatureClass.PB
     filenameResult1 = config.MultiFeatureClassExp.PB
     classifier = ClassifierPB{}
+  case "ea":
+    filenameResult1 = config.MultiFeatureClass.EA
+    filenameResult1 = config.MultiFeatureClassExp.EA
+    classifier = ClassifierEA{}
+  case "ep":
+    filenameResult1 = config.MultiFeatureClass.EP
+    filenameResult1 = config.MultiFeatureClassExp.EP
+    classifier = ClassifierEP{}
+  case "tr":
+    filenameResult1 = config.MultiFeatureClass.TR
+    filenameResult1 = config.MultiFeatureClassExp.TR
+    classifier = ClassifierTR{}
+  case "tl":
+    filenameResult1 = config.MultiFeatureClass.TL
+    filenameResult1 = config.MultiFeatureClassExp.TL
+    classifier = ClassifierTL{}
   default:
     log.Fatal("unknown state: %s", state)
   }
