@@ -83,6 +83,8 @@ func main() {
     modhmm_single_feature_estimate_main(config, options.Args())
   case "classify-single-feature":
     modhmm_single_feature_classify_main(config, options.Args())
+  case "classify-multi-feature":
+    modhmm_multi_feature_classify_main(config, options.Args())
   default:
     options.PrintUsage(os.Stderr)
     os.Exit(1)

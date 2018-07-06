@@ -125,7 +125,7 @@ func modhmm_multi_feature_classify(config ConfigModHmm, state string) {
     filenameResult1 = config.MultiFeatureClassExp.CL
     classifier = ClassifierCL{}
   default:
-    log.Fatal("unknown state: %s", state)
+    log.Fatalf("unknown state: %s", state)
   }
 
   multi_feature_classify(localConfig, classifier, trackFiles, filenameResult1, filenameResult2)
@@ -154,5 +154,5 @@ func modhmm_multi_feature_classify_main(config ConfigModHmm, args []string) {
     os.Exit(1)
   }
 
-  modhmm_single_feature_classify(config, options.Args()[0])
+  modhmm_multi_feature_classify(config, options.Args()[0])
 }

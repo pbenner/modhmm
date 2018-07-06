@@ -163,7 +163,7 @@ func modhmm_single_feature_estimate(config ConfigModHmm, feature string, n []int
     filenameIn  = config.SingleFeatureData.control
     filenameOut = config.SingleFeatureJson.control
   default:
-    log.Fatal("unknown feature: %s", feature)
+    log.Fatalf("unknown feature: %s", feature)
   }
 
   if  discrete && len(n) != 3 {

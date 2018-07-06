@@ -184,7 +184,7 @@ func modhmm_single_feature_classify(config ConfigModHmm, feature string) {
     filenameResult1 = config.SingleFeatureFg.control
     filenameResult2 = config.SingleFeatureBg.control
   default:
-    log.Fatal("unknown feature: %s", feature)
+    log.Fatalf("unknown feature: %s", feature)
   }
 
   single_feature_classify(localConfig, filenameModel, filenameComp, filenameData, filenameResult1, filenameResult2)
