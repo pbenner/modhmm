@@ -31,7 +31,7 @@ import . "github.com/pbenner/autodiff/logarithmetic"
 const jAtac      =  0
 const jH3k27ac   =  2
 const jH3k27me3  =  4
-const jH3k9me1   =  6
+const jH3k9me3   =  6
 const jH3k4me1   =  8
 const jH3k4me3   = 10
 const jH3k4me3o1 = 12
@@ -317,4 +317,135 @@ func (ClassifierTL) Dims() (int, int) {
 
 func (ClassifierTL) CloneMatrixBatchClassifier() MatrixBatchClassifier {
   return ClassifierTL{}
+}
+
+/* -------------------------------------------------------------------------- */
+
+type ClassifierR1 struct {
+  BasicClassifier
+}
+
+func (obj ClassifierR1) Eval(s Scalar, x ConstMatrix) error {
+  r := 0.0
+  { // h3k27me3 peak at any position
+    r += obj.PeakAny(x, jH3k27me3)
+  }
+  { // no h3k4me1 peak at all positions
+    r += obj.NoPeakAll(x, jH3k4me1)
+  }
+  { // no h3k4me3 peak at all positions
+    r += obj.NoPeakAll(x, jH3k4me3)
+  }
+  { // no control peak at all positions
+    r += obj.NoPeakAll(x, jControl)
+  }
+  s.SetValue(r)
+  return nil
+}
+
+func (ClassifierR1) Dims() (int, int) {
+  return 20, 1
+}
+
+func (ClassifierR1) CloneMatrixBatchClassifier() MatrixBatchClassifier {
+  return ClassifierR1{}
+}
+
+/* -------------------------------------------------------------------------- */
+
+type ClassifierR2 struct {
+  BasicClassifier
+}
+
+func (obj ClassifierR2) Eval(s Scalar, x ConstMatrix) error {
+  r := 0.0
+  { // h3k9me3 peak at any position
+    r += obj.PeakAny(x, jH3k9me3)
+  }
+  { // no h3k4me1 peak at all positions
+    r += obj.NoPeakAll(x, jH3k4me1)
+  }
+  { // no h3k4me3 peak at all positions
+    r += obj.NoPeakAll(x, jH3k4me3)
+  }
+  { // no control peak at all positions
+    r += obj.NoPeakAll(x, jControl)
+  }
+  s.SetValue(r)
+  return nil
+}
+
+func (ClassifierR2) Dims() (int, int) {
+  return 20, 1
+}
+
+func (ClassifierR2) CloneMatrixBatchClassifier() MatrixBatchClassifier {
+  return ClassifierR2{}
+}
+
+/* -------------------------------------------------------------------------- */
+
+type ClassifierNS struct {
+  BasicClassifier
+}
+
+func (obj ClassifierNS) Eval(s Scalar, x ConstMatrix) error {
+  r := 0.0
+  { // no atac peak at any position
+    r += obj.NoPeakAll(x, jAtac)
+  }
+  { // no h3k27ac peak at any position
+    r += obj.NoPeakAll(x, jH3k27ac)
+  }
+  { // no h3k27me3 peak at any position
+    r += obj.NoPeakAll(x, jH3k27me3)
+  }
+  { // no h3k9me3 peak at any position
+    r += obj.NoPeakAll(x, jH3k9me3)
+  }
+  { // no h3k4me1 peak at all positions
+    r += obj.NoPeakAll(x, jH3k4me1)
+  }
+  { // no h3k4me3 peak at all positions
+    r += obj.NoPeakAll(x, jH3k4me3)
+  }
+  { // no rna peak at all positions
+    r += obj.NoPeakAll(x, jRna)
+  }
+  { // no control peak at all positions
+    r += obj.NoPeakAll(x, jControl)
+  }
+  s.SetValue(r)
+  return nil
+}
+
+func (ClassifierNS) Dims() (int, int) {
+  return 20, 1
+}
+
+func (ClassifierNS) CloneMatrixBatchClassifier() MatrixBatchClassifier {
+  return ClassifierNS{}
+}
+
+/* -------------------------------------------------------------------------- */
+
+type ClassifierCL struct {
+  BasicClassifier
+}
+
+func (obj ClassifierCL) Eval(s Scalar, x ConstMatrix) error {
+  r := 0.0
+  { // control peak at any position
+    r += obj.PeakAny(x, jControl)
+  }
+  s.SetValue(r)
+  return nil
+}
+
+func (ClassifierCL) Dims() (int, int) {
+  return 20, 1
+}
+
+func (ClassifierCL) CloneMatrixBatchClassifier() MatrixBatchClassifier {
+  return ClassifierCL{}
 }
