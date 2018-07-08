@@ -40,6 +40,19 @@ func completePath(prefix, mypath, def string) string {
 
 /* -------------------------------------------------------------------------- */
 
+type ConfigBam struct {
+  atac       []string `json:"ATAC"`
+  h3k27ac    []string `json:"H3K27ac"`
+  h3k27me3   []string `json:"H3K27me3"`
+  h3k9me3    []string `json:"H3K27me3"`
+  h3k4me1    []string `json:"H3K4me1"`
+  h3k4me3    []string `json:"H3K4me3"`
+  rna        []string `json:"RNA"`
+  control    []string `json:"Control"`
+}
+
+/* -------------------------------------------------------------------------- */
+
 type ConfigSingleFeaturePaths struct {
   atac       string `json:"ATAC"`
   h3k27ac    string `json:"H3K27ac"`
@@ -98,6 +111,7 @@ func (config *ConfigMultiFeaturePaths) CompletePaths(prefix, suffix string) {
 
 type ConfigModHmm struct {
   SessionConfig
+  SingleFeatureBam     ConfigBam
   SingleFeatureData    ConfigSingleFeaturePaths
   SingleFeatureJson    ConfigSingleFeaturePaths
   SingleFeatureComp    ConfigSingleFeaturePaths
@@ -164,6 +178,20 @@ func (config *ConfigModHmm) CompletePaths() {
 
 /* -------------------------------------------------------------------------- */
 
+func (config ConfigBam) String() string {
+  var buffer bytes.Buffer
+
+  fmt.Fprintf(&buffer, " -> ATAC                 : %v\n", config.atac)
+  fmt.Fprintf(&buffer, " -> H3K27ac              : %v\n", config.h3k27ac)
+  fmt.Fprintf(&buffer, " -> H3K27me3             : %v\n", config.h3k27me3)
+  fmt.Fprintf(&buffer, " -> H3K4me1              : %v\n", config.h3k4me1)
+  fmt.Fprintf(&buffer, " -> H3K4me3              : %v\n", config.h3k4me3)
+  fmt.Fprintf(&buffer, " -> RNA                  : %v\n", config.rna)
+  fmt.Fprintf(&buffer, " -> Control              : %v\n", config.control)
+
+  return buffer.String()
+}
+
 func (config ConfigSingleFeaturePaths) String() string {
   var buffer bytes.Buffer
 
@@ -201,7 +229,9 @@ func (config ConfigModHmm) String() string {
   var buffer bytes.Buffer
 
   fmt.Fprintf(&buffer, "%v\n", config.SessionConfig.String())
-  fmt.Fprintf(&buffer, "Input data bigWig files:\n")
+  fmt.Fprintf(&buffer, "Alignment files (BAM):\n")
+  fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureBam.String())
+  fmt.Fprintf(&buffer, "Coverage files (bigWig:\n")
   fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureData.String())
   fmt.Fprintf(&buffer, "Single-feature mixture distributions:\n")
   fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureJson.String())

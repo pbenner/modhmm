@@ -177,6 +177,18 @@ func modhmm_single_feature_classify(config ConfigModHmm, feature string) {
     filenameResult1 = config.SingleFeatureFg.h3k4me3o1
     filenameResult2 = config.SingleFeatureBg.h3k4me3o1
     localConfig.BinSummaryStatistics = "mean"
+  case "rna":
+    filenameData    = config.SingleFeatureData.rna
+    filenameModel   = config.SingleFeatureJson.rna
+    filenameComp    = config.SingleFeatureComp.rna
+    filenameResult1 = config.SingleFeatureFg.rna
+    filenameResult2 = config.SingleFeatureBg.rna
+  case "rnaLow":
+    filenameData    = config.SingleFeatureData.rnaLow
+    filenameModel   = config.SingleFeatureJson.rnaLow
+    filenameComp    = config.SingleFeatureComp.rnaLow
+    filenameResult1 = config.SingleFeatureFg.rnaLow
+    filenameResult2 = config.SingleFeatureBg.rnaLow
   case "control":
     filenameData    = config.SingleFeatureData.control
     filenameModel   = config.SingleFeatureJson.control

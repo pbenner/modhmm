@@ -37,9 +37,11 @@ func main() {
 
   options.SetParameters("<COMMAND>\n\n" +
     " Commands:\n" +
+    "     single-feature-coverage         - compute a coverage from bam files\n" +
     "     estimate-single-feature-mixture - estimate mixture distribution for single\n" +
     "                                       feature enrichment analysis\n" +
-    "     classify-single-feature         - call enriched regions in single feature data\n")
+    "     classify-single-feature         - call enriched regions in single feature data\n" +
+    "     classify-multi-feature          - execute multi-feature classifier\n")
   options.Parse(os.Args)
 
   config := DefaultModHmmConfig()
@@ -79,6 +81,8 @@ func main() {
   printStderr(config, 1, "%v\n", config)
 
   switch command {
+  case "single-feature-coverage":
+    modhmm_single_feature_coverage(config, options.Args())
   case "estimate-single-feature-mixture":
     modhmm_single_feature_estimate_main(config, options.Args())
   case "classify-single-feature":
