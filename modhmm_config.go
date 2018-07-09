@@ -111,8 +111,11 @@ func (config *ConfigMultiFeaturePaths) CompletePaths(prefix, suffix string) {
 
 type ConfigModHmm struct {
   SessionConfig
-  SingleFeatureBam           ConfigBam
+  SingleFeatureBamDir        string                   `json:"Bam Directory"`
+  SingleFeatureBam           ConfigBam                `json:"Bam Files"`
+  SingleFeatureDataDir       string                   `json:"Coverage Directory"`
   SingleFeatureData          ConfigSingleFeaturePaths
+  SingleFeatureJsonDir       string                   `json:"Model Directory"`
   SingleFeatureJson          ConfigSingleFeaturePaths
   SingleFeatureComp          ConfigSingleFeaturePaths
   SingleFeatureFg            ConfigSingleFeaturePaths
@@ -120,9 +123,6 @@ type ConfigModHmm struct {
   MultiFeatureClass          ConfigMultiFeaturePaths
   MultiFeatureClassExp       ConfigMultiFeaturePaths
   Prefix                     string                    `json:"Prefix"`
-  SingleFeaturePrefix        string                    `json:"Single Feature Prefix"`
-  SingleFeatureMixturePrefix string                    `json:"Single Feature Mixture Prefix"`
-  MultiFeaturePrefix         string                    `json:"Multi Feature Prefix"`
   Model                      string                    `json:"ModHmm Model File"`
   Segmentation               string                    `json:"Genome Segmentation File"`
   Description                string
@@ -161,14 +161,14 @@ func (config *ConfigModHmm) CompletePaths() {
   if config.Prefix == "" {
     config.Prefix = "."
   }
-  if config.SingleFeaturePrefix == "" {
-    config.SingleFeaturePrefix = config.Prefix
+  if config.SingleFeatureBamDir == "" {
+    config.SingleFeatureBamDir = config.Prefix
   }
-  if config.SingleFeatureMixturePrefix == "" {
-    config.SingleFeatureMixturePrefix = config.Prefix
+  if config.SingleFeatureDataDir == "" {
+    config.SingleFeatureDataDir = config.Prefix
   }
-  if config.MultiFeaturePrefix == "" {
-    config.MultiFeaturePrefix = config.Prefix
+  if config.SingleFeatureJsonDir == "" {
+    config.SingleFeatureJsonDir = config.Prefix
   }
   if config.Model == "" {
     config.Model = completePath(config.Prefix, config.Model, "segmentation.json")
@@ -176,13 +176,13 @@ func (config *ConfigModHmm) CompletePaths() {
   if config.Segmentation == "" {
     config.Segmentation = completePath(config.Prefix, config.Segmentation, "segmentation.bed.gz")
   }
-  config.SingleFeatureData   .CompletePaths(config.SingleFeaturePrefix, ".bw")
-  config.SingleFeatureJson   .CompletePaths(config.SingleFeatureMixturePrefix, ".json")
-  config.SingleFeatureComp   .CompletePaths(config.SingleFeatureMixturePrefix, ".components.json")
-  config.SingleFeatureFg     .CompletePaths(config.SingleFeaturePrefix, ".fg.bw")
-  config.SingleFeatureBg     .CompletePaths(config.SingleFeaturePrefix, ".bg.bw")
-  config.MultiFeatureClass   .CompletePaths(config.MultiFeaturePrefix, ".bw")
-  config.MultiFeatureClassExp.CompletePaths(config.MultiFeaturePrefix, ".exp.bw")
+  config.SingleFeatureData   .CompletePaths(config.SingleFeatureDataDir, ".bw")
+  config.SingleFeatureJson   .CompletePaths(config.SingleFeatureJsonDir, ".json")
+  config.SingleFeatureComp   .CompletePaths(config.SingleFeatureJsonDir, ".components.json")
+  config.SingleFeatureFg     .CompletePaths(config.Prefix, ".fg.bw")
+  config.SingleFeatureBg     .CompletePaths(config.Prefix, ".bg.bw")
+  config.MultiFeatureClass   .CompletePaths(config.Prefix, ".bw")
+  config.MultiFeatureClassExp.CompletePaths(config.Prefix, ".exp.bw")
 }
 
 /* -------------------------------------------------------------------------- */
@@ -240,7 +240,7 @@ func (config ConfigModHmm) String() string {
   fmt.Fprintf(&buffer, "%v\n", config.SessionConfig.String())
   fmt.Fprintf(&buffer, "Alignment files (BAM):\n")
   fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureBam.String())
-  fmt.Fprintf(&buffer, "Coverage files (bigWig:\n")
+  fmt.Fprintf(&buffer, "Coverage files (bigWig):\n")
   fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureData.String())
   fmt.Fprintf(&buffer, "Single-feature mixture distributions:\n")
   fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureJson.String())
@@ -255,10 +255,6 @@ func (config ConfigModHmm) String() string {
   fmt.Fprintf(&buffer, "Multi-feature classifications:\n")
   fmt.Fprintf(&buffer, "%v\n", config.MultiFeatureClassExp.String())
   fmt.Fprintf(&buffer, "ModHmm options:\n")
-  fmt.Fprintf(&buffer, " -> Single Feature Prefix        : %v\n", config.Prefix)
-  fmt.Fprintf(&buffer, " -> Single Feature Prefix        : %v\n", config.SingleFeaturePrefix)
-  fmt.Fprintf(&buffer, " -> Single Feature Mixture Prefix: %v\n", config.SingleFeaturePrefix)
-  fmt.Fprintf(&buffer, " ->  Multi Feature Prefix        : %v\n", config. MultiFeaturePrefix)
   fmt.Fprintf(&buffer, " ->  ModHMM Model File           : %v\n", config.Model)
   fmt.Fprintf(&buffer, " ->  Genome Segmentation File    : %v\n", config.Segmentation)
   fmt.Fprintf(&buffer, " ->  Description                 : %v\n", config.Description)
