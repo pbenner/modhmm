@@ -308,13 +308,16 @@ func modhmm_single_feature_coverage(config ConfigModHmm, feature string) {
 
 func modhmm_single_feature_coverage_all(config ConfigModHmm) {
   pool := threadpool.New(config.ThreadsCoverage, 10)
-  for _, feature := range []string{"atac", "h3k27ac", "h3k27me3", "h3k4me1", "h3k4me3", "h3k4me3o1", "rna", "control"} {
+  for _, feature := range []string{"atac", "h3k27ac", "h3k27me3", "h3k4me1", "h3k4me3", "rna", "control"} {
+    f := feature
     pool.AddJob(0, func(pool threadpool.ThreadPool, erf func() error) error {
-      modhmm_single_feature_coverage(config, feature)
+      modhmm_single_feature_coverage(config, f)
       return nil
     })
   }
   pool.Wait(0)
+
+  modhmm_single_feature_coverage(config, "h3k4me3o1")
 }
 
 /* -------------------------------------------------------------------------- */

@@ -90,7 +90,7 @@ func single_feature_classify(config ConfigModHmm, filenameModel, filenameComp, f
   mixture := &scalarDistribution.Mixture{}
 
   if err := ImportDistribution(filenameModel, mixture, BareRealType); err != nil {
-    panic(err)
+    log.Fatal(err)
   }
 
   k := ImportComponents(config, filenameComp)
