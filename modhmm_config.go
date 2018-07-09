@@ -41,42 +41,69 @@ func completePath(prefix, mypath, def string) string {
 /* -------------------------------------------------------------------------- */
 
 type ConfigBam struct {
-  atac       []string `json:"ATAC"`
-  h3k27ac    []string `json:"H3K27ac"`
-  h3k27me3   []string `json:"H3K27me3"`
-  h3k9me3    []string `json:"H3K27me3"`
-  h3k4me1    []string `json:"H3K4me1"`
-  h3k4me3    []string `json:"H3K4me3"`
-  rna        []string `json:"RNA"`
-  control    []string `json:"Control"`
+  Atac       []string `json:"ATAC"`
+  H3k27ac    []string `json:"H3K27ac"`
+  H3k27me3   []string `json:"H3K27me3"`
+  H3k9me3    []string `json:"H3K9me3"`
+  H3k4me1    []string `json:"H3K4me1"`
+  H3k4me3    []string `json:"H3K4me3"`
+  Rna        []string `json:"RNA"`
+  Control    []string `json:"Control"`
+}
+
+func (config *ConfigBam) CompletePaths(prefix, suffix string) {
+  for i, _ := range config.Atac {
+    config.Atac[i]      = completePath(prefix, config.Atac[i],     "")
+  }
+  for i, _ := range config.H3k27ac {
+    config.H3k27ac[i]   = completePath(prefix, config.H3k27ac[i],  "")
+  }
+  for i, _ := range config.H3k27me3 {
+    config.H3k27me3[i]  = completePath(prefix, config.H3k27me3[i], "")
+  }
+  for i, _ := range config.H3k9me3 {
+    config.H3k9me3[i]   = completePath(prefix, config.H3k9me3[i],  "")
+  }
+  for i, _ := range config.H3k4me1 {
+    config.H3k4me1[i]   = completePath(prefix, config.H3k4me1[i],  "")
+  }
+  for i, _ := range config.H3k4me3 {
+    config.H3k4me3[i]   = completePath(prefix, config.H3k4me3[i],  "")
+  }
+  for i, _ := range config.Rna {
+    config.Rna[i]       = completePath(prefix, config.Rna[i],      "")
+  }
+  for i, _ := range config.Control {
+    config.Control[i]   = completePath(prefix, config.Control[i],  "")
+  }
 }
 
 /* -------------------------------------------------------------------------- */
 
 type ConfigSingleFeaturePaths struct {
-  atac       string `json:"ATAC"`
-  h3k27ac    string `json:"H3K27ac"`
-  h3k27me3   string `json:"H3K27me3"`
-  h3k9me3    string `json:"H3K27me3"`
-  h3k4me1    string `json:"H3K4me1"`
-  h3k4me3    string `json:"H3K4me3"`
-  h3k4me3o1  string `json:"H3K4me3o1"`
-  rna        string `json:"RNA"`
-  rnaLow     string `json:"RNA low"`
-  control    string `json:"Control"`
+  Atac       string `json:"ATAC"`
+  H3k27ac    string `json:"H3K27ac"`
+  H3k27me3   string `json:"H3K27me3"`
+  H3k9me3    string `json:"H3K27me3"`
+  H3k4me1    string `json:"H3K4me1"`
+  H3k4me3    string `json:"H3K4me3"`
+  H3k4me3o1  string `json:"H3K4me3o1"`
+  Rna        string `json:"RNA"`
+  RnaLow     string `json:"RNA low"`
+  Control    string `json:"Control"`
 }
 
 func (config *ConfigSingleFeaturePaths) CompletePaths(prefix, suffix string) {
-  config.atac      = completePath(prefix, config.atac,      fmt.Sprintf("atac%s", suffix))
-  config.h3k27ac   = completePath(prefix, config.h3k27ac,   fmt.Sprintf("h3k27ac%s", suffix))
-  config.h3k27me3  = completePath(prefix, config.h3k27me3,  fmt.Sprintf("h3k27me3%s", suffix))
-  config.h3k9me3   = completePath(prefix, config.h3k9me3,   fmt.Sprintf("h3k9me3%s", suffix))
-  config.h3k4me1   = completePath(prefix, config.h3k4me1,   fmt.Sprintf("h3k4me1%s", suffix))
-  config.h3k4me3   = completePath(prefix, config.h3k4me3,   fmt.Sprintf("h3k4me3%s", suffix))
-  config.h3k4me3o1 = completePath(prefix, config.h3k4me3o1, fmt.Sprintf("h3k4me3o1%s", suffix))
-  config.rna       = completePath(prefix, config.rna,       fmt.Sprintf("rna%s", suffix))
-  config.rnaLow    = completePath(prefix, config.rnaLow,    fmt.Sprintf("rna-low%s", suffix))
-  config.control   = completePath(prefix, config.control,   fmt.Sprintf("control%s", suffix))
+  config.Atac      = completePath(prefix, config.Atac,      fmt.Sprintf("atac%s", suffix))
+  config.H3k27ac   = completePath(prefix, config.H3k27ac,   fmt.Sprintf("h3k27ac%s", suffix))
+  config.H3k27me3  = completePath(prefix, config.H3k27me3,  fmt.Sprintf("h3k27me3%s", suffix))
+  config.H3k9me3   = completePath(prefix, config.H3k9me3,   fmt.Sprintf("h3k9me3%s", suffix))
+  config.H3k4me1   = completePath(prefix, config.H3k4me1,   fmt.Sprintf("h3k4me1%s", suffix))
+  config.H3k4me3   = completePath(prefix, config.H3k4me3,   fmt.Sprintf("h3k4me3%s", suffix))
+  config.H3k4me3o1 = completePath(prefix, config.H3k4me3o1, fmt.Sprintf("h3k4me3o1%s", suffix))
+  config.Rna       = completePath(prefix, config.Rna,       fmt.Sprintf("rna%s", suffix))
+  config.RnaLow    = completePath(prefix, config.RnaLow,    fmt.Sprintf("rna-low%s", suffix))
+  config.Control   = completePath(prefix, config.Control,   fmt.Sprintf("control%s", suffix))
 }
 
 /* -------------------------------------------------------------------------- */
@@ -176,6 +203,7 @@ func (config *ConfigModHmm) CompletePaths() {
   if config.Segmentation == "" {
     config.Segmentation = completePath(config.Prefix, config.Segmentation, "segmentation.bed.gz")
   }
+  config.SingleFeatureBam    .CompletePaths(config.SingleFeatureBamDir, "")
   config.SingleFeatureData   .CompletePaths(config.SingleFeatureDataDir, ".bw")
   config.SingleFeatureJson   .CompletePaths(config.SingleFeatureJsonDir, ".json")
   config.SingleFeatureComp   .CompletePaths(config.SingleFeatureJsonDir, ".components.json")
@@ -190,13 +218,13 @@ func (config *ConfigModHmm) CompletePaths() {
 func (config ConfigBam) String() string {
   var buffer bytes.Buffer
 
-  fmt.Fprintf(&buffer, " -> ATAC                 : %v\n", config.atac)
-  fmt.Fprintf(&buffer, " -> H3K27ac              : %v\n", config.h3k27ac)
-  fmt.Fprintf(&buffer, " -> H3K27me3             : %v\n", config.h3k27me3)
-  fmt.Fprintf(&buffer, " -> H3K4me1              : %v\n", config.h3k4me1)
-  fmt.Fprintf(&buffer, " -> H3K4me3              : %v\n", config.h3k4me3)
-  fmt.Fprintf(&buffer, " -> RNA                  : %v\n", config.rna)
-  fmt.Fprintf(&buffer, " -> Control              : %v\n", config.control)
+  fmt.Fprintf(&buffer, " -> ATAC                 : %v\n", config.Atac)
+  fmt.Fprintf(&buffer, " -> H3K27ac              : %v\n", config.H3k27ac)
+  fmt.Fprintf(&buffer, " -> H3K27me3             : %v\n", config.H3k27me3)
+  fmt.Fprintf(&buffer, " -> H3K4me1              : %v\n", config.H3k4me1)
+  fmt.Fprintf(&buffer, " -> H3K4me3              : %v\n", config.H3k4me3)
+  fmt.Fprintf(&buffer, " -> RNA                  : %v\n", config.Rna)
+  fmt.Fprintf(&buffer, " -> Control              : %v\n", config.Control)
 
   return buffer.String()
 }
@@ -204,15 +232,15 @@ func (config ConfigBam) String() string {
 func (config ConfigSingleFeaturePaths) String() string {
   var buffer bytes.Buffer
 
-  fmt.Fprintf(&buffer, " -> ATAC                 : %v\n", config.atac)
-  fmt.Fprintf(&buffer, " -> H3K27ac              : %v\n", config.h3k27ac)
-  fmt.Fprintf(&buffer, " -> H3K27me3             : %v\n", config.h3k27me3)
-  fmt.Fprintf(&buffer, " -> H3K4me1              : %v\n", config.h3k4me1)
-  fmt.Fprintf(&buffer, " -> H3K4me3              : %v\n", config.h3k4me3)
-  fmt.Fprintf(&buffer, " -> H3K4me3o1            : %v\n", config.h3k4me3o1)
-  fmt.Fprintf(&buffer, " -> RNA                  : %v\n", config.rna)
-  fmt.Fprintf(&buffer, " -> RNA (low)            : %v\n", config.rnaLow)
-  fmt.Fprintf(&buffer, " -> Control              : %v\n", config.control)
+  fmt.Fprintf(&buffer, " -> ATAC                 : %v\n", config.Atac)
+  fmt.Fprintf(&buffer, " -> H3K27ac              : %v\n", config.H3k27ac)
+  fmt.Fprintf(&buffer, " -> H3K27me3             : %v\n", config.H3k27me3)
+  fmt.Fprintf(&buffer, " -> H3K4me1              : %v\n", config.H3k4me1)
+  fmt.Fprintf(&buffer, " -> H3K4me3              : %v\n", config.H3k4me3)
+  fmt.Fprintf(&buffer, " -> H3K4me3o1            : %v\n", config.H3k4me3o1)
+  fmt.Fprintf(&buffer, " -> RNA                  : %v\n", config.Rna)
+  fmt.Fprintf(&buffer, " -> RNA (low)            : %v\n", config.RnaLow)
+  fmt.Fprintf(&buffer, " -> Control              : %v\n", config.Control)
 
   return buffer.String()
 }

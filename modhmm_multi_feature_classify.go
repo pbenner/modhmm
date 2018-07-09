@@ -68,26 +68,26 @@ func modhmm_multi_feature_classify(config ConfigModHmm, state string, tracks []T
   localConfig.BinSummaryStatistics = "mean"
 
   trackFiles := []string{
-    config.SingleFeatureFg.atac,
-    config.SingleFeatureBg.atac,
-    config.SingleFeatureFg.h3k27ac,
-    config.SingleFeatureBg.h3k27ac,
-    config.SingleFeatureFg.h3k27me3,
-    config.SingleFeatureBg.h3k27me3,
-    config.SingleFeatureFg.h3k9me3,
-    config.SingleFeatureBg.h3k9me3,
-    config.SingleFeatureFg.h3k4me1,
-    config.SingleFeatureBg.h3k4me1,
-    config.SingleFeatureFg.h3k4me3,
-    config.SingleFeatureBg.h3k4me3,
-    config.SingleFeatureFg.h3k4me3o1,
-    config.SingleFeatureBg.h3k4me3o1,
-    config.SingleFeatureFg.rna,
-    config.SingleFeatureBg.rna,
-    config.SingleFeatureFg.rnaLow,
-    config.SingleFeatureBg.rnaLow,
-    config.SingleFeatureFg.control,
-    config.SingleFeatureBg.control }
+    config.SingleFeatureFg.Atac,
+    config.SingleFeatureBg.Atac,
+    config.SingleFeatureFg.H3k27ac,
+    config.SingleFeatureBg.H3k27ac,
+    config.SingleFeatureFg.H3k27me3,
+    config.SingleFeatureBg.H3k27me3,
+    config.SingleFeatureFg.H3k9me3,
+    config.SingleFeatureBg.H3k9me3,
+    config.SingleFeatureFg.H3k4me1,
+    config.SingleFeatureBg.H3k4me1,
+    config.SingleFeatureFg.H3k4me3,
+    config.SingleFeatureBg.H3k4me3,
+    config.SingleFeatureFg.H3k4me3o1,
+    config.SingleFeatureBg.H3k4me3o1,
+    config.SingleFeatureFg.Rna,
+    config.SingleFeatureBg.Rna,
+    config.SingleFeatureFg.RnaLow,
+    config.SingleFeatureBg.RnaLow,
+    config.SingleFeatureFg.Control,
+    config.SingleFeatureBg.Control }
 
   filenameResult1 := ""
   filenameResult2 := ""

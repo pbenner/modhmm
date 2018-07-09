@@ -138,30 +138,30 @@ func modhmm_single_feature_estimate(config ConfigModHmm, feature string, n []int
 
   switch strings.ToLower(feature) {
   case "atac":
-    filenameIn  = config.SingleFeatureData.atac
-    filenameOut = config.SingleFeatureJson.atac
+    filenameIn  = config.SingleFeatureData.Atac
+    filenameOut = config.SingleFeatureJson.Atac
   case "h3k27ac":
-    filenameIn  = config.SingleFeatureData.h3k27ac
-    filenameOut = config.SingleFeatureJson.h3k27ac
+    filenameIn  = config.SingleFeatureData.H3k27ac
+    filenameOut = config.SingleFeatureJson.H3k27ac
   case "h3k27me3":
-    filenameIn  = config.SingleFeatureData.h3k27me3
-    filenameOut = config.SingleFeatureJson.h3k27me3
+    filenameIn  = config.SingleFeatureData.H3k27me3
+    filenameOut = config.SingleFeatureJson.H3k27me3
   case "h3k9me3":
-    filenameIn  = config.SingleFeatureData.h3k9me3
-    filenameOut = config.SingleFeatureJson.h3k9me3
+    filenameIn  = config.SingleFeatureData.H3k9me3
+    filenameOut = config.SingleFeatureJson.H3k9me3
   case "h3k4me1":
-    filenameIn  = config.SingleFeatureData.h3k4me1
-    filenameOut = config.SingleFeatureJson.h3k4me1
+    filenameIn  = config.SingleFeatureData.H3k4me1
+    filenameOut = config.SingleFeatureJson.H3k4me1
   case "h3k4me3":
-    filenameIn  = config.SingleFeatureData.h3k4me3
-    filenameOut = config.SingleFeatureJson.h3k4me3
+    filenameIn  = config.SingleFeatureData.H3k4me3
+    filenameOut = config.SingleFeatureJson.H3k4me3
   case "h3k4me3o1":
-    filenameIn  = config.SingleFeatureData.h3k4me3o1
-    filenameOut = config.SingleFeatureJson.h3k4me3o1
+    filenameIn  = config.SingleFeatureData.H3k4me3o1
+    filenameOut = config.SingleFeatureJson.H3k4me3o1
     discrete    = false
   case "control":
-    filenameIn  = config.SingleFeatureData.control
-    filenameOut = config.SingleFeatureJson.control
+    filenameIn  = config.SingleFeatureData.Control
+    filenameOut = config.SingleFeatureJson.Control
   default:
     log.Fatalf("unknown feature: %s", feature)
   }

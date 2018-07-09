@@ -135,66 +135,66 @@ func modhmm_single_feature_classify(config ConfigModHmm, feature string) {
 
   switch strings.ToLower(feature) {
   case "atac":
-    filenameData    = config.SingleFeatureData.atac
-    filenameModel   = config.SingleFeatureJson.atac
-    filenameComp    = config.SingleFeatureComp.atac
-    filenameResult1 = config.SingleFeatureFg.atac
-    filenameResult2 = config.SingleFeatureBg.atac
+    filenameData    = config.SingleFeatureData.Atac
+    filenameModel   = config.SingleFeatureJson.Atac
+    filenameComp    = config.SingleFeatureComp.Atac
+    filenameResult1 = config.SingleFeatureFg.Atac
+    filenameResult2 = config.SingleFeatureBg.Atac
   case "h3k27ac":
-    filenameData    = config.SingleFeatureData.h3k27ac
-    filenameModel   = config.SingleFeatureJson.h3k27ac
-    filenameComp    = config.SingleFeatureComp.h3k27ac
-    filenameResult1 = config.SingleFeatureFg.h3k27ac
-    filenameResult2 = config.SingleFeatureBg.h3k27ac
+    filenameData    = config.SingleFeatureData.H3k27ac
+    filenameModel   = config.SingleFeatureJson.H3k27ac
+    filenameComp    = config.SingleFeatureComp.H3k27ac
+    filenameResult1 = config.SingleFeatureFg.H3k27ac
+    filenameResult2 = config.SingleFeatureBg.H3k27ac
   case "h3k27me3":
-    filenameData    = config.SingleFeatureData.h3k27me3
-    filenameModel   = config.SingleFeatureJson.h3k27me3
-    filenameComp    = config.SingleFeatureComp.h3k27me3
-    filenameResult1 = config.SingleFeatureFg.h3k27me3
-    filenameResult2 = config.SingleFeatureBg.h3k27me3
+    filenameData    = config.SingleFeatureData.H3k27me3
+    filenameModel   = config.SingleFeatureJson.H3k27me3
+    filenameComp    = config.SingleFeatureComp.H3k27me3
+    filenameResult1 = config.SingleFeatureFg.H3k27me3
+    filenameResult2 = config.SingleFeatureBg.H3k27me3
   case "h3k9me3":
-    filenameData    = config.SingleFeatureData.h3k9me3
-    filenameModel   = config.SingleFeatureJson.h3k9me3
-    filenameComp    = config.SingleFeatureComp.h3k9me3
-    filenameResult1 = config.SingleFeatureFg.h3k9me3
-    filenameResult2 = config.SingleFeatureBg.h3k9me3
+    filenameData    = config.SingleFeatureData.H3k9me3
+    filenameModel   = config.SingleFeatureJson.H3k9me3
+    filenameComp    = config.SingleFeatureComp.H3k9me3
+    filenameResult1 = config.SingleFeatureFg.H3k9me3
+    filenameResult2 = config.SingleFeatureBg.H3k9me3
   case "h3k4me1":
-    filenameData    = config.SingleFeatureData.h3k4me1
-    filenameModel   = config.SingleFeatureJson.h3k4me1
-    filenameComp    = config.SingleFeatureComp.h3k4me1
-    filenameResult1 = config.SingleFeatureFg.h3k4me1
-    filenameResult2 = config.SingleFeatureBg.h3k4me1
+    filenameData    = config.SingleFeatureData.H3k4me1
+    filenameModel   = config.SingleFeatureJson.H3k4me1
+    filenameComp    = config.SingleFeatureComp.H3k4me1
+    filenameResult1 = config.SingleFeatureFg.H3k4me1
+    filenameResult2 = config.SingleFeatureBg.H3k4me1
   case "h3k4me3":
-    filenameData    = config.SingleFeatureData.h3k4me3
-    filenameModel   = config.SingleFeatureJson.h3k4me3
-    filenameComp    = config.SingleFeatureComp.h3k4me3
-    filenameResult1 = config.SingleFeatureFg.h3k4me3
-    filenameResult2 = config.SingleFeatureBg.h3k4me3
+    filenameData    = config.SingleFeatureData.H3k4me3
+    filenameModel   = config.SingleFeatureJson.H3k4me3
+    filenameComp    = config.SingleFeatureComp.H3k4me3
+    filenameResult1 = config.SingleFeatureFg.H3k4me3
+    filenameResult2 = config.SingleFeatureBg.H3k4me3
   case "h3k4me3o1":
-    filenameData    = config.SingleFeatureData.h3k4me3o1
-    filenameModel   = config.SingleFeatureJson.h3k4me3o1
-    filenameComp    = config.SingleFeatureComp.h3k4me3o1
-    filenameResult1 = config.SingleFeatureFg.h3k4me3o1
-    filenameResult2 = config.SingleFeatureBg.h3k4me3o1
+    filenameData    = config.SingleFeatureData.H3k4me3o1
+    filenameModel   = config.SingleFeatureJson.H3k4me3o1
+    filenameComp    = config.SingleFeatureComp.H3k4me3o1
+    filenameResult1 = config.SingleFeatureFg.H3k4me3o1
+    filenameResult2 = config.SingleFeatureBg.H3k4me3o1
     localConfig.BinSummaryStatistics = "mean"
   case "rna":
-    filenameData    = config.SingleFeatureData.rna
-    filenameModel   = config.SingleFeatureJson.rna
-    filenameComp    = config.SingleFeatureComp.rna
-    filenameResult1 = config.SingleFeatureFg.rna
-    filenameResult2 = config.SingleFeatureBg.rna
+    filenameData    = config.SingleFeatureData.Rna
+    filenameModel   = config.SingleFeatureJson.Rna
+    filenameComp    = config.SingleFeatureComp.Rna
+    filenameResult1 = config.SingleFeatureFg.Rna
+    filenameResult2 = config.SingleFeatureBg.Rna
   case "rnaLow":
-    filenameData    = config.SingleFeatureData.rnaLow
-    filenameModel   = config.SingleFeatureJson.rnaLow
-    filenameComp    = config.SingleFeatureComp.rnaLow
-    filenameResult1 = config.SingleFeatureFg.rnaLow
-    filenameResult2 = config.SingleFeatureBg.rnaLow
+    filenameData    = config.SingleFeatureData.RnaLow
+    filenameModel   = config.SingleFeatureJson.RnaLow
+    filenameComp    = config.SingleFeatureComp.RnaLow
+    filenameResult1 = config.SingleFeatureFg.RnaLow
+    filenameResult2 = config.SingleFeatureBg.RnaLow
   case "control":
-    filenameData    = config.SingleFeatureData.control
-    filenameModel   = config.SingleFeatureJson.control
-    filenameComp    = config.SingleFeatureComp.control
-    filenameResult1 = config.SingleFeatureFg.control
-    filenameResult2 = config.SingleFeatureBg.control
+    filenameData    = config.SingleFeatureData.Control
+    filenameModel   = config.SingleFeatureJson.Control
+    filenameComp    = config.SingleFeatureComp.Control
+    filenameResult1 = config.SingleFeatureFg.Control
+    filenameResult2 = config.SingleFeatureBg.Control
   default:
     log.Fatalf("unknown feature: %s", feature)
   }

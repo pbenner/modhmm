@@ -164,10 +164,10 @@ func single_feature_coverage_h3k4me3o1(config ConfigModHmm) {
   configLocal := config
   configLocal.BinOverlap = 2
   configLocal.BinSummaryStatistics = "discrete mean"
-  track1, err := ImportTrack(configLocal.SessionConfig, config.SingleFeatureData.h3k4me1); if err != nil {
+  track1, err := ImportTrack(configLocal.SessionConfig, config.SingleFeatureData.H3k4me1); if err != nil {
     log.Fatal(err)
   }
-  track2, err := ImportTrack(configLocal.SessionConfig, config.SingleFeatureData.h3k4me3); if err != nil {
+  track2, err := ImportTrack(configLocal.SessionConfig, config.SingleFeatureData.H3k4me3); if err != nil {
     log.Fatal(err)
   }
   if err := (GenericMutableTrack{track1}).MapList([]Track{track1, track2}, func(seqname string, position int, values ...float64) float64 {
@@ -177,7 +177,7 @@ func single_feature_coverage_h3k4me3o1(config ConfigModHmm) {
   }); err != nil {
     log.Fatal(err)
   }
-  if err := ExportTrack(config.SessionConfig, track1, config.SingleFeatureData.h3k4me3o1); err != nil {
+  if err := ExportTrack(config.SessionConfig, track1, config.SingleFeatureData.H3k4me3o1); err != nil {
     log.Fatal(err)
   }
 }
@@ -238,46 +238,46 @@ func modhmm_single_feature_coverage(config ConfigModHmm, feature string) {
 
   switch strings.ToLower(feature) {
   case "atac":
-    filenameBam  = config.SingleFeatureBam.atac
-    filenameData = config.SingleFeatureData.atac
+    filenameBam  = config.SingleFeatureBam.Atac
+    filenameData = config.SingleFeatureData.Atac
     optionsList = append(optionsList, OptionPairedAsSingleEnd{true})
     optionsList = append(optionsList, OptionFilterChroms{[]string{"chrM","M"}})
   case "h3k27ac":
-    filenameBam  = config.SingleFeatureBam.h3k27ac
-    filenameData = config.SingleFeatureData.h3k27ac
+    filenameBam  = config.SingleFeatureBam.H3k27ac
+    filenameData = config.SingleFeatureData.H3k27ac
     optionsList = append(optionsList, OptionEstimateFraglen{true})
     optionsList = append(optionsList, OptionFraglenRange{[2]int{150,250}})
     optionsList = append(optionsList, OptionFraglenBinSize{10})
   case "h3k27me3":
-    filenameBam  = config.SingleFeatureBam.h3k27me3
-    filenameData = config.SingleFeatureData.h3k27me3
+    filenameBam  = config.SingleFeatureBam.H3k27me3
+    filenameData = config.SingleFeatureData.H3k27me3
     optionsList = append(optionsList, OptionEstimateFraglen{true})
     optionsList = append(optionsList, OptionFraglenRange{[2]int{150,250}})
     optionsList = append(optionsList, OptionFraglenBinSize{10})
   case "h3k9me3":
-    filenameBam  = config.SingleFeatureBam.h3k9me3
-    filenameData = config.SingleFeatureData.h3k9me3
+    filenameBam  = config.SingleFeatureBam.H3k9me3
+    filenameData = config.SingleFeatureData.H3k9me3
     optionsList = append(optionsList, OptionEstimateFraglen{true})
     optionsList = append(optionsList, OptionFraglenRange{[2]int{150,250}})
     optionsList = append(optionsList, OptionFraglenBinSize{10})
   case "h3k4me1":
-    filenameBam  = config.SingleFeatureBam.h3k4me1
-    filenameData = config.SingleFeatureData.h3k4me1
+    filenameBam  = config.SingleFeatureBam.H3k4me1
+    filenameData = config.SingleFeatureData.H3k4me1
     optionsList = append(optionsList, OptionEstimateFraglen{true})
     optionsList = append(optionsList, OptionFraglenRange{[2]int{150,250}})
     optionsList = append(optionsList, OptionFraglenBinSize{10})
   case "h3k4me3":
-    filenameBam  = config.SingleFeatureBam.h3k4me3
-    filenameData = config.SingleFeatureData.h3k4me3
+    filenameBam  = config.SingleFeatureBam.H3k4me3
+    filenameData = config.SingleFeatureData.H3k4me3
     optionsList = append(optionsList, OptionEstimateFraglen{true})
     optionsList = append(optionsList, OptionFraglenRange{[2]int{150,250}})
     optionsList = append(optionsList, OptionFraglenBinSize{10})
   case "rna":
-    filenameBam  = config.SingleFeatureBam.rna
-    filenameData = config.SingleFeatureData.rna
+    filenameBam  = config.SingleFeatureBam.Rna
+    filenameData = config.SingleFeatureData.Rna
   case "control":
-    filenameBam  = config.SingleFeatureBam.control
-    filenameData = config.SingleFeatureData.control
+    filenameBam  = config.SingleFeatureBam.Control
+    filenameData = config.SingleFeatureData.Control
     optionsList = append(optionsList, OptionEstimateFraglen{true})
     optionsList = append(optionsList, OptionFraglenRange{[2]int{150,250}})
     optionsList = append(optionsList, OptionFraglenBinSize{10})
