@@ -138,6 +138,7 @@ func (config *ConfigMultiFeaturePaths) CompletePaths(prefix, suffix string) {
 
 type ConfigModHmm struct {
   SessionConfig
+  ThreadsCoverage            int                      `json:"Threads Coverage"`
   SingleFeatureBamDir        string                   `json:"Bam Directory"`
   SingleFeatureBam           ConfigBam                `json:"Bam Files"`
   SingleFeatureDataDir       string                   `json:"Coverage Directory"`
@@ -180,6 +181,7 @@ func DefaultModHmmConfig() ConfigModHmm {
   config.BinSize              = 200
   config.BinSummaryStatistics = "mean"
   config.Threads              = 1
+  config.ThreadsCoverage      = 1
   config.Verbose              = 0
   return config
 }

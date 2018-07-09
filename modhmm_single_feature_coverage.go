@@ -30,6 +30,7 @@ import . "github.com/pbenner/ngstat/track"
 
 import   "github.com/pborman/getopt"
 import . "github.com/pbenner/gonetics"
+import   "github.com/pbenner/threadpool"
 
 import   "gonum.org/v1/plot"
 import   "gonum.org/v1/plot/plotter"
@@ -199,7 +200,7 @@ func single_feature_coverage(config ConfigModHmm, filenameBam []string, filename
   }
 
   //////////////////////////////////////////////////////////////////////////////
-  result, fraglenEstimate, _, err := BamCoverage(filenameData, filenameBam, nil, nil, nil, optionsList...)
+  result, fraglenEstimate, _, err := BamCoverage(filenameData, filenameBam, nil, fraglen, nil, optionsList...)
 
   // save fraglen estimates
   //////////////////////////////////////////////////////////////////////////////
@@ -306,9 +307,14 @@ func modhmm_single_feature_coverage(config ConfigModHmm, feature string) {
 }
 
 func modhmm_single_feature_coverage_all(config ConfigModHmm) {
+  pool := threadpool.New(config.ThreadsCoverage, 10)
   for _, feature := range []string{"atac", "h3k27ac", "h3k27me3", "h3k4me1", "h3k4me3", "h3k4me3o1", "rna", "control"} {
-    modhmm_single_feature_coverage(config, feature)
+    pool.AddJob(0, func(pool threadpool.ThreadPool, erf func() error) error {
+      modhmm_single_feature_coverage(config, feature)
+      return nil
+    })
   }
+  pool.Wait(0)
 }
 
 /* -------------------------------------------------------------------------- */
