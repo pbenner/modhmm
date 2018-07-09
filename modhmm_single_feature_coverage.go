@@ -259,7 +259,18 @@ func modhmm_single_feature_coverage(config ConfigModHmm, feature string) {
   default:
     log.Fatalf("unknown feature: %s", feature)
   }
-  single_feature_coverage(config, filenameBam, filenameData, optionsList)
+  if updateRequired(config, filenameData, filenameBam...) {
+    if len(filenameBam) == 0 {
+      log.Fatalf("ERROR: no bam files specified for feature `%s'", feature)
+    }
+    single_feature_coverage(config, filenameBam, filenameData, optionsList)
+  }
+}
+
+func modhmm_single_feature_coverage_all(config ConfigModHmm) {
+  for _, feature := range []string{"atac", "h3k27ac", "h3k27me3", "h3k4me1", "h3k4me3", "rna", "control"} {
+    modhmm_single_feature_coverage(config, feature)
+  }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -280,10 +291,14 @@ func modhmm_single_feature_coverage_main(config ConfigModHmm, args []string) {
     os.Exit(0)
   }
   // command arguments
-  if len(options.Args()) != 1 {
+  if len(options.Args()) > 1 {
     options.PrintUsage(os.Stderr)
     os.Exit(1)
   }
 
-  modhmm_single_feature_coverage(config, options.Args()[0])
+  if len(options.Args()) == 0 {
+    modhmm_single_feature_coverage_all(config)
+  } else {
+    modhmm_single_feature_coverage(config, options.Args()[0])
+  }
 }

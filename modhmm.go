@@ -27,6 +27,7 @@ import   "github.com/pborman/getopt"
 /* -------------------------------------------------------------------------- */
 
 func main() {
+  log.SetFlags(0)
 
   options := getopt.New()
 
