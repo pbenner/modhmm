@@ -158,7 +158,45 @@ func importFraglen(config ConfigModHmm, filename string) int {
 
 /* -------------------------------------------------------------------------- */
 
-func single_feature_coverage(config ConfigModHmm, feature string) {
+func single_feature_coverage(config ConfigModHmm, filenameBam []string, filenameData string, optionsList []interface{}) {
+  //////////////////////////////////////////////////////////////////////////////
+  result, fraglenTreatmentEstimate, _, err := BamCoverage(filenameData, filenameBam, nil, nil, nil, optionsList...)
+
+  // save fraglen estimates
+  //////////////////////////////////////////////////////////////////////////////
+  for i, estimate := range fraglenTreatmentEstimate {
+    filename := filenameBam[i]
+    if err == nil {
+      saveFraglen(config, filename, estimate.Fraglen)
+    }
+    if estimate.X != nil && estimate.Y != nil {
+      saveCrossCorr(config, filename, estimate.X, estimate.Y)
+    }
+    if estimate.X != nil && estimate.Y != nil {
+      saveCrossCorrPlot(config, filename, estimate.Fraglen, estimate.X, estimate.Y)
+    }
+  }
+
+  // process result
+  //////////////////////////////////////////////////////////////////////////////
+  if err != nil {
+    log.Fatal(err)
+  } else {
+    printStderr(config, 1, "Writing track `%s'... ", filenameData)
+    parameters := DefaultBigWigParameters()
+    parameters.ReductionLevels = config.BWZoomLevels
+    if err := (GenericTrack{result}).ExportBigWig(filenameData, parameters); err != nil {
+      printStderr(config, 1, "failed\n")
+      log.Fatal(err)
+    } else {
+      printStderr(config, 1, "done\n")
+    }
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+
+func modhmm_single_feature_coverage(config ConfigModHmm, feature string) {
 
   filenameBam  := []string{}
   filenameData := ""
@@ -221,48 +259,15 @@ func single_feature_coverage(config ConfigModHmm, feature string) {
   default:
     log.Fatalf("unknown feature: %s", feature)
   }
-
-  //////////////////////////////////////////////////////////////////////////////
-  result, fraglenTreatmentEstimate, _, err := BamCoverage(filenameData, filenameBam, nil, nil, nil, optionsList...)
-
-  // save fraglen estimates
-  //////////////////////////////////////////////////////////////////////////////
-  for i, estimate := range fraglenTreatmentEstimate {
-    filename := filenameBam[i]
-    if err == nil {
-      saveFraglen(config, filename, estimate.Fraglen)
-    }
-    if estimate.X != nil && estimate.Y != nil {
-      saveCrossCorr(config, filename, estimate.X, estimate.Y)
-    }
-    if estimate.X != nil && estimate.Y != nil {
-      saveCrossCorrPlot(config, filename, estimate.Fraglen, estimate.X, estimate.Y)
-    }
-  }
-
-  // process result
-  //////////////////////////////////////////////////////////////////////////////
-  if err != nil {
-    log.Fatal(err)
-  } else {
-    printStderr(config, 1, "Writing track `%s'... ", filenameData)
-    parameters := DefaultBigWigParameters()
-    parameters.ReductionLevels = config.BWZoomLevels
-    if err := (GenericTrack{result}).ExportBigWig(filenameData, parameters); err != nil {
-      printStderr(config, 1, "failed\n")
-      log.Fatal(err)
-    } else {
-      printStderr(config, 1, "done\n")
-    }
-  }
+  single_feature_coverage(config, filenameBam, filenameData, optionsList)
 }
 
 /* -------------------------------------------------------------------------- */
 
-func modhmm_single_feature_coverage(config ConfigModHmm, args []string) {
+func modhmm_single_feature_coverage_main(config ConfigModHmm, args []string) {
 
   options := getopt.New()
-  options.SetProgram(fmt.Sprintf("%s classify-multi-feature-mixture", os.Args[0]))
+  options.SetProgram(fmt.Sprintf("%s single-feature-coverage", os.Args[0]))
   options.SetParameters("<FEATURE>\n")
 
   optHelp := options.   BoolLong("help",     'h',     "print help")
@@ -280,5 +285,5 @@ func modhmm_single_feature_coverage(config ConfigModHmm, args []string) {
     os.Exit(1)
   }
 
-  single_feature_coverage(config, options.Args()[0])
+  modhmm_single_feature_coverage(config, options.Args()[0])
 }

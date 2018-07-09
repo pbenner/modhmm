@@ -82,7 +82,7 @@ func main() {
 
   switch command {
   case "single-feature-coverage":
-    modhmm_single_feature_coverage(config, options.Args())
+    modhmm_single_feature_coverage_main(config, options.Args())
   case "estimate-single-feature-mixture":
     modhmm_single_feature_estimate_main(config, options.Args())
   case "classify-single-feature":
