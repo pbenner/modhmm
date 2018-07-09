@@ -26,6 +26,8 @@ import   "strconv"
 import   "strings"
 import   "os"
 
+import . "github.com/pbenner/ngstat/track"
+
 import   "github.com/pborman/getopt"
 import . "github.com/pbenner/gonetics"
 
@@ -158,6 +160,30 @@ func importFraglen(config ConfigModHmm, filename string) int {
 
 /* -------------------------------------------------------------------------- */
 
+func single_feature_coverage_h3k4me3o1(config ConfigModHmm) {
+  configLocal := config
+  configLocal.BinOverlap = 2
+  configLocal.BinSummaryStatistics = "discrete mean"
+  track1, err := ImportTrack(configLocal.SessionConfig, config.SingleFeatureData.h3k4me1); if err != nil {
+    log.Fatal(err)
+  }
+  track2, err := ImportTrack(configLocal.SessionConfig, config.SingleFeatureData.h3k4me3); if err != nil {
+    log.Fatal(err)
+  }
+  if err := (GenericMutableTrack{track1}).MapList([]Track{track1, track2}, func(seqname string, position int, values ...float64) float64 {
+    x1 := values[0]
+    x2 := values[1]
+    return (x2+1.0)/(x1+1.0)
+  }); err != nil {
+    log.Fatal(err)
+  }
+  if err := ExportTrack(config.SessionConfig, track1, config.SingleFeatureData.h3k4me3o1); err != nil {
+    log.Fatal(err)
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+
 func single_feature_coverage(config ConfigModHmm, filenameBam []string, filenameData string, optionsList []interface{}) {
   //////////////////////////////////////////////////////////////////////////////
   result, fraglenTreatmentEstimate, _, err := BamCoverage(filenameData, filenameBam, nil, nil, nil, optionsList...)
@@ -182,14 +208,8 @@ func single_feature_coverage(config ConfigModHmm, filenameBam []string, filename
   if err != nil {
     log.Fatal(err)
   } else {
-    printStderr(config, 1, "Writing track `%s'... ", filenameData)
-    parameters := DefaultBigWigParameters()
-    parameters.ReductionLevels = config.BWZoomLevels
-    if err := (GenericTrack{result}).ExportBigWig(filenameData, parameters); err != nil {
-      printStderr(config, 1, "failed\n")
+    if err := ExportTrack(config.SessionConfig, result, filenameData); err != nil {
       log.Fatal(err)
-    } else {
-      printStderr(config, 1, "done\n")
     }
   }
 }
@@ -197,6 +217,11 @@ func single_feature_coverage(config ConfigModHmm, filenameBam []string, filename
 /* -------------------------------------------------------------------------- */
 
 func modhmm_single_feature_coverage(config ConfigModHmm, feature string) {
+
+  if strings.ToLower(feature) == "h3k4me3o1" {
+    single_feature_coverage_h3k4me3o1(config)
+    return
+  }
 
   filenameBam  := []string{}
   filenameData := ""
@@ -268,7 +293,7 @@ func modhmm_single_feature_coverage(config ConfigModHmm, feature string) {
 }
 
 func modhmm_single_feature_coverage_all(config ConfigModHmm) {
-  for _, feature := range []string{"atac", "h3k27ac", "h3k27me3", "h3k4me1", "h3k4me3", "rna", "control"} {
+  for _, feature := range []string{"atac", "h3k27ac", "h3k27me3", "h3k4me1", "h3k4me3", "h3k4me3o1", "rna", "control"} {
     modhmm_single_feature_coverage(config, feature)
   }
 }
