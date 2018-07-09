@@ -95,16 +95,16 @@ type ConfigMultiFeaturePaths struct {
 }
 
 func (config *ConfigMultiFeaturePaths) CompletePaths(prefix, suffix string) {
-  config.EA = completePath(prefix, config.EA, fmt.Sprintf("classification-EA%s", suffix))
-  config.EP = completePath(prefix, config.EP, fmt.Sprintf("classification-EP%s", suffix))
-  config.PA = completePath(prefix, config.PA, fmt.Sprintf("classification-PA%s", suffix))
-  config.PB = completePath(prefix, config.PB, fmt.Sprintf("classification-PB%s", suffix))
-  config.TR = completePath(prefix, config.TR, fmt.Sprintf("classification-TR%s", suffix))
-  config.TL = completePath(prefix, config.TL, fmt.Sprintf("classification-TL%s", suffix))
-  config.R1 = completePath(prefix, config.R1, fmt.Sprintf("classification-R1%s", suffix))
-  config.R2 = completePath(prefix, config.R2, fmt.Sprintf("classification-R2%s", suffix))
-  config.CL = completePath(prefix, config.CL, fmt.Sprintf("classification-CL%s", suffix))
-  config.NS = completePath(prefix, config.NS, fmt.Sprintf("classification-NS%s", suffix))
+  config.EA = completePath(prefix, config.EA, fmt.Sprintf("multifeature-EA%s", suffix))
+  config.EP = completePath(prefix, config.EP, fmt.Sprintf("multifeature-EP%s", suffix))
+  config.PA = completePath(prefix, config.PA, fmt.Sprintf("multifeature-PA%s", suffix))
+  config.PB = completePath(prefix, config.PB, fmt.Sprintf("multifeature-PB%s", suffix))
+  config.TR = completePath(prefix, config.TR, fmt.Sprintf("multifeature-TR%s", suffix))
+  config.TL = completePath(prefix, config.TL, fmt.Sprintf("multifeature-TL%s", suffix))
+  config.R1 = completePath(prefix, config.R1, fmt.Sprintf("multifeature-R1%s", suffix))
+  config.R2 = completePath(prefix, config.R2, fmt.Sprintf("multifeature-R2%s", suffix))
+  config.CL = completePath(prefix, config.CL, fmt.Sprintf("multifeature-CL%s", suffix))
+  config.NS = completePath(prefix, config.NS, fmt.Sprintf("multifeature-NS%s", suffix))
 }
 
 /* -------------------------------------------------------------------------- */
@@ -169,6 +169,12 @@ func (config *ConfigModHmm) CompletePaths() {
   }
   if config.MultiFeaturePrefix == "" {
     config.MultiFeaturePrefix = config.Prefix
+  }
+  if config.Model == "" {
+    config.Model = completePath(config.Prefix, config.Model, "segmentation.json")
+  }
+  if config.Segmentation == "" {
+    config.Segmentation = completePath(config.Prefix, config.Segmentation, "segmentation.bed.gz")
   }
   config.SingleFeatureData   .CompletePaths(config.SingleFeaturePrefix, ".bw")
   config.SingleFeatureJson   .CompletePaths(config.SingleFeatureMixturePrefix, ".json")
