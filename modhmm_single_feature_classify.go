@@ -198,8 +198,17 @@ func modhmm_single_feature_classify(config ConfigModHmm, feature string) {
   default:
     log.Fatalf("unknown feature: %s", feature)
   }
+  if updateRequired(config, filenameResult1, filenameModel, filenameComp, filenameData) ||
+    (updateRequired(config, filenameResult2, filenameModel, filenameComp, filenameData)) {
+    modhmm_single_feature_coverage_all(config)
+    single_feature_classify(localConfig, filenameModel, filenameComp, filenameData, filenameResult1, filenameResult2)
+  }
+}
 
-  single_feature_classify(localConfig, filenameModel, filenameComp, filenameData, filenameResult1, filenameResult2)
+func modhmm_single_feature_classify_all(config ConfigModHmm) {
+  for _, feature := range []string{"atac", "h3k27ac", "h3k27me3", "h3k4me1", "h3k4me3", "h3k4me3o1", "rna", "rnaLow", "control"} {
+    modhmm_single_feature_classify(config, feature)
+  }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -207,7 +216,7 @@ func modhmm_single_feature_classify(config ConfigModHmm, feature string) {
 func modhmm_single_feature_classify_main(config ConfigModHmm, args []string) {
 
   options := getopt.New()
-  options.SetProgram(fmt.Sprintf("%s classify-single-feature-mixture", os.Args[0]))
+  options.SetProgram(fmt.Sprintf("%s classify-single-feature", os.Args[0]))
   options.SetParameters("<FEATURE>\n")
 
   optHelp := options.   BoolLong("help",     'h',     "print help")
@@ -220,10 +229,14 @@ func modhmm_single_feature_classify_main(config ConfigModHmm, args []string) {
     os.Exit(0)
   }
   // command arguments
-  if len(options.Args()) != 1 {
+  if len(options.Args()) > 1 {
     options.PrintUsage(os.Stderr)
     os.Exit(1)
   }
 
-  modhmm_single_feature_classify(config, options.Args()[0])
+  if len(options.Args()) == 0 {
+    modhmm_single_feature_classify_all(config)
+  } else {
+    modhmm_single_feature_classify(config, options.Args()[0])
+  }
 }
