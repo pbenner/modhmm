@@ -111,18 +111,21 @@ func (config *ConfigMultiFeaturePaths) CompletePaths(prefix, suffix string) {
 
 type ConfigModHmm struct {
   SessionConfig
-  SingleFeatureBam     ConfigBam
-  SingleFeatureData    ConfigSingleFeaturePaths
-  SingleFeatureJson    ConfigSingleFeaturePaths
-  SingleFeatureComp    ConfigSingleFeaturePaths
-  SingleFeatureFg      ConfigSingleFeaturePaths
-  SingleFeatureBg      ConfigSingleFeaturePaths
-  MultiFeatureClass    ConfigMultiFeaturePaths
-  MultiFeatureClassExp ConfigMultiFeaturePaths
-  Prefix string                          `json:"Prefix"`
-  SingleFeaturePrefix string             `json:"Single Feature Prefix"`
-  SingleFeatureMixturePrefix string      `json:"Single Feature Mixture Prefix"`
-   MultiFeaturePrefix string             `json:"Multi Feature Prefix"`
+  SingleFeatureBam           ConfigBam
+  SingleFeatureData          ConfigSingleFeaturePaths
+  SingleFeatureJson          ConfigSingleFeaturePaths
+  SingleFeatureComp          ConfigSingleFeaturePaths
+  SingleFeatureFg            ConfigSingleFeaturePaths
+  SingleFeatureBg            ConfigSingleFeaturePaths
+  MultiFeatureClass          ConfigMultiFeaturePaths
+  MultiFeatureClassExp       ConfigMultiFeaturePaths
+  Prefix                     string                    `json:"Prefix"`
+  SingleFeaturePrefix        string                    `json:"Single Feature Prefix"`
+  SingleFeatureMixturePrefix string                    `json:"Single Feature Mixture Prefix"`
+  MultiFeaturePrefix         string                    `json:"Multi Feature Prefix"`
+  Model                      string                    `json:"ModHmm Model File"`
+  Segmentation               string                    `json:"Genome Segmentation File"`
+  Description                string
 }
 
 /* -------------------------------------------------------------------------- */
@@ -250,6 +253,9 @@ func (config ConfigModHmm) String() string {
   fmt.Fprintf(&buffer, " -> Single Feature Prefix        : %v\n", config.SingleFeaturePrefix)
   fmt.Fprintf(&buffer, " -> Single Feature Mixture Prefix: %v\n", config.SingleFeaturePrefix)
   fmt.Fprintf(&buffer, " ->  Multi Feature Prefix        : %v\n", config. MultiFeaturePrefix)
+  fmt.Fprintf(&buffer, " ->  ModHMM Model File           : %v\n", config.Model)
+  fmt.Fprintf(&buffer, " ->  Genome Segmentation File    : %v\n", config.Segmentation)
+  fmt.Fprintf(&buffer, " ->  Description                 : %v\n", config.Description)
 
   return buffer.String()
 }
