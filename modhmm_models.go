@@ -23,6 +23,7 @@ import   "fmt"
 import . "github.com/pbenner/autodiff/statistics"
 import   "github.com/pbenner/autodiff/statistics/generic"
 import   "github.com/pbenner/autodiff/statistics/vectorEstimator"
+import   "github.com/pbenner/autodiff/statistics/matrixDistribution"
 import   "github.com/pbenner/autodiff/statistics/matrixEstimator"
 
 import . "github.com/pbenner/autodiff"
@@ -31,6 +32,37 @@ import . "github.com/pbenner/autodiff"
 
 func init() {
   VectorPdfRegistry["vector:probability distribution"] = new(EmissionDistribution)
+  MatrixPdfRegistry["ModHmm"] = new(ModHmm)
+}
+
+/* -------------------------------------------------------------------------- */
+
+type ModHmm struct {
+  matrixDistribution.Hmm
+  StateNames []string
+}
+
+func (obj *ModHmm) ImportConfig(config ConfigDistribution, t ScalarType) error {
+  if len(config.Distributions) != 1 {
+    return fmt.Errorf("invalid config")
+  }
+  if err := obj.Hmm.ImportConfig(config.Distributions[0], t); err != nil {
+    return err
+  }
+  if s, ok := config.GetNamedParametersAsStrings("StateNames"); !ok {
+    return fmt.Errorf("invalid config")
+  } else {
+    obj.StateNames = s
+  }
+  return nil
+}
+
+func (obj *ModHmm) ExportConfig() ConfigDistribution {
+
+  parameters := struct{StateNames []string}{}
+  parameters.StateNames = obj.StateNames
+
+  return NewConfigDistribution("ModHmm", parameters, obj.Hmm.ExportConfig())
 }
 
 /* emission distribution
@@ -87,7 +119,7 @@ func (obj *EmissionDistribution) ExportConfig() ConfigDistribution {
 
 /* -------------------------------------------------------------------------- */
 
-func getModHmDefaultEstimator(config ConfigModHmm) *matrixEstimator.HmmEstimator {
+func getModHmDefaultEstimator(config ConfigModHmm) (*matrixEstimator.HmmEstimator, []string) {
   const iPA =  0 // promoter active
   const iPB =  1 // promoter bivalent
   const iEA =  2 // enhancer active
@@ -114,6 +146,9 @@ func getModHmDefaultEstimator(config ConfigModHmm) *matrixEstimator.HmmEstimator
   const jEPt1 = 12 // enhancer poised
   const jEAt2 = 13 // enhancer active
   const jEPt2 = 14 // enhancer poised
+
+  stateNames := []string{
+    "R1", "R2", "NS", "CL", "TL", "EA", "EP", "PA", "PB", "EA:tr", "EP:tr", "EA:tr", "EP:tr", "TR", "TR"}
 
   n := 10
   m := 15
@@ -266,6 +301,6 @@ func getModHmDefaultEstimator(config ConfigModHmm) *matrixEstimator.HmmEstimator
     estimator.ChunkSize = 10000
     estimator.OptimizeEmissions = false
     estimator.Verbose = config.Verbose
-    return estimator
+    return estimator, stateNames
   }
 }

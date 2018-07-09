@@ -36,12 +36,16 @@ import   "github.com/pborman/getopt"
 /* -------------------------------------------------------------------------- */
 
 func estimate(config ConfigModHmm, trackFiles []string) {
-  estimator := getModHmDefaultEstimator(config)
+  estimator, stateNames := getModHmDefaultEstimator(config)
 
   if err := ImportAndEstimateOnMultiTrack(config.SessionConfig, estimator, trackFiles, true); err != nil {
     log.Fatal(err)
   }
-  if err := ExportDistribution(config.Model, estimator.GetEstimate()); err != nil {
+  modhmm := ModHmm{}
+  modhmm.Hmm        = *estimator.GetEstimate().(*matrixDistribution.Hmm)
+  modhmm.StateNames = stateNames
+
+  if err := ExportDistribution(config.Model, &modhmm); err != nil {
     log.Fatal(err)
   }
 }
@@ -49,12 +53,12 @@ func estimate(config ConfigModHmm, trackFiles []string) {
 /* -------------------------------------------------------------------------- */
 
 func segment(config ConfigModHmm, trackFiles []string) {
-  hmm := &matrixDistribution.Hmm{}
-  if err := ImportDistribution(config.Model, hmm, BareRealType); err != nil {
+  modhmm := ModHmm{}
+  if err := ImportDistribution(config.Model, &modhmm, BareRealType); err != nil {
     log.Fatal(err)
   }
 
-  if result, err := ImportAndClassifyMultiTrack(config.SessionConfig, matrixClassifier.HmmClassifier{hmm}, trackFiles, true); err != nil {
+  if result, err := ImportAndClassifyMultiTrack(config.SessionConfig, matrixClassifier.HmmClassifier{&modhmm.Hmm}, trackFiles, true); err != nil {
     log.Fatal(err)
   } else {
     var name, desc string
@@ -65,7 +69,7 @@ func segment(config ConfigModHmm, trackFiles []string) {
       name = fmt.Sprintf("ModHMM [%s]", config.Description)
       desc = fmt.Sprintf("Segmentation ModHMM [%s]", config.Description)
     }
-    if err := ExportTrackSegmentation(config.SessionConfig, result, config.Segmentation, name, desc, true, stateNames, nil); err != nil {
+    if err := ExportTrackSegmentation(config.SessionConfig, result, config.Segmentation, name, desc, true, modhmm.StateNames, nil); err != nil {
       log.Fatal(err)
     }
   }
