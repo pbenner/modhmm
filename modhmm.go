@@ -42,7 +42,8 @@ func main() {
     "     estimate-single-feature-mixture - estimate mixture distribution for single\n" +
     "                                       feature enrichment analysis\n" +
     "     classify-single-feature         - call enriched regions in single feature data\n" +
-    "     classify-multi-feature          - execute multi-feature classifier\n")
+    "     classify-multi-feature          - execute multi-feature classifier\n" +
+    "     segmentation                    - compute genome segmentation\n")
   options.Parse(os.Args)
 
   config := DefaultModHmmConfig()
@@ -90,6 +91,8 @@ func main() {
     modhmm_single_feature_classify_main(config, options.Args())
   case "classify-multi-feature":
     modhmm_multi_feature_classify_main(config, options.Args())
+  case "segmentation":
+    modhmm_segmentation_main(config, options.Args())
   default:
     options.PrintUsage(os.Stderr)
     os.Exit(1)
