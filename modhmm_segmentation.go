@@ -30,13 +30,24 @@ import . "github.com/pbenner/autodiff"
 import . "github.com/pbenner/autodiff/statistics"
 import   "github.com/pbenner/autodiff/statistics/matrixClassifier"
 import   "github.com/pbenner/autodiff/statistics/matrixDistribution"
+import   "github.com/pbenner/autodiff/statistics/matrixEstimator"
 
 import   "github.com/pborman/getopt"
 
 /* -------------------------------------------------------------------------- */
 
-func estimate(config ConfigModHmm, trackFiles []string) {
-  estimator, stateNames := getModHmDefaultEstimator(config)
+func estimate(config ConfigModHmm, trackFiles []string, model string) {
+  var estimator  *matrixEstimator.HmmEstimator
+  var stateNames []string
+
+  switch model {
+  case "default":
+    estimator, stateNames = getModHmmDefaultEstimator(config)
+  case "dense":
+    estimator, stateNames = getModHmmDenseEstimator(config)
+  default:
+    log.Fatal("invalid model")
+  }
 
   if err := ImportAndEstimateOnMultiTrack(config.SessionConfig, estimator, trackFiles, true); err != nil {
     log.Fatal(err)
@@ -96,7 +107,7 @@ func modhmm_segmentation(config ConfigModHmm, model string) {
 
   if updateRequired(config, filenameModel, trackFiles...) {
     modhmm_multi_feature_classify_all(config)
-    estimate(config, trackFiles)
+    estimate(config, trackFiles, model)
   }
   if updateRequired(config, filenameSegmentation, filenameModel) {
     segment(config, trackFiles)

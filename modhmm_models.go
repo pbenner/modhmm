@@ -119,7 +119,36 @@ func (obj *EmissionDistribution) ExportConfig() ConfigDistribution {
 
 /* -------------------------------------------------------------------------- */
 
-func getModHmDefaultEstimator(config ConfigModHmm) (*matrixEstimator.HmmEstimator, []string) {
+func getModHmmDenseEstimator(config ConfigModHmm) (*matrixEstimator.HmmEstimator, []string) {
+  stateNames := []string{
+    "EA", "EP", "PA", "PB", "TR", "R1", "R2", "NS", "CL"}
+
+  n := 10
+
+  pi := NullVector(BareRealType, n)
+  tr := NullMatrix(BareRealType, n, n)
+  pi.Map(func(x Scalar) { x.SetValue(1.0) })
+  tr.Map(func(x Scalar) { x.SetValue(1.0) })
+
+  // emissions
+  estimators := make([]VectorEstimator, n)
+  for i := 0; i < n; i++ {
+    estimators[i] = vectorEstimator.NilEstimator{&EmissionDistribution{i, n}}
+  }
+
+  if estimator, err := matrixEstimator.NewHmmEstimator(pi, tr, nil, nil, nil, estimators, 1e-4, -1); err != nil {
+    panic(err)
+  } else {
+    estimator.ChunkSize = 10000
+    estimator.OptimizeEmissions = false
+    estimator.Verbose = config.Verbose
+    return estimator, stateNames
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+
+func getModHmmDefaultEstimator(config ConfigModHmm) (*matrixEstimator.HmmEstimator, []string) {
   const iPA =  0 // promoter active
   const iPB =  1 // promoter bivalent
   const iEA =  2 // enhancer active
