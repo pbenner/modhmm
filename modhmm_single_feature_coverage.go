@@ -185,12 +185,25 @@ func single_feature_coverage_h3k4me3o1(config ConfigModHmm) {
 /* -------------------------------------------------------------------------- */
 
 func single_feature_coverage(config ConfigModHmm, filenameBam []string, filenameData string, optionsList []interface{}) {
+  fraglen := make([]int, len(filenameBam))
+
+  // split filename:fraglen
+  for i, filename := range filenameBam {
+    filenameBam[i], fraglen[i] = parseFilename(filename)
+  }
+  // import fragment length
+  for i, filename := range filenameBam {
+    if fraglen[i] == 0 {
+      fraglen[i] = importFraglen(config, filename)
+    }
+  }
+
   //////////////////////////////////////////////////////////////////////////////
-  result, fraglenTreatmentEstimate, _, err := BamCoverage(filenameData, filenameBam, nil, nil, nil, optionsList...)
+  result, fraglenEstimate, _, err := BamCoverage(filenameData, filenameBam, nil, nil, nil, optionsList...)
 
   // save fraglen estimates
   //////////////////////////////////////////////////////////////////////////////
-  for i, estimate := range fraglenTreatmentEstimate {
+  for i, estimate := range fraglenEstimate {
     filename := filenameBam[i]
     if err == nil {
       saveFraglen(config, filename, estimate.Fraglen)
