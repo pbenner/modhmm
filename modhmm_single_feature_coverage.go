@@ -49,7 +49,7 @@ func parseFilename(filename string) (string, int) {
     return tmp[0], int(t)
   } else
   if len(tmp) >= 2 {
-    log.Fatal("invalid input file description `%s'", filename)
+    log.Fatalf("invalid input file description `%s'", filename)
   }
   return filename, 0
 }
@@ -243,7 +243,7 @@ func modhmm_single_feature_coverage(config ConfigModHmm, feature string) {
   optionsList  := []interface{}{}
 
   if config.Verbose > 0 {
-    optionsList = append(optionsList, OptionLogger{log.New(os.Stderr, "", 0)})
+    optionsList = append(optionsList, OptionLogger{os.Stderr})
   }
   optionsList = append(optionsList, OptionBinningMethod{"mean overlap"})
   optionsList = append(optionsList, OptionBinSize{config.BinSize})
