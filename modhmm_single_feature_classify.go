@@ -22,7 +22,6 @@ import   "fmt"
 import   "log"
 import   "io"
 import   "os"
-import   "reflect"
 import   "strings"
 
 import . "github.com/pbenner/ngstat/config"
@@ -88,21 +87,12 @@ func ExportComponents(config ConfigModHmm, filename string, k []int) {
 /* -------------------------------------------------------------------------- */
 
 func checkModelFiles(config interface{}) {
-  v := reflect.ValueOf(config)
-
-  for i := 0; i < v.NumField(); i++ {
-    switch v.Field(i).Kind() {
-    case reflect.Struct:
-      checkModelFiles(v.Field(i).Interface())
-    case reflect.String:
-      if !fileExists(v.Field(i).String()) {
-        log.Fatalf(
-            "ERROR: Model file `%s' required for enrichment analysis does not exist.\n" +
-            "       Please download the respective file or estimate a model with the\n" +
-            "       `estimate-single-feature-mixture` subcommand", v.Field(i).String())
-      }
-    default:
-      panic("internal error")
+  for _, filename := range collectStrings(config) {
+    if !fileExists(filename) {
+      log.Fatalf(
+          "ERROR: Model file `%s' required for enrichment analysis does not exist.\n" +
+          "       Please download the respective file or estimate a model with the\n" +
+          "       `estimate-single-feature-mixture` subcommand", filename)
     }
   }
 }
@@ -149,7 +139,17 @@ func single_feature_classify(config ConfigModHmm, filenameModel, filenameComp, f
 
 /* -------------------------------------------------------------------------- */
 
+func modhmm_single_feature_classify_dep(config ConfigModHmm) []string {
+  r := []string{}
+  r  = append(r, collectStrings(config.SingleFeatureData)...)
+  r  = append(r, collectStrings(config.SingleFeatureJson)...)
+  r  = append(r, collectStrings(config.SingleFeatureComp)...)
+  return r
+}
+
 func modhmm_single_feature_classify(config ConfigModHmm, feature string) {
+
+  dependencies := modhmm_single_feature_classify_dep(config)
 
   localConfig := config
   localConfig.BinSummaryStatistics = "discrete mean"
@@ -224,8 +224,8 @@ func modhmm_single_feature_classify(config ConfigModHmm, feature string) {
   default:
     log.Fatalf("unknown feature: %s", feature)
   }
-  if updateRequired(config, filenameResult1, filenameModel, filenameComp, filenameData) ||
-    (updateRequired(config, filenameResult2, filenameModel, filenameComp, filenameData)) {
+  if updateRequired(config, filenameResult1, dependencies...) ||
+    (updateRequired(config, filenameResult2, dependencies...)) {
     checkModelFiles(config.SingleFeatureJson)
     checkModelFiles(config.SingleFeatureComp)
 

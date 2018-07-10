@@ -19,6 +19,8 @@ package main
 /* -------------------------------------------------------------------------- */
 
 import "os"
+import "path"
+import "reflect"
 
 /* -------------------------------------------------------------------------- */
 
@@ -30,3 +32,37 @@ func fileExists(filename string) bool {
   }
 }
 
+func collectStrings(config interface{}) []string {
+  r := []string{}
+  v := reflect.ValueOf(config)
+
+  for i := 0; i < v.NumField(); i++ {
+    switch v.Field(i).Kind() {
+    case reflect.Struct:
+      r = append(r, collectStrings(v.Field(i).Interface())...)
+    case reflect.String:
+      r = append(r, v.Field(i).String())
+    default:
+      panic("internal error")
+    }
+  }
+  return r
+}
+
+func updateRequired(config ConfigModHmm, target string, deps ...string) bool {
+  if s1, err := os.Stat(target); err != nil {
+    printStderr(config, 2, "Target `%s' does not exist...\n", path.Base(target))
+    return true
+  } else {
+    for _, dep := range deps {
+      if s2, err := os.Stat(dep); err == nil {
+        if s1.ModTime().Before(s2.ModTime()) {
+          printStderr(config, 2, "Target `%s' requires update...\n", path.Base(target))
+          return true
+        }
+      }
+    }
+  }
+  printStderr(config, 2, "Target `%s' is up to date...\n", path.Base(target))
+  return false
+}

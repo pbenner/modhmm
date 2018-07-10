@@ -62,12 +62,8 @@ func multi_feature_classify(config ConfigModHmm, classifier MatrixBatchClassifie
 
 /* -------------------------------------------------------------------------- */
 
-func modhmm_multi_feature_classify(config ConfigModHmm, state string, tracks []Track) []Track {
-
-  localConfig := config
-  localConfig.BinSummaryStatistics = "mean"
-
-  trackFiles := []string{
+func modhmm_multi_feature_classify_dep(config ConfigModHmm) []string {
+  return []string{
     config.SingleFeatureFg.Atac,
     config.SingleFeatureBg.Atac,
     config.SingleFeatureFg.H3k27ac,
@@ -88,6 +84,17 @@ func modhmm_multi_feature_classify(config ConfigModHmm, state string, tracks []T
     config.SingleFeatureBg.RnaLow,
     config.SingleFeatureFg.Control,
     config.SingleFeatureBg.Control }
+}
+
+func modhmm_multi_feature_classify(config ConfigModHmm, state string, tracks []Track) []Track {
+
+  localConfig := config
+  localConfig.BinSummaryStatistics = "mean"
+
+  dependencies := []string{}
+  dependencies  = append(dependencies, modhmm_single_feature_classify_dep(config)...)
+  dependencies  = append(dependencies, modhmm_multi_feature_classify_dep(config)...)
+  trackFiles   := modhmm_multi_feature_classify_dep(config)
 
   filenameResult1 := ""
   filenameResult2 := ""
@@ -138,8 +145,8 @@ func modhmm_multi_feature_classify(config ConfigModHmm, state string, tracks []T
   default:
     log.Fatalf("unknown state: %s", state)
   }
-  if updateRequired(config, filenameResult1, trackFiles...) ||
-    (updateRequired(config, filenameResult2, trackFiles...)) {
+  if updateRequired(config, filenameResult1, dependencies...) ||
+    (updateRequired(config, filenameResult2, dependencies...)) {
     modhmm_single_feature_classify_all(config)
     tracks = multi_feature_classify(localConfig, classifier, trackFiles, tracks, filenameResult1, filenameResult2)
   }

@@ -95,9 +95,8 @@ func segment(config ConfigModHmm, trackFiles []string) {
 
 /* -------------------------------------------------------------------------- */
 
-func modhmm_segmentation(config ConfigModHmm, model string) {
-
-  trackFiles := []string{
+func modhmm_segmentation_dep(config ConfigModHmm) []string {
+  return []string{
     config.MultiFeatureClass.PA,
     config.MultiFeatureClass.PB,
     config.MultiFeatureClass.EA,
@@ -108,15 +107,25 @@ func modhmm_segmentation(config ConfigModHmm, model string) {
     config.MultiFeatureClass.R2,
     config.MultiFeatureClass.CL,
     config.MultiFeatureClass.NS }
+}
+
+func modhmm_segmentation(config ConfigModHmm, model string) {
+
+  dependencies := []string{}
+  dependencies  = append(dependencies, modhmm_single_feature_classify_dep(config)...)
+  dependencies  = append(dependencies, modhmm_multi_feature_classify_dep(config)...)
+  dependencies  = append(dependencies, modhmm_segmentation_dep(config)...)
+
+  trackFiles := modhmm_segmentation_dep(config)
 
   filenameModel        := config.Model
   filenameSegmentation := config.Segmentation
 
-  if updateRequired(config, filenameModel, trackFiles...) {
+  if updateRequired(config, filenameModel, dependencies...) {
     modhmm_multi_feature_classify_all(config)
     estimate(config, trackFiles, model)
   }
-  if updateRequired(config, filenameSegmentation, filenameModel) {
+  if updateRequired(config, filenameSegmentation, append(dependencies, filenameModel)...) {
     segment(config, trackFiles)
   }
 }
