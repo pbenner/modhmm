@@ -80,7 +80,7 @@ func (config *ConfigBam) CompletePaths(prefix, suffix string) {
 
 /* -------------------------------------------------------------------------- */
 
-type ConfigSingleFeaturePaths struct {
+type ConfigCoveragePaths struct {
   Atac       string `json:"ATAC"`
   H3k27ac    string `json:"H3K27ac"`
   H3k27me3   string `json:"H3K27me3"`
@@ -89,11 +89,10 @@ type ConfigSingleFeaturePaths struct {
   H3k4me3    string `json:"H3K4me3"`
   H3k4me3o1  string `json:"H3K4me3o1"`
   Rna        string `json:"RNA"`
-  RnaLow     string `json:"RNA low"`
   Control    string `json:"Control"`
 }
 
-func (config *ConfigSingleFeaturePaths) CompletePaths(prefix, suffix string) {
+func (config *ConfigCoveragePaths) CompletePaths(prefix, suffix string) {
   config.Atac      = completePath(prefix, config.Atac,      fmt.Sprintf("atac%s", suffix))
   config.H3k27ac   = completePath(prefix, config.H3k27ac,   fmt.Sprintf("h3k27ac%s", suffix))
   config.H3k27me3  = completePath(prefix, config.H3k27me3,  fmt.Sprintf("h3k27me3%s", suffix))
@@ -102,8 +101,19 @@ func (config *ConfigSingleFeaturePaths) CompletePaths(prefix, suffix string) {
   config.H3k4me3   = completePath(prefix, config.H3k4me3,   fmt.Sprintf("h3k4me3%s", suffix))
   config.H3k4me3o1 = completePath(prefix, config.H3k4me3o1, fmt.Sprintf("h3k4me3o1%s", suffix))
   config.Rna       = completePath(prefix, config.Rna,       fmt.Sprintf("rna%s", suffix))
-  config.RnaLow    = completePath(prefix, config.RnaLow,    fmt.Sprintf("rna-low%s", suffix))
   config.Control   = completePath(prefix, config.Control,   fmt.Sprintf("control%s", suffix))
+}
+
+/* -------------------------------------------------------------------------- */
+
+type ConfigSingleFeaturePaths struct {
+  ConfigCoveragePaths
+  RnaLow     string `json:"RNA low"`
+}
+
+func (config *ConfigSingleFeaturePaths) CompletePaths(prefix, suffix string) {
+  config.ConfigCoveragePaths.CompletePaths(prefix, suffix)
+  config.RnaLow    = completePath(prefix, config.RnaLow,    fmt.Sprintf("rna-low%s", suffix))
 }
 
 /* -------------------------------------------------------------------------- */
@@ -142,7 +152,7 @@ type ConfigModHmm struct {
   SingleFeatureBamDir        string                   `json:"Bam Directory"`
   SingleFeatureBam           ConfigBam                `json:"Bam Files"`
   SingleFeatureDataDir       string                   `json:"Coverage Directory"`
-  SingleFeatureData          ConfigSingleFeaturePaths `json:"Coverage Files"`
+  SingleFeatureData          ConfigCoveragePaths      `json:"Coverage Files"`
   SingleFeatureJsonDir       string                   `json:"Model Directory"`
   SingleFeatureJson          ConfigSingleFeaturePaths `json:"Model Files"`
   SingleFeatureComp          ConfigSingleFeaturePaths `json:"Model Component Files"`
@@ -237,6 +247,21 @@ func (config ConfigBam) String() string {
   fmt.Fprintf(&buffer, " -> H3K4me3              : %v\n", config.H3k4me3)
   fmt.Fprintf(&buffer, " -> RNA                  : %v\n", config.Rna)
   fmt.Fprintf(&buffer, " -> Control              : %v\n", config.Control)
+
+  return buffer.String()
+}
+
+func (config ConfigCoveragePaths) String() string {
+  var buffer bytes.Buffer
+
+  fmt.Fprintf(&buffer, " -> ATAC                 : %v %s\n", config.Atac,      fileCheckMark(config.Atac))
+  fmt.Fprintf(&buffer, " -> H3K27ac              : %v %s\n", config.H3k27ac,   fileCheckMark(config.H3k27ac))
+  fmt.Fprintf(&buffer, " -> H3K27me3             : %v %s\n", config.H3k27me3,  fileCheckMark(config.H3k27me3))
+  fmt.Fprintf(&buffer, " -> H3K4me1              : %v %s\n", config.H3k4me1,   fileCheckMark(config.H3k4me1))
+  fmt.Fprintf(&buffer, " -> H3K4me3              : %v %s\n", config.H3k4me3,   fileCheckMark(config.H3k4me3))
+  fmt.Fprintf(&buffer, " -> H3K4me3o1            : %v %s\n", config.H3k4me3o1, fileCheckMark(config.H3k4me3o1))
+  fmt.Fprintf(&buffer, " -> RNA                  : %v %s\n", config.Rna,       fileCheckMark(config.Rna))
+  fmt.Fprintf(&buffer, " -> Control              : %v %s\n", config.Control,   fileCheckMark(config.Control))
 
   return buffer.String()
 }

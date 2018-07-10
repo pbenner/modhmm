@@ -87,15 +87,22 @@ func ExportComponents(config ConfigModHmm, filename string, k []int) {
 
 /* -------------------------------------------------------------------------- */
 
-func checkModelFiles(config ConfigSingleFeaturePaths) {
+func checkModelFiles(config interface{}) {
   v := reflect.ValueOf(config)
 
   for i := 0; i < v.NumField(); i++ {
-    if !fileExists(v.Field(i).String()) {
-      log.Fatalf(
-        "ERROR: Model file `%s' required for enrichment analysis does not exist.\n" +
-        "       Please download the respective file or estimate a model with the\n" +
-        "       `estimate-single-feature-mixture` subcommand", v.Field(i).String())
+    switch v.Field(i).Kind() {
+    case reflect.Struct:
+      checkModelFiles(v.Field(i).Interface())
+    case reflect.String:
+      if !fileExists(v.Field(i).String()) {
+        log.Fatalf(
+          "ERROR: Model file `%s' required for enrichment analysis does not exist.\n" +
+            "       Please download the respective file or estimate a model with the\n" +
+            "       `estimate-single-feature-mixture` subcommand", v.Field(i).String())
+      }
+    default:
+      panic("internal error")
     }
   }
 }
@@ -200,7 +207,7 @@ func modhmm_single_feature_classify(config ConfigModHmm, feature string) {
     filenameResult1 = config.SingleFeatureFg.Rna
     filenameResult2 = config.SingleFeatureBg.Rna
   case "rnalow":
-    filenameData    = config.SingleFeatureData.RnaLow
+    filenameData    = config.SingleFeatureData.Rna
     filenameModel   = config.SingleFeatureJson.RnaLow
     filenameComp    = config.SingleFeatureComp.RnaLow
     filenameResult1 = config.SingleFeatureFg.RnaLow
