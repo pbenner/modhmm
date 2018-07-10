@@ -112,9 +112,12 @@ func checkModelFiles(config interface{}) {
 func single_feature_classify(config ConfigModHmm, filenameModel, filenameComp, filenameData, filenameResult1, filenameResult2 string) {
   mixture := &scalarDistribution.Mixture{}
 
+  printStderr(config, 1, "Importing mixture model from `%s'... ", filenameModel)
   if err := ImportDistribution(filenameModel, mixture, BareRealType); err != nil {
+    printStderr(config, 1, "failed\n")
     log.Fatal(err)
   }
+    printStderr(config, 1, "done\n")
 
   k := ImportComponents(config, filenameComp)
   r := invertComponents(k, mixture.NComponents())
