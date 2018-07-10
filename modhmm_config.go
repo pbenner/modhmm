@@ -218,7 +218,7 @@ func (config *ConfigModHmm) CompletePaths() {
 /* -------------------------------------------------------------------------- */
 
 func fileCheckMark(filename string) string {
-  if fileExists(filename) {
+  if !fileExists(filename) {
     return "\xE2\x9C\x97"
   } else {
     return "\xE2\x9C\x93"
