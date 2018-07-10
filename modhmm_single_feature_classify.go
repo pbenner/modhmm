@@ -235,7 +235,7 @@ func modhmm_single_feature_classify(config ConfigModHmm, feature string) {
 }
 
 func modhmm_single_feature_classify_all(config ConfigModHmm) {
-  for _, feature := range []string{"atac", "h3k27ac", "h3k27me3", "h3k4me1", "h3k4me3", "h3k4me3o1", "rna", "rnaLow", "control"} {
+  for _, feature := range []string{"atac", "h3k27ac", "h3k27me3", "h3k9me3", "h3k4me1", "h3k4me3", "h3k4me3o1", "rna", "rnaLow", "control"} {
     modhmm_single_feature_classify(config, feature)
   }
 }

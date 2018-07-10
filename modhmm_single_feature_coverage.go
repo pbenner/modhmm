@@ -58,38 +58,38 @@ func parseFilename(filename string) (string, int) {
 /* fragment length estimation
  * -------------------------------------------------------------------------- */
 
-func saveFraglen(config ConfigModHmm, filename string, fraglen int) {
+func saveFraglen(config ConfigModHmm, feature, filename string, fraglen int) {
   basename := strings.TrimRight(filename, filepath.Ext(filename))
   filename  = fmt.Sprintf("%s.fraglen.txt", basename)
 
   f, err := os.Create(filename)
   if err != nil {
-    log.Fatalf("opening `%s' failed: %v", filename, err)
+    log.Fatalf("[%s] ERROR: opening `%s' failed: %v", feature, filename, err)
   }
   defer f.Close()
 
   fmt.Fprintf(f, "%d\n", fraglen)
 
-  printStderr(config, 1, "Wrote fragment length estimate to `%s'\n", filename)
+  printStderr(config, 1, "[%s] Wrote fragment length estimate to `%s'\n", feature, filename)
 }
 
-func saveCrossCorr(config ConfigModHmm, filename string, x []int, y []float64) {
+func saveCrossCorr(config ConfigModHmm, feature, filename string, x []int, y []float64) {
   basename := strings.TrimRight(filename, filepath.Ext(filename))
   filename  = fmt.Sprintf("%s.fraglen.table", basename)
 
   f, err := os.Create(filename)
   if err != nil {
-    log.Fatalf("opening `%s' failed: %v", filename, err)
+    log.Fatalf("[%s] ERROR: opening `%s' failed: %v", feature, filename, err)
   }
   defer f.Close()
 
   for i := 0; i < len(x); i++ {
     fmt.Fprintf(f, "%d %f\n", x[i], y[i])
   }
-  printStderr(config, 1, "Wrote crosscorrelation to `%s'\n", filename)
+  printStderr(config, 1, "[%s] Wrote crosscorrelation to `%s'\n", feature, filename)
 }
 
-func saveCrossCorrPlot(config ConfigModHmm, filename string, fraglen int, x []int, y []float64) {
+func saveCrossCorrPlot(config ConfigModHmm, feature, filename string, fraglen int, x []int, y []float64) {
   basename := strings.TrimRight(filename, filepath.Ext(filename))
   filename  = fmt.Sprintf("%s.fraglen.pdf", basename)
 
@@ -135,10 +135,10 @@ func saveCrossCorrPlot(config ConfigModHmm, filename string, fraglen int, x []in
   if err := p.Save(8*vg.Inch, 4*vg.Inch, filename); err != nil {
     log.Fatal(err)
   }
-  printStderr(config, 1, "Wrote cross-correlation plot to `%s'\n", filename)
+  printStderr(config, 1, "[%s] Wrote cross-correlation plot to `%s'\n", feature, filename)
 }
 
-func importFraglen(config ConfigModHmm, filename string) int {
+func importFraglen(config ConfigModHmm, feature, filename string) int {
   // try reading the fragment length from file
   basename := strings.TrimRight(filename, filepath.Ext(filename))
   filename  = fmt.Sprintf("%s.fraglen.txt", basename)
@@ -146,15 +146,13 @@ func importFraglen(config ConfigModHmm, filename string) int {
     return 0
   } else {
     defer f.Close()
-    printStderr(config, 1, "Reading fragment length from `%s'... ", filename)
+    printStderr(config, 1, "[%s] Reading fragment length from `%s'\n", feature, filename)
     scanner := bufio.NewScanner(f)
     if scanner.Scan() {
       if fraglen, err := strconv.ParseInt(scanner.Text(), 10, 64); err == nil {
-        printStderr(config, 1, "done\n")
         return int(fraglen)
       }
     }
-    printStderr(config, 1, "failed\n")
     return 0
   }
 }
@@ -185,7 +183,7 @@ func single_feature_coverage_h3k4me3o1(config ConfigModHmm) {
 
 /* -------------------------------------------------------------------------- */
 
-func single_feature_coverage(config ConfigModHmm, filenameBam []string, filenameData string, optionsList []interface{}) {
+func single_feature_coverage(config ConfigModHmm, feature string, filenameBam []string, filenameData string, optionsList []interface{}) {
   fraglen := make([]int, len(filenameBam))
 
   // split filename:fraglen
@@ -195,7 +193,7 @@ func single_feature_coverage(config ConfigModHmm, filenameBam []string, filename
   // import fragment length
   for i, filename := range filenameBam {
     if fraglen[i] == 0 {
-      fraglen[i] = importFraglen(config, filename)
+      fraglen[i] = importFraglen(config, feature, filename)
     }
   }
 
@@ -207,13 +205,13 @@ func single_feature_coverage(config ConfigModHmm, filenameBam []string, filename
   for i, estimate := range fraglenEstimate {
     filename := filenameBam[i]
     if err == nil {
-      saveFraglen(config, filename, estimate.Fraglen)
+      saveFraglen(config, feature, filename, estimate.Fraglen)
     }
     if estimate.X != nil && estimate.Y != nil {
-      saveCrossCorr(config, filename, estimate.X, estimate.Y)
+      saveCrossCorr(config, feature, filename, estimate.X, estimate.Y)
     }
     if estimate.X != nil && estimate.Y != nil {
-      saveCrossCorrPlot(config, filename, estimate.Fraglen, estimate.X, estimate.Y)
+      saveCrossCorrPlot(config, feature, filename, estimate.Fraglen, estimate.X, estimate.Y)
     }
   }
 
@@ -245,7 +243,7 @@ func modhmm_single_feature_coverage(config ConfigModHmm, feature string) {
   optionsList  := []interface{}{}
 
   if config.Verbose > 0 {
-    optionsList = append(optionsList, OptionLogger{os.Stderr})
+    optionsList = append(optionsList, OptionLogger{log.New(os.Stderr, fmt.Sprintf("[%s] ", feature), 0)})
   }
   optionsList = append(optionsList, OptionBinningMethod{"mean overlap"})
   optionsList = append(optionsList, OptionBinSize{config.BinSize})
@@ -304,13 +302,13 @@ func modhmm_single_feature_coverage(config ConfigModHmm, feature string) {
     if len(filenameBam) == 0 {
       log.Fatalf("ERROR: no bam files specified for feature `%s'", feature)
     }
-    single_feature_coverage(config, filenameBam, filenameData, optionsList)
+    single_feature_coverage(config, feature, filenameBam, filenameData, optionsList)
   }
 }
 
 func modhmm_single_feature_coverage_all(config ConfigModHmm) {
   pool := threadpool.New(config.ThreadsCoverage, 10)
-  for _, feature := range []string{"atac", "h3k27ac", "h3k27me3", "h3k4me1", "h3k4me3", "rna", "control"} {
+  for _, feature := range []string{"atac", "h3k27ac", "h3k27me3", "h3k9me3", "h3k4me1", "h3k4me3", "rna", "control"} {
     f := feature
     pool.AddJob(0, func(pool threadpool.ThreadPool, erf func() error) error {
       modhmm_single_feature_coverage(config, f)
