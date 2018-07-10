@@ -97,7 +97,7 @@ func checkModelFiles(config interface{}) {
     case reflect.String:
       if !fileExists(v.Field(i).String()) {
         log.Fatalf(
-          "ERROR: Model file `%s' required for enrichment analysis does not exist.\n" +
+            "ERROR: Model file `%s' required for enrichment analysis does not exist.\n" +
             "       Please download the respective file or estimate a model with the\n" +
             "       `estimate-single-feature-mixture` subcommand", v.Field(i).String())
       }
@@ -117,7 +117,7 @@ func single_feature_classify(config ConfigModHmm, filenameModel, filenameComp, f
     printStderr(config, 1, "failed\n")
     log.Fatal(err)
   }
-    printStderr(config, 1, "done\n")
+  printStderr(config, 1, "done\n")
 
   k := ImportComponents(config, filenameComp)
   r := invertComponents(k, mixture.NComponents())

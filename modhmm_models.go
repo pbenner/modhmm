@@ -136,7 +136,7 @@ func getModHmmDenseEstimator(config ConfigModHmm) (*matrixEstimator.HmmEstimator
     estimators[i] = vectorEstimator.NilEstimator{&EmissionDistribution{i, n}}
   }
 
-  if estimator, err := matrixEstimator.NewHmmEstimator(pi, tr, nil, nil, nil, estimators, 1e-4, -1); err != nil {
+  if estimator, err := matrixEstimator.NewHmmEstimator(pi, tr, nil, nil, nil, estimators, 1e-2, -1); err != nil {
     panic(err)
   } else {
     estimator.ChunkSize = 10000

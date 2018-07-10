@@ -46,28 +46,35 @@ func estimate(config ConfigModHmm, trackFiles []string, model string) {
   case "dense":
     estimator, stateNames = getModHmmDenseEstimator(config)
   default:
-    log.Fatal("invalid model")
+    log.Fatalf("ERROR: invalid model name `%s'", model)
   }
 
+  printStderr(config, 1, "Estimating ModHmm transition parameters\n")
   if err := ImportAndEstimateOnMultiTrack(config.SessionConfig, estimator, trackFiles, true); err != nil {
-    log.Fatal(err)
+    log.Fatalf("ERROR: %s", err)
   }
   modhmm := ModHmm{}
   modhmm.Hmm        = *estimator.GetEstimate().(*matrixDistribution.Hmm)
   modhmm.StateNames = stateNames
 
+  printStderr(config, 1, "Exporting model to `%s'... ", config.Model)
   if err := ExportDistribution(config.Model, &modhmm); err != nil {
-    log.Fatal(err)
+    printStderr(config, 1, "failed\n")
+    log.Fatalf("ERROR: %s", err)
   }
+  printStderr(config, 1, "done\n")
 }
 
 /* -------------------------------------------------------------------------- */
 
 func segment(config ConfigModHmm, trackFiles []string) {
   modhmm := ModHmm{}
+  printStderr(config, 1, "Importing model from `%s'... ", config.Model)
   if err := ImportDistribution(config.Model, &modhmm, BareRealType); err != nil {
     log.Fatal(err)
+    printStderr(config, 1, "failed\n")
   }
+  printStderr(config, 1, "done\n")
 
   if result, err := ImportAndClassifyMultiTrack(config.SessionConfig, matrixClassifier.HmmClassifier{&modhmm.Hmm}, trackFiles, true); err != nil {
     log.Fatal(err)
@@ -122,8 +129,8 @@ func modhmm_segmentation_main(config ConfigModHmm, args []string) {
   options.SetProgram(fmt.Sprintf("%s classify-multi-feature-mixture", os.Args[0]))
   options.SetParameters("<STATE>\n")
 
-  optHelp  := options.   BoolLong("help",     'h',     "print help")
-  optModel := options. StringLong("model",     0 , "", "default, dense")
+  optHelp  := options.   BoolLong("help",     'h',            "print help")
+  optModel := options. StringLong("model",     0 , "default", "default, dense")
 
   options.Parse(args)
 
