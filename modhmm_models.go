@@ -121,7 +121,7 @@ func (obj *EmissionDistribution) ExportConfig() ConfigDistribution {
 
 func getModHmmDenseEstimator(config ConfigModHmm) (*matrixEstimator.HmmEstimator, []string) {
   stateNames := []string{
-    "EA", "EP", "PA", "PB", "TR", "R1", "R2", "NS", "CL"}
+    "PA", "PB", "EA", "EP", "TR", "TL", "R1", "R2", "CL", "NS"}
 
   n := 10
 
@@ -177,7 +177,7 @@ func getModHmmDefaultEstimator(config ConfigModHmm) (*matrixEstimator.HmmEstimat
   const jEPt2 = 14 // enhancer poised
 
   stateNames := []string{
-    "R1", "R2", "NS", "CL", "TL", "EA", "EP", "PA", "PB", "EA:tr", "EP:tr", "EA:tr", "EP:tr", "TR", "TR"}
+    "EA", "EP", "TL", "R1", "R2", "NS", "CL", "PA", "PB", "TR", "TR", "EA:tr", "EP:tr", "EA:tr", "EP:tr"}
 
   n := 10
   m := 15
