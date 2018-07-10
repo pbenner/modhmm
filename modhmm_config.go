@@ -22,7 +22,6 @@ import   "fmt"
 import   "bytes"
 import   "io"
 import   "path"
-import   "os"
 
 import . "github.com/pbenner/ngstat/config"
 import . "github.com/pbenner/autodiff"
@@ -143,10 +142,10 @@ type ConfigModHmm struct {
   SingleFeatureBamDir        string                   `json:"Bam Directory"`
   SingleFeatureBam           ConfigBam                `json:"Bam Files"`
   SingleFeatureDataDir       string                   `json:"Coverage Directory"`
-  SingleFeatureData          ConfigSingleFeaturePaths
+  SingleFeatureData          ConfigSingleFeaturePaths `json:"Coverage Files"`
   SingleFeatureJsonDir       string                   `json:"Model Directory"`
-  SingleFeatureJson          ConfigSingleFeaturePaths
-  SingleFeatureComp          ConfigSingleFeaturePaths
+  SingleFeatureJson          ConfigSingleFeaturePaths `json:"Model Files"`
+  SingleFeatureComp          ConfigSingleFeaturePaths `json:"Model Component Files"`
   SingleFeatureFg            ConfigSingleFeaturePaths
   SingleFeatureBg            ConfigSingleFeaturePaths
   MultiFeatureClass          ConfigMultiFeaturePaths
@@ -219,7 +218,7 @@ func (config *ConfigModHmm) CompletePaths() {
 /* -------------------------------------------------------------------------- */
 
 func fileCheckMark(filename string) string {
-  if _, err := os.Stat(filename); err != nil {
+  if fileExists(filename) {
     return "\xE2\x9C\x97"
   } else {
     return "\xE2\x9C\x93"

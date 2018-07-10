@@ -22,6 +22,7 @@ import   "fmt"
 import   "log"
 import   "io"
 import   "os"
+import   "reflect"
 import   "strings"
 
 import . "github.com/pbenner/ngstat/config"
@@ -69,7 +70,7 @@ func ImportComponents(config ConfigModHmm, filename string) []int {
   printStderr(config, 1, "Importing foreground components from `%s'... ", filename)
   if err := ImportFile(&k, filename); err != nil {
     printStderr(config, 1, "failed\n")
-    log.Fatalf("could not import components from `%s': %v", filename, err)
+    log.Fatalf("ERROR: could not import components from `%s': %v", filename, err)
   }
   printStderr(config, 1, "done\n")
   return []int(k)
@@ -79,9 +80,24 @@ func ExportComponents(config ConfigModHmm, filename string, k []int) {
   printStderr(config, 1, "Exporting foreground components to `%s'... ", filename)
   if err := ExportFile((*Components)(&k), filename); err != nil {
     printStderr(config, 1, "failed\n")
-    log.Fatalf("could not export components to `%s': %v", filename, err)
+    log.Fatalf("ERROR: could not export components to `%s': %v", filename, err)
   }
   printStderr(config, 1, "done\n")
+}
+
+/* -------------------------------------------------------------------------- */
+
+func checkModelFiles(config ConfigSingleFeaturePaths) {
+  v := reflect.ValueOf(config)
+
+  for i := 0; i < v.NumField(); i++ {
+    if !fileExists(v.Field(i).String()) {
+      log.Fatalf(
+        "ERROR: Model file `%s' required for enrichment analysis does not exist.\n" +
+        "       Please download the respective file or estimate a model with the\n" +
+        "       `estimate-single-feature-mixture` subcommand", v.Field(i).String())
+    }
+  }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -183,7 +199,7 @@ func modhmm_single_feature_classify(config ConfigModHmm, feature string) {
     filenameComp    = config.SingleFeatureComp.Rna
     filenameResult1 = config.SingleFeatureFg.Rna
     filenameResult2 = config.SingleFeatureBg.Rna
-  case "rnaLow":
+  case "rnalow":
     filenameData    = config.SingleFeatureData.RnaLow
     filenameModel   = config.SingleFeatureJson.RnaLow
     filenameComp    = config.SingleFeatureComp.RnaLow
@@ -200,6 +216,9 @@ func modhmm_single_feature_classify(config ConfigModHmm, feature string) {
   }
   if updateRequired(config, filenameResult1, filenameModel, filenameComp, filenameData) ||
     (updateRequired(config, filenameResult2, filenameModel, filenameComp, filenameData)) {
+    checkModelFiles(config.SingleFeatureJson)
+    checkModelFiles(config.SingleFeatureComp)
+
     modhmm_single_feature_coverage_all(config)
     single_feature_classify(localConfig, filenameModel, filenameComp, filenameData, filenameResult1, filenameResult2)
   }
