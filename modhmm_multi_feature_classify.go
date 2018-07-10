@@ -148,6 +148,7 @@ func modhmm_multi_feature_classify(config ConfigModHmm, state string, tracks []T
   if updateRequired(config, filenameResult1, dependencies...) ||
     (updateRequired(config, filenameResult2, dependencies...)) {
     modhmm_single_feature_classify_all(config)
+    printStderr(config, 1, "==> Computing Multi-Feature Classification (%s) <==\n", state)
     tracks = multi_feature_classify(localConfig, classifier, trackFiles, tracks, filenameResult1, filenameResult2)
   }
   return tracks

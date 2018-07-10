@@ -49,7 +49,6 @@ func estimate(config ConfigModHmm, trackFiles []string, model string) {
     log.Fatalf("ERROR: invalid model name `%s'", model)
   }
 
-  printStderr(config, 1, "Estimating ModHmm transition parameters\n")
   if err := ImportAndEstimateOnMultiTrack(config.SessionConfig, estimator, trackFiles, true); err != nil {
     log.Fatalf("ERROR: %s", err)
   }
@@ -76,7 +75,6 @@ func segment(config ConfigModHmm, trackFiles []string) {
   }
   printStderr(config, 1, "done\n")
 
-  printStderr(config, 1, "Computing Segmentation\n")
   if result, err := ImportAndClassifyMultiTrack(config.SessionConfig, matrixClassifier.HmmClassifier{&modhmm.Hmm}, trackFiles, true); err != nil {
     log.Fatal(err)
   } else {
@@ -127,9 +125,12 @@ func modhmm_segmentation(config ConfigModHmm, model string) {
 
   if updateRequired(config, filenameModel, dependencies...) {
     modhmm_multi_feature_classify_all(config)
+
+    printStderr(config, 1, "==> Estimating ModHmm transition parameters <==\n")
     estimate(config, trackFiles, model)
   }
   if updateRequired(config, filenameSegmentation, append(dependencies, filenameModel)...) {
+    printStderr(config, 1, "==> Computing Segmentation <==\n")
     segment(config, trackFiles)
   }
 }

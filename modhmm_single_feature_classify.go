@@ -230,6 +230,7 @@ func modhmm_single_feature_classify(config ConfigModHmm, feature string) {
     checkModelFiles(config.SingleFeatureComp)
 
     modhmm_single_feature_coverage_all(config)
+    printStderr(config, 1, "==> Computing Single-Feature Classification (%s) <==\n", feature)
     single_feature_classify(localConfig, filenameModel, filenameComp, filenameData, filenameResult1, filenameResult2)
   }
 }
