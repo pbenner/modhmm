@@ -141,7 +141,7 @@ func getModHmmDenseEstimator(config ConfigModHmm) (*matrixEstimator.HmmEstimator
   } else {
     estimator.ChunkSize = 10000
     estimator.OptimizeEmissions = false
-    estimator.Verbose = config.Verbose
+    estimator.Verbose = config.Verbose-1
     return estimator, stateNames
   }
 }
@@ -329,7 +329,7 @@ func getModHmmDefaultEstimator(config ConfigModHmm) (*matrixEstimator.HmmEstimat
   } else {
     estimator.ChunkSize = 10000
     estimator.OptimizeEmissions = false
-    estimator.Verbose = config.Verbose
+    estimator.Verbose = config.Verbose-1
     return estimator, stateNames
   }
 }

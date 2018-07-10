@@ -217,7 +217,7 @@ func (config *ConfigModHmm) CompletePaths() {
     config.Segmentation = completePath(config.Directory, "", config.Segmentation, "segmentation.bed.gz")
   }
   config.SingleFeatureBam    .CompletePaths(config.SingleFeatureBamDir, "", "")
-  config.SingleFeatureData   .CompletePaths(config.SingleFeatureDataDir, "", ".bw")
+  config.SingleFeatureData   .CompletePaths(config.SingleFeatureDataDir, "coverage-", ".bw")
   config.SingleFeatureJson   .CompletePaths(config.SingleFeatureJsonDir, "", ".json")
   config.SingleFeatureComp   .CompletePaths(config.SingleFeatureJsonDir, "", ".components.json")
   config.SingleFeatureFg     .CompletePaths(config.Directory, "single-feature-", ".fg.bw")
