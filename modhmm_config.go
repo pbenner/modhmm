@@ -22,6 +22,7 @@ import   "fmt"
 import   "bytes"
 import   "io"
 import   "path"
+import   "os"
 
 import . "github.com/pbenner/ngstat/config"
 import . "github.com/pbenner/autodiff"
@@ -217,6 +218,16 @@ func (config *ConfigModHmm) CompletePaths() {
 
 /* -------------------------------------------------------------------------- */
 
+func fileCheckMark(filename string) string {
+  if _, err := os.Stat(filename); err != nil {
+    return "\xE2\x9C\x97"
+  } else {
+    return "\xE2\x9C\x93"
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+
 func (config ConfigBam) String() string {
   var buffer bytes.Buffer
 
@@ -234,15 +245,15 @@ func (config ConfigBam) String() string {
 func (config ConfigSingleFeaturePaths) String() string {
   var buffer bytes.Buffer
 
-  fmt.Fprintf(&buffer, " -> ATAC                 : %v\n", config.Atac)
-  fmt.Fprintf(&buffer, " -> H3K27ac              : %v\n", config.H3k27ac)
-  fmt.Fprintf(&buffer, " -> H3K27me3             : %v\n", config.H3k27me3)
-  fmt.Fprintf(&buffer, " -> H3K4me1              : %v\n", config.H3k4me1)
-  fmt.Fprintf(&buffer, " -> H3K4me3              : %v\n", config.H3k4me3)
-  fmt.Fprintf(&buffer, " -> H3K4me3o1            : %v\n", config.H3k4me3o1)
-  fmt.Fprintf(&buffer, " -> RNA                  : %v\n", config.Rna)
-  fmt.Fprintf(&buffer, " -> RNA (low)            : %v\n", config.RnaLow)
-  fmt.Fprintf(&buffer, " -> Control              : %v\n", config.Control)
+  fmt.Fprintf(&buffer, " -> ATAC                 : %v %s\n", config.Atac,      fileCheckMark(config.Atac))
+  fmt.Fprintf(&buffer, " -> H3K27ac              : %v %s\n", config.H3k27ac,   fileCheckMark(config.H3k27ac))
+  fmt.Fprintf(&buffer, " -> H3K27me3             : %v %s\n", config.H3k27me3,  fileCheckMark(config.H3k27me3))
+  fmt.Fprintf(&buffer, " -> H3K4me1              : %v %s\n", config.H3k4me1,   fileCheckMark(config.H3k4me1))
+  fmt.Fprintf(&buffer, " -> H3K4me3              : %v %s\n", config.H3k4me3,   fileCheckMark(config.H3k4me3))
+  fmt.Fprintf(&buffer, " -> H3K4me3o1            : %v %s\n", config.H3k4me3o1, fileCheckMark(config.H3k4me3o1))
+  fmt.Fprintf(&buffer, " -> RNA                  : %v %s\n", config.Rna,       fileCheckMark(config.Rna))
+  fmt.Fprintf(&buffer, " -> RNA (low)            : %v %s\n", config.RnaLow,    fileCheckMark(config.RnaLow))
+  fmt.Fprintf(&buffer, " -> Control              : %v %s\n", config.Control,   fileCheckMark(config.Control))
 
   return buffer.String()
 }
@@ -250,16 +261,16 @@ func (config ConfigSingleFeaturePaths) String() string {
 func (config ConfigMultiFeaturePaths) String() string {
   var buffer bytes.Buffer
 
-  fmt.Fprintf(&buffer, " -> PA                   : %v\n", config.PA)
-  fmt.Fprintf(&buffer, " -> PB                   : %v\n", config.PB)
-  fmt.Fprintf(&buffer, " -> EA                   : %v\n", config.EA)
-  fmt.Fprintf(&buffer, " -> EP                   : %v\n", config.EP)
-  fmt.Fprintf(&buffer, " -> TR                   : %v\n", config.TR)
-  fmt.Fprintf(&buffer, " -> TL                   : %v\n", config.TL)
-  fmt.Fprintf(&buffer, " -> R1                   : %v\n", config.R1)
-  fmt.Fprintf(&buffer, " -> R2                   : %v\n", config.R2)
-  fmt.Fprintf(&buffer, " -> CL                   : %v\n", config.CL)
-  fmt.Fprintf(&buffer, " -> NS                   : %v\n", config.NS)
+  fmt.Fprintf(&buffer, " -> PA                   : %v %s\n", config.PA, fileCheckMark(config.PA))
+  fmt.Fprintf(&buffer, " -> PB                   : %v %s\n", config.PB, fileCheckMark(config.PB))
+  fmt.Fprintf(&buffer, " -> EA                   : %v %s\n", config.EA, fileCheckMark(config.EA))
+  fmt.Fprintf(&buffer, " -> EP                   : %v %s\n", config.EP, fileCheckMark(config.EP))
+  fmt.Fprintf(&buffer, " -> TR                   : %v %s\n", config.TR, fileCheckMark(config.TR))
+  fmt.Fprintf(&buffer, " -> TL                   : %v %s\n", config.TL, fileCheckMark(config.TL))
+  fmt.Fprintf(&buffer, " -> R1                   : %v %s\n", config.R1, fileCheckMark(config.R1))
+  fmt.Fprintf(&buffer, " -> R2                   : %v %s\n", config.R2, fileCheckMark(config.R2))
+  fmt.Fprintf(&buffer, " -> CL                   : %v %s\n", config.CL, fileCheckMark(config.CL))
+  fmt.Fprintf(&buffer, " -> NS                   : %v %s\n", config.NS, fileCheckMark(config.NS))
 
   return buffer.String()
 }
@@ -285,8 +296,8 @@ func (config ConfigModHmm) String() string {
   fmt.Fprintf(&buffer, "Multi-feature classifications:\n")
   fmt.Fprintf(&buffer, "%v\n", config.MultiFeatureClassExp.String())
   fmt.Fprintf(&buffer, "ModHmm options:\n")
-  fmt.Fprintf(&buffer, " ->  ModHMM Model File           : %v\n", config.Model)
-  fmt.Fprintf(&buffer, " ->  Genome Segmentation File    : %v\n", config.Segmentation)
+  fmt.Fprintf(&buffer, " ->  ModHMM Model File           : %v %s\n", config.Model, fileCheckMark(config.Model))
+  fmt.Fprintf(&buffer, " ->  Genome Segmentation File    : %v %s\n", config.Segmentation, fileCheckMark(config.Segmentation))
   fmt.Fprintf(&buffer, " ->  Description                 : %v\n", config.Description)
 
   return buffer.String()
