@@ -76,6 +76,7 @@ func segment(config ConfigModHmm, trackFiles []string) {
   }
   printStderr(config, 1, "done\n")
 
+  printStderr(config, 1, "Computing Segmentation\n")
   if result, err := ImportAndClassifyMultiTrack(config.SessionConfig, matrixClassifier.HmmClassifier{&modhmm.Hmm}, trackFiles, true); err != nil {
     log.Fatal(err)
   } else {
@@ -87,9 +88,12 @@ func segment(config ConfigModHmm, trackFiles []string) {
       name = fmt.Sprintf("ModHMM [%s]", config.Description)
       desc = fmt.Sprintf("Segmentation ModHMM [%s]", config.Description)
     }
+    printStderr(config, 1, "Writing genome segmentation to `%s'... ", config.Segmentation)
     if err := ExportTrackSegmentation(config.SessionConfig, result, config.Segmentation, name, desc, true, modhmm.StateNames, nil); err != nil {
+      printStderr(config, 1, "failed\n")
       log.Fatal(err)
     }
+    printStderr(config, 1, "done\n")
   }
 }
 
