@@ -22,18 +22,19 @@ import   "fmt"
 import   "bytes"
 import   "io"
 import   "path"
+import   "path/filepath"
 
 import . "github.com/pbenner/ngstat/config"
 import . "github.com/pbenner/autodiff"
 
 /* -------------------------------------------------------------------------- */
 
-func completePath(prefix, mypath, def string) string {
+func completePath(dir, prefix, mypath, def string) string {
   if mypath == "" {
-    mypath = def
+    mypath = fmt.Sprintf("%s%s", prefix, def)
   }
-  if !path.IsAbs(mypath) {
-    mypath = fmt.Sprintf("%s/%s", prefix, mypath)
+  if d, f := path.Split(mypath); d == "" {
+    mypath = filepath.Join(dir, f)
   }
   return mypath
 }
@@ -51,30 +52,30 @@ type ConfigBam struct {
   Control    []string `json:"Control"`
 }
 
-func (config *ConfigBam) CompletePaths(prefix, suffix string) {
+func (config *ConfigBam) CompletePaths(dir, prefix, suffix string) {
   for i, _ := range config.Atac {
-    config.Atac[i]      = completePath(prefix, config.Atac[i],     "")
+    config.Atac[i]      = completePath(dir, prefix, config.Atac[i],     "")
   }
   for i, _ := range config.H3k27ac {
-    config.H3k27ac[i]   = completePath(prefix, config.H3k27ac[i],  "")
+    config.H3k27ac[i]   = completePath(dir, prefix, config.H3k27ac[i],  "")
   }
   for i, _ := range config.H3k27me3 {
-    config.H3k27me3[i]  = completePath(prefix, config.H3k27me3[i], "")
+    config.H3k27me3[i]  = completePath(dir, prefix, config.H3k27me3[i], "")
   }
   for i, _ := range config.H3k9me3 {
-    config.H3k9me3[i]   = completePath(prefix, config.H3k9me3[i],  "")
+    config.H3k9me3[i]   = completePath(dir, prefix, config.H3k9me3[i],  "")
   }
   for i, _ := range config.H3k4me1 {
-    config.H3k4me1[i]   = completePath(prefix, config.H3k4me1[i],  "")
+    config.H3k4me1[i]   = completePath(dir, prefix, config.H3k4me1[i],  "")
   }
   for i, _ := range config.H3k4me3 {
-    config.H3k4me3[i]   = completePath(prefix, config.H3k4me3[i],  "")
+    config.H3k4me3[i]   = completePath(dir, prefix, config.H3k4me3[i],  "")
   }
   for i, _ := range config.Rna {
-    config.Rna[i]       = completePath(prefix, config.Rna[i],      "")
+    config.Rna[i]       = completePath(dir, prefix, config.Rna[i],      "")
   }
   for i, _ := range config.Control {
-    config.Control[i]   = completePath(prefix, config.Control[i],  "")
+    config.Control[i]   = completePath(dir, prefix, config.Control[i],  "")
   }
 }
 
@@ -92,16 +93,16 @@ type ConfigCoveragePaths struct {
   Control    string `json:"Control"`
 }
 
-func (config *ConfigCoveragePaths) CompletePaths(prefix, suffix string) {
-  config.Atac      = completePath(prefix, config.Atac,      fmt.Sprintf("atac%s", suffix))
-  config.H3k27ac   = completePath(prefix, config.H3k27ac,   fmt.Sprintf("h3k27ac%s", suffix))
-  config.H3k27me3  = completePath(prefix, config.H3k27me3,  fmt.Sprintf("h3k27me3%s", suffix))
-  config.H3k9me3   = completePath(prefix, config.H3k9me3,   fmt.Sprintf("h3k9me3%s", suffix))
-  config.H3k4me1   = completePath(prefix, config.H3k4me1,   fmt.Sprintf("h3k4me1%s", suffix))
-  config.H3k4me3   = completePath(prefix, config.H3k4me3,   fmt.Sprintf("h3k4me3%s", suffix))
-  config.H3k4me3o1 = completePath(prefix, config.H3k4me3o1, fmt.Sprintf("h3k4me3o1%s", suffix))
-  config.Rna       = completePath(prefix, config.Rna,       fmt.Sprintf("rna%s", suffix))
-  config.Control   = completePath(prefix, config.Control,   fmt.Sprintf("control%s", suffix))
+func (config *ConfigCoveragePaths) CompletePaths(dir, prefix, suffix string) {
+  config.Atac      = completePath(dir, prefix, config.Atac,      fmt.Sprintf("atac%s", suffix))
+  config.H3k27ac   = completePath(dir, prefix, config.H3k27ac,   fmt.Sprintf("h3k27ac%s", suffix))
+  config.H3k27me3  = completePath(dir, prefix, config.H3k27me3,  fmt.Sprintf("h3k27me3%s", suffix))
+  config.H3k9me3   = completePath(dir, prefix, config.H3k9me3,   fmt.Sprintf("h3k9me3%s", suffix))
+  config.H3k4me1   = completePath(dir, prefix, config.H3k4me1,   fmt.Sprintf("h3k4me1%s", suffix))
+  config.H3k4me3   = completePath(dir, prefix, config.H3k4me3,   fmt.Sprintf("h3k4me3%s", suffix))
+  config.H3k4me3o1 = completePath(dir, prefix, config.H3k4me3o1, fmt.Sprintf("h3k4me3o1%s", suffix))
+  config.Rna       = completePath(dir, prefix, config.Rna,       fmt.Sprintf("rna%s", suffix))
+  config.Control   = completePath(dir, prefix, config.Control,   fmt.Sprintf("control%s", suffix))
 }
 
 /* -------------------------------------------------------------------------- */
@@ -111,9 +112,9 @@ type ConfigSingleFeaturePaths struct {
   RnaLow     string `json:"RNA low"`
 }
 
-func (config *ConfigSingleFeaturePaths) CompletePaths(prefix, suffix string) {
-  config.ConfigCoveragePaths.CompletePaths(prefix, suffix)
-  config.RnaLow    = completePath(prefix, config.RnaLow,    fmt.Sprintf("rna-low%s", suffix))
+func (config *ConfigSingleFeaturePaths) CompletePaths(dir, prefix, suffix string) {
+  config.ConfigCoveragePaths.CompletePaths(dir, prefix, suffix)
+  config.RnaLow    = completePath(dir, prefix, config.RnaLow,    fmt.Sprintf("rna-low%s", suffix))
 }
 
 /* -------------------------------------------------------------------------- */
@@ -131,17 +132,17 @@ type ConfigMultiFeaturePaths struct {
   NS       string
 }
 
-func (config *ConfigMultiFeaturePaths) CompletePaths(prefix, suffix string) {
-  config.EA = completePath(prefix, config.EA, fmt.Sprintf("multifeature-EA%s", suffix))
-  config.EP = completePath(prefix, config.EP, fmt.Sprintf("multifeature-EP%s", suffix))
-  config.PA = completePath(prefix, config.PA, fmt.Sprintf("multifeature-PA%s", suffix))
-  config.PB = completePath(prefix, config.PB, fmt.Sprintf("multifeature-PB%s", suffix))
-  config.TR = completePath(prefix, config.TR, fmt.Sprintf("multifeature-TR%s", suffix))
-  config.TL = completePath(prefix, config.TL, fmt.Sprintf("multifeature-TL%s", suffix))
-  config.R1 = completePath(prefix, config.R1, fmt.Sprintf("multifeature-R1%s", suffix))
-  config.R2 = completePath(prefix, config.R2, fmt.Sprintf("multifeature-R2%s", suffix))
-  config.CL = completePath(prefix, config.CL, fmt.Sprintf("multifeature-CL%s", suffix))
-  config.NS = completePath(prefix, config.NS, fmt.Sprintf("multifeature-NS%s", suffix))
+func (config *ConfigMultiFeaturePaths) CompletePaths(dir, prefix, suffix string) {
+  config.EA = completePath(dir, prefix, config.EA, fmt.Sprintf("EA%s", suffix))
+  config.EP = completePath(dir, prefix, config.EP, fmt.Sprintf("EP%s", suffix))
+  config.PA = completePath(dir, prefix, config.PA, fmt.Sprintf("PA%s", suffix))
+  config.PB = completePath(dir, prefix, config.PB, fmt.Sprintf("PB%s", suffix))
+  config.TR = completePath(dir, prefix, config.TR, fmt.Sprintf("TR%s", suffix))
+  config.TL = completePath(dir, prefix, config.TL, fmt.Sprintf("TL%s", suffix))
+  config.R1 = completePath(dir, prefix, config.R1, fmt.Sprintf("R1%s", suffix))
+  config.R2 = completePath(dir, prefix, config.R2, fmt.Sprintf("R2%s", suffix))
+  config.CL = completePath(dir, prefix, config.CL, fmt.Sprintf("CL%s", suffix))
+  config.NS = completePath(dir, prefix, config.NS, fmt.Sprintf("NS%s", suffix))
 }
 
 /* -------------------------------------------------------------------------- */
@@ -160,7 +161,7 @@ type ConfigModHmm struct {
   SingleFeatureBg            ConfigSingleFeaturePaths
   MultiFeatureClass          ConfigMultiFeaturePaths
   MultiFeatureClassExp       ConfigMultiFeaturePaths
-  Prefix                     string                    `json:"Prefix"`
+  Directory                  string                    `json:"Directory"`
   Model                      string                    `json:"ModHmm Model File"`
   Segmentation               string                    `json:"Genome Segmentation File"`
   Description                string
@@ -197,32 +198,32 @@ func DefaultModHmmConfig() ConfigModHmm {
 }
 
 func (config *ConfigModHmm) CompletePaths() {
-  if config.Prefix == "" {
-    config.Prefix = "."
+  if config.Directory == "" {
+    config.Directory = "."
   }
   if config.SingleFeatureBamDir == "" {
-    config.SingleFeatureBamDir = config.Prefix
+    config.SingleFeatureBamDir = config.Directory
   }
   if config.SingleFeatureDataDir == "" {
-    config.SingleFeatureDataDir = config.Prefix
+    config.SingleFeatureDataDir = config.Directory
   }
   if config.SingleFeatureJsonDir == "" {
-    config.SingleFeatureJsonDir = config.Prefix
+    config.SingleFeatureJsonDir = config.Directory
   }
   if config.Model == "" {
-    config.Model = completePath(config.Prefix, config.Model, "segmentation.json")
+    config.Model = completePath(config.Directory, "", config.Model, "segmentation.json")
   }
   if config.Segmentation == "" {
-    config.Segmentation = completePath(config.Prefix, config.Segmentation, "segmentation.bed.gz")
+    config.Segmentation = completePath(config.Directory, "", config.Segmentation, "segmentation.bed.gz")
   }
-  config.SingleFeatureBam    .CompletePaths(config.SingleFeatureBamDir, "")
-  config.SingleFeatureData   .CompletePaths(config.SingleFeatureDataDir, ".bw")
-  config.SingleFeatureJson   .CompletePaths(config.SingleFeatureJsonDir, ".json")
-  config.SingleFeatureComp   .CompletePaths(config.SingleFeatureJsonDir, ".components.json")
-  config.SingleFeatureFg     .CompletePaths(config.Prefix, ".fg.bw")
-  config.SingleFeatureBg     .CompletePaths(config.Prefix, ".bg.bw")
-  config.MultiFeatureClass   .CompletePaths(config.Prefix, ".bw")
-  config.MultiFeatureClassExp.CompletePaths(config.Prefix, ".exp.bw")
+  config.SingleFeatureBam    .CompletePaths(config.SingleFeatureBamDir, "", "")
+  config.SingleFeatureData   .CompletePaths(config.SingleFeatureDataDir, "", ".bw")
+  config.SingleFeatureJson   .CompletePaths(config.SingleFeatureJsonDir, "", ".json")
+  config.SingleFeatureComp   .CompletePaths(config.SingleFeatureJsonDir, "", ".components.json")
+  config.SingleFeatureFg     .CompletePaths(config.Directory, "single-feature-", ".fg.bw")
+  config.SingleFeatureBg     .CompletePaths(config.Directory, "single-feature-", ".bg.bw")
+  config.MultiFeatureClass   .CompletePaths(config.Directory, "multi-feature-", ".bw")
+  config.MultiFeatureClassExp.CompletePaths(config.Directory, "multi-feature-", ".exp.bw")
 }
 
 /* -------------------------------------------------------------------------- */
