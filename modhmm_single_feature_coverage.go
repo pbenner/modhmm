@@ -233,7 +233,9 @@ func single_feature_coverage(config ConfigModHmm, filenameBam []string, filename
 func modhmm_single_feature_coverage(config ConfigModHmm, feature string) {
 
   if strings.ToLower(feature) == "h3k4me3o1" {
-    single_feature_coverage_h3k4me3o1(config)
+    if updateRequired(config, config.SingleFeatureData.H3k4me3o1, config.SingleFeatureData.H3k4me1, config.SingleFeatureData.H3k4me3) {
+      single_feature_coverage_h3k4me3o1(config)
+    }
     return
   }
 
