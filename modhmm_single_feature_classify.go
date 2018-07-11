@@ -20,11 +20,9 @@ package main
 
 import   "fmt"
 import   "log"
-import   "io"
 import   "os"
 import   "strings"
 
-import . "github.com/pbenner/ngstat/config"
 import . "github.com/pbenner/ngstat/classification"
 import . "github.com/pbenner/ngstat/track"
 
@@ -35,54 +33,6 @@ import   "github.com/pbenner/autodiff/statistics/scalarDistribution"
 import   "github.com/pbenner/autodiff/statistics/vectorClassifier"
 
 import   "github.com/pborman/getopt"
-
-/* -------------------------------------------------------------------------- */
-
-func invertComponents(k []int, n int) []int {
-  m := make(map[int]bool)
-  r := []int{}
-  for _, j := range k {
-    m[j] = true
-  }
-  for j := 0; j < n; j++ {
-    if _, ok := m[j]; !ok {
-      r = append(r, j)
-    }
-  }
-  return r
-}
-
-/* -------------------------------------------------------------------------- */
-
-type Components []int
-
-func (obj *Components) Import(reader io.Reader, args... interface{}) error {
-  return JsonImport(reader, obj)
-}
-
-func (obj *Components) Export(writer io.Writer) error {
-  return JsonExport(writer, obj)
-}
-
-func ImportComponents(config ConfigModHmm, filename string) []int {
-  var k Components
-  printStderr(config, 1, "Importing foreground components from `%s'... ", filename)
-  if err := ImportFile(&k, filename); err != nil {
-    printStderr(config, 1, "failed\n")
-    log.Fatalf("ERROR: could not import components from `%s': %v", filename, err)
-  }
-  printStderr(config, 1, "done\n")
-  return []int(k)
-}
-
-func ExportComponents(config ConfigModHmm, filename string, k []int) {
-  printStderr(config, 1, "Exporting foreground components to `%s'... ", filename)
-  if err := ExportFile((*Components)(&k), filename); err != nil {
-    printStderr(config, 1, "failed\n")
-    log.Fatalf("ERROR: could not export components to `%s': %v", filename, err)
-  }
-  printStderr(config, 1, "done\n")
-}
 
 /* -------------------------------------------------------------------------- */
 
@@ -110,7 +60,7 @@ func single_feature_classify(config ConfigModHmm, filenameModel, filenameComp, f
   printStderr(config, 1, "done\n")
 
   k := ImportComponents(config, filenameComp)
-  r := invertComponents(k, mixture.NComponents())
+  r := Components(k).Invert()
 
   scalarClassifier1 := scalarClassifier.MixturePosterior{mixture, k}
   vectorClassifier1 := vectorClassifier.ScalarBatchIid{scalarClassifier1, 1}
