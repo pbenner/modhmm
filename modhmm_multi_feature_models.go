@@ -45,7 +45,7 @@ func (obj BasicMultiFeatureModel) PeakSym(x ConstMatrix, i int) float64 {
   c := 0.0
   d := 0.0
   // j1 defines the positive region
-  for j1 := 0; j1 <= n/2; j1++ {
+  for j1 := 0; j1 < n/2; j1++ {
     j2 := n-j1-1
     if j1 == j2 {
       r = LogAdd(r, c + x.ValueAt(i, j1) + obj.pi[i])
@@ -67,7 +67,7 @@ func (obj BasicMultiFeatureModel) PeakSym(x ConstMatrix, i int) float64 {
                      x.ValueAt(i+1, k) + obj.pi[i+1])
       }
       r = LogAdd(r, c+t1)
-      s = LogAdd(r, d+t2)
+      s = LogAdd(s, d+t2)
       // no peak at (j1, j2)
       c += s1
       d += s2
