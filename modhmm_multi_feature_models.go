@@ -54,23 +54,24 @@ func (obj BasicMultiFeatureModel) PeakSym(x ConstMatrix, i int) float64 {
     } else {
       // peak at (j1, j2)
       t1 := x.ValueAt(i, j1) + obj.pi[i] + x.ValueAt(i, j2) + obj.pi[i]
+      t2 := 2.0*obj.pi[i]
       // no peak at (j1, j2)
-      t2 := LogAdd(x.ValueAt(i+0, j1) + obj.pi[i+0] + x.ValueAt(i+0, j2) + obj.pi[i+0],
-            LogAdd(x.ValueAt(i+0, j1) + obj.pi[i+0] + x.ValueAt(i+1, j2) + obj.pi[i+1],
-                   x.ValueAt(i+1, j1) + obj.pi[i+1] + x.ValueAt(i+1, j2) + obj.pi[i+1]))
-      t3 := LogAdd(obj.pi[i+0] + obj.pi[i+0],
-            LogAdd(obj.pi[i+0] + obj.pi[i+1],
-                   obj.pi[i+1] + obj.pi[i+1]))
-      // peak at (j1, j2) => t1 * p(x_j1+1) ... p(x_j2-1)
+      s1 := LogAdd(x.ValueAt(i+0, j1) + obj.pi[i+0] + x.ValueAt(i+1, j2) + obj.pi[i+1],  // p(x_j1,    peak at j1) p(x_j2, no peak at j2)
+            LogAdd(x.ValueAt(i+1, j1) + obj.pi[i+1] + x.ValueAt(i+0, j2) + obj.pi[i+0],  // p(x_j1, no peak at j1) p(x_j2,    peak at j2)
+                   x.ValueAt(i+1, j1) + obj.pi[i+1] + x.ValueAt(i+1, j2) + obj.pi[i+1])) // p(x_j1, no peak at j1) p(x_j2, no peak at j2)
+      s2 := LogAdd(obj.pi[i+0] + obj.pi[i+1],  // p(   peak at j1) p(no peak at j2)
+            LogAdd(obj.pi[i+1] + obj.pi[i+0],  // p(no peak at j1) p(   peak at j2)
+                   obj.pi[i+1] + obj.pi[i+1])) // p(no peak at j1) p(no peak at j2)
+      // peak at (j1, j2) => t1 * p(x_{j1+1}) ... p(x_{j2-1})
       for k := j1+1; k < j2; k++ {
         t1 += LogAdd(x.ValueAt(i+0, k) + obj.pi[i+0],
                      x.ValueAt(i+1, k) + obj.pi[i+1])
       }
       r = LogAdd(r, c+t1)
-      s = LogAdd(r, d+2.0*obj.pi[i])
+      s = LogAdd(r, d+t2)
       // no peak at (j1, j2)
-      c += t2
-      d += t3
+      c += s1
+      d += s2
     }
   }
   return r - s
