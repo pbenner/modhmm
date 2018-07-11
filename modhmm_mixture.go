@@ -49,13 +49,13 @@ func ImportMixture(config ConfigModHmm, filenameModel string) *scalarDistributio
 
 type Components []int
 
-func (obj Components) Invert() []int {
+func (obj Components) Invert(n int) []int {
   m := make(map[int]bool)
   r := []int{}
   for _, j := range obj {
     m[j] = true
   }
-  for j := 0; j < len(obj); j++ {
+  for j := 0; j < n; j++ {
     if _, ok := m[j]; !ok {
       r = append(r, j)
     }
@@ -97,7 +97,7 @@ func ImportMixtureWeights(config ConfigModHmm, filenameModel, filenameComp strin
   mixture := ImportMixture(config, filenameModel)
 
   k := ImportComponents(config, filenameComp)
-  r := Components(k).Invert()
+  r := Components(k).Invert(mixture.NComponents())
 
   p := math.Inf(-1)
   q := math.Inf(-1)

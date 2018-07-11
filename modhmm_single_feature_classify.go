@@ -60,7 +60,7 @@ func single_feature_classify(config ConfigModHmm, filenameModel, filenameComp, f
   printStderr(config, 1, "done\n")
 
   k := ImportComponents(config, filenameComp)
-  r := Components(k).Invert()
+  r := Components(k).Invert(mixture.NComponents())
 
   scalarClassifier1 := scalarClassifier.MixturePosterior{mixture, k}
   vectorClassifier1 := vectorClassifier.ScalarBatchIid{scalarClassifier1, 1}
