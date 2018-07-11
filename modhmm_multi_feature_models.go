@@ -160,23 +160,18 @@ type ModelPA struct {
 
 func (obj ModelPA) Eval(s Scalar, x ConstMatrix) error {
   r := 0.0
-  { // atac peak at the center
-    r += obj.PeakAtCenter(x, jAtac)
-  }
-  { // h3k27ac peak at any position
-    r += obj.PeakAny(x, jH3k27ac)
-  }
-  { // h3k4me3 peak at any position
-    r += obj.PeakAny(x, jH3k4me3)
-  }
-  { // h3k4me3o1 peak at any position
-    r += obj.PeakAny(x, jH3k4me3o1)
-  }
-  { // no control peak at all positions
-    r += obj.NoPeakAll(x, jControl)
-  }
-  s.SetValue(r)
-  return nil
+  r += obj.PeakAtCenter(x, jAtac)
+  r += obj.PeakAny     (x, jH3k27ac)
+  r += obj.Nil         (x, jH3k27me3)
+  r += obj.Nil         (x, jH3k9me3)
+  r += obj.Nil         (x, jH3k4me1)
+  r += obj.PeakAny     (x, jH3k4me3)
+  r += obj.PeakAny     (x, jH3k4me3o1)
+  r += obj.Nil         (x, jRna)
+  r += obj.Nil         (x, jRnaLow)
+  r += obj.NoPeakAll   (x, jControl)
+
+  s.SetValue(r); return nil
 }
 
 func (ModelPA) Dims() (int, int) {
@@ -195,23 +190,18 @@ type ModelPB struct {
 
 func (obj ModelPB) Eval(s Scalar, x ConstMatrix) error {
   r := 0.0
-  { // atac peak at the center
-    //r += obj.PeakAtCenter(x, jAtac)
-  }
-  { // h3k27me3 peak at any position
-    r += obj.PeakAny(x, jH3k27me3)
-  }
-  { // h3k4me3 peak at any position
-    r += obj.PeakAny(x, jH3k4me3)
-  }
-  { // h3k4me3o1 peak at any position
-    r += obj.PeakAny(x, jH3k4me3o1)
-  }
-  { // no control peak at all positions
-    r += obj.NoPeakAll(x, jControl)
-  }
-  s.SetValue(r)
-  return nil
+  r += obj.Nil      (x, jAtac)
+  r += obj.Nil      (x, jH3k27ac)
+  r += obj.PeakAny  (x, jH3k27me3)
+  r += obj.Nil      (x, jH3k9me3)
+  r += obj.Nil      (x, jH3k4me1)
+  r += obj.PeakAny  (x, jH3k4me3)
+  r += obj.PeakAny  (x, jH3k4me3o1)
+  r += obj.Nil      (x, jRna)
+  r += obj.Nil      (x, jRnaLow)
+  r += obj.NoPeakAll(x, jControl)
+
+  s.SetValue(r); return nil
 }
 
 func (ModelPB) Dims() (int, int) {
@@ -438,16 +428,22 @@ type ModelCL struct {
 }
 
 func (obj ModelCL) Eval(s Scalar, x ConstMatrix) error {
-  r := 0.0
-  { // control peak at any position
-    r += obj.PeakAny(x, jControl)
-  }
-  s.SetValue(r)
-  return nil
+  r += obj.Nil           (x, jAtac)
+  r += obj.Nil           (x, jH3k27ac)
+  r += obj.Nil           (x, jH3k27me3)
+  r += obj.Nil           (x, jH3k9me3)
+  r += obj.Nil           (x, jH3k4me1)
+  r += obj.Nil           (x, jH3k4me3)
+  r += obj.Nil           (x, jH3k4me3o1)
+  r += obj.Nil           (x, jRna)
+  r += obj.Nil           (x, jRnaLow)
+  r += obj.NoPeakAtCenter(x, jControl)
+
+  s.SetValue(r); return nil
 }
 
 func (ModelCL) Dims() (int, int) {
-  return 20, 1
+  return 20, 5
 }
 
 func (obj ModelCL) CloneMatrixBatchClassifier() MatrixBatchClassifier {
