@@ -21,7 +21,6 @@ package main
 //import   "fmt"
 import   "math"
 
-
 import . "github.com/pbenner/autodiff"
 import . "github.com/pbenner/autodiff/statistics"
 import . "github.com/pbenner/autodiff/logarithmetic"
@@ -49,8 +48,8 @@ func (obj BasicMultiFeatureModel) PeakSym(x ConstMatrix, i int) float64 {
   for j1 := 0; j1 <= n/2; j1++ {
     j2 := n-j1-1
     if j1 == j2 {
-      r = LogAdd(r, x.ValueAt(i, j1) + obj.pi[i])
-      s = LogAdd(r, obj.pi[i])
+      r = LogAdd(r, c + x.ValueAt(i, j1) + obj.pi[i])
+      s = LogAdd(s, d + obj.pi[i])
     } else {
       // peak at (j1, j2)
       t1 := x.ValueAt(i, j1) + obj.pi[i] + x.ValueAt(i, j2) + obj.pi[i]

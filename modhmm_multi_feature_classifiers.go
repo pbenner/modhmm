@@ -21,7 +21,6 @@ package main
 //import   "fmt"
 import   "math"
 
-
 import . "github.com/pbenner/autodiff"
 import . "github.com/pbenner/autodiff/statistics"
 import . "github.com/pbenner/autodiff/logarithmetic"
