@@ -77,10 +77,10 @@ func (obj BasicMultiFeatureModel) PeakAny(x ConstMatrix, i int) float64 {
     t := 0.0
     for j2 := 0; j2 < n; j2++ {
       if j1 == j2 {
-        t += x.ConstAt(i+0, j2).GetValue()
+        t += x.ConstAt(i+0, j2).GetValue() + obj.pi[i  ]
       } else
       if j1 >  j2 {
-        t += x.ConstAt(i+1, j2).GetValue()
+        t += x.ConstAt(i+1, j2).GetValue() + obj.pi[i+1]
       } else {
         t += LogAdd(
           x.ConstAt(i  , j2).GetValue() + obj.pi[i  ],
