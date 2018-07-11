@@ -66,3 +66,15 @@ func updateRequired(config ConfigModHmm, target string, deps ...string) bool {
   printStderr(config, 2, "Target `%s' is up to date...\n", path.Base(target))
   return false
 }
+
+/* -------------------------------------------------------------------------- */
+
+// Divide a by b, the result is rounded down.
+func divIntDown(a, b int) int {
+  return a/b
+}
+
+// Divide a by b, the result is rounded up.
+func divIntUp(a, b int) int {
+  return (a+b-1)/b
+}
