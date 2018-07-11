@@ -230,26 +230,16 @@ type ModelEA struct {
 
 func (obj ModelEA) Eval(s Scalar, x ConstMatrix) error {
   r := 0.0
-  // atac peak at the center
   r += obj.PeakAtCenter(x, jAtac)
-  // h3k27ac peak at any position
-  r += obj.PeakAny(x, jH3k27ac)
-  // h3k27me3 nil
-  r += obj.Nil(x, jH3k27me3)
-  // h3k9me3 nil
-  r += obj.Nil(x, jH3k9me3)
-  // h3k4me1 peak at any position
-  r += obj.PeakSym(x, jH3k4me1)
-  // h3k4me3 nil
-  r += obj.Nil(x, jH3k4me3)
-  // no h3k4me3o1 peak at all positions
-  r += obj.NoPeakAll(x, jH3k4me3o1)
-  // rna nil
-  r += obj.Nil(x, jRna)
-  // rna-low nil
-  r += obj.Nil(x, jRnaLow)
-  // no control peak at all positions
-  r += obj.NoPeakAll(x, jControl)
+  r += obj.PeakAny     (x, jH3k27ac)
+  r += obj.Nil         (x, jH3k27me3)
+  r += obj.Nil         (x, jH3k9me3)
+  r += obj.PeakSym     (x, jH3k4me1)
+  r += obj.Nil         (x, jH3k4me3)
+  r += obj.NoPeakAll   (x, jH3k4me3o1)
+  r += obj.Nil         (x, jRna)
+  r += obj.Nil         (x, jRnaLow)
+  r += obj.NoPeakAll   (x, jControl)
 
   s.SetValue(r); return nil
 }
@@ -270,25 +260,15 @@ type ModelEP struct {
 
 func (obj ModelEP) Eval(s Scalar, x ConstMatrix) error {
   r := 0.0
-  // atac nil
-  r += obj.Nil(x, jAtac)
-  // h3k27ac nil
-  r += obj.Nil(x, jH3k27ac)
-  // h3k27me3 peak at any position
-  r += obj.PeakAny(x, jH3k27me3)
-  // h3k9me3 peak at any position
-  r += obj.Nil(x, jH3k9me3)
-  // h3k4me1 peak at any position
-  r += obj.PeakSym(x, jH3k4me1)
-  // h3k4me3 peak at any position
-  r += obj.Nil(x, jH3k4me3)
-  // no h3k4me3o1 peak at all positions
+  r += obj.Nil      (x, jAtac)
+  r += obj.Nil      (x, jH3k27ac)
+  r += obj.PeakAny  (x, jH3k27me3)
+  r += obj.Nil      (x, jH3k9me3)
+  r += obj.PeakSym  (x, jH3k4me1)
+  r += obj.Nil      (x, jH3k4me3)
   r += obj.NoPeakAll(x, jH3k4me3o1)
-  // rna nil
-  r += obj.Nil(x, jRna)
-  // rna-low nil
-  r += obj.Nil(x, jRnaLow)
-  // no control peak at all positions
+  r += obj.Nil      (x, jRna)
+  r += obj.Nil      (x, jRnaLow)
   r += obj.NoPeakAll(x, jControl)
 
   s.SetValue(r); return nil
