@@ -152,6 +152,7 @@ type ConfigModHmm struct {
   ThreadsCoverage            int                      `json:"Threads Coverage"`
   SingleFeatureBamDir        string                   `json:"Bam Directory"`
   SingleFeatureBam           ConfigBam                `json:"Bam Files"`
+  SingleFeatureBinSize       int                      `json:"Coverage Bin Size`
   SingleFeatureDataDir       string                   `json:"Coverage Directory"`
   SingleFeatureData          ConfigCoveragePaths      `json:"Coverage Files"`
   SingleFeatureJsonDir       string                   `json:"Model Directory"`
@@ -191,6 +192,7 @@ func DefaultModHmmConfig() ConfigModHmm {
   config := ConfigModHmm{}
   // set default values
   config.BinSize              = 200
+  config.SingleFeatureBinSize = 10
   config.BinSummaryStatistics = "mean"
   config.Threads              = 1
   config.ThreadsCoverage      = 1
@@ -304,7 +306,8 @@ func (config ConfigMultiFeaturePaths) String() string {
 func (config ConfigModHmm) String() string {
   var buffer bytes.Buffer
 
-  fmt.Fprintf(&buffer, "%v\n", config.SessionConfig.String())
+  fmt.Fprintf(&buffer, "%v", config.SessionConfig.String())
+  fmt.Fprintf(&buffer, " -> Coverage Bin Size      : %d\n\n", config.SingleFeatureBinSize)
   fmt.Fprintf(&buffer, "Alignment files (BAM):\n")
   fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureBam.String())
   fmt.Fprintf(&buffer, "Coverage files (bigWig):\n")
