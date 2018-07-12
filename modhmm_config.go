@@ -160,7 +160,7 @@ type ConfigModHmm struct {
   SingleFeatureFg            ConfigSingleFeaturePaths
   SingleFeatureBg            ConfigSingleFeaturePaths
   MultiFeatureProb           ConfigMultiFeaturePaths
-  MultiFeatureProbExp        ConfigMultiFeaturePaths
+  MultiFeatureProbNorm       ConfigMultiFeaturePaths
   Type                       string                    `json:"Type"`
   Directory                  string                    `json:"Directory"`
   Model                      string                    `json:"ModHmm Model File"`
@@ -217,14 +217,14 @@ func (config *ConfigModHmm) CompletePaths() {
   if config.Segmentation == "" {
     config.Segmentation = completePath(config.Directory, "", config.Segmentation, "segmentation.bed.gz")
   }
-  config.SingleFeatureBam   .CompletePaths(config.SingleFeatureBamDir, "", "")
-  config.SingleFeatureData  .CompletePaths(config.SingleFeatureDataDir, "coverage-", ".bw")
-  config.SingleFeatureJson  .CompletePaths(config.SingleFeatureJsonDir, "", ".json")
-  config.SingleFeatureComp  .CompletePaths(config.SingleFeatureJsonDir, "", ".components.json")
-  config.SingleFeatureFg    .CompletePaths(config.Directory, "single-feature-", ".fg.bw")
-  config.SingleFeatureBg    .CompletePaths(config.Directory, "single-feature-", ".bg.bw")
-  config.MultiFeatureProb   .CompletePaths(config.Directory, "multi-feature-", ".bw")
-  config.MultiFeatureProbExp.CompletePaths(config.Directory, "multi-feature-", ".exp.bw")
+  config.SingleFeatureBam    .CompletePaths(config.SingleFeatureBamDir, "", "")
+  config.SingleFeatureData   .CompletePaths(config.SingleFeatureDataDir, "coverage-", ".bw")
+  config.SingleFeatureJson   .CompletePaths(config.SingleFeatureJsonDir, "", ".json")
+  config.SingleFeatureComp   .CompletePaths(config.SingleFeatureJsonDir, "", ".components.json")
+  config.SingleFeatureFg     .CompletePaths(config.Directory, "single-feature-", ".fg.bw")
+  config.SingleFeatureBg     .CompletePaths(config.Directory, "single-feature-", ".bg.bw")
+  config.MultiFeatureProb    .CompletePaths(config.Directory, "multi-feature-", ".bw")
+  config.MultiFeatureProbNorm.CompletePaths(config.Directory, "multi-feature-norm-", ".bw")
 }
 
 /* -------------------------------------------------------------------------- */
@@ -319,8 +319,8 @@ func (config ConfigModHmm) String() string {
   fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureBg.String())
   fmt.Fprintf(&buffer, "Multi-feature probabilities (log-scale):\n")
   fmt.Fprintf(&buffer, "%v\n", config.MultiFeatureProb.String())
-  fmt.Fprintf(&buffer, "Multi-feature probabilities:\n")
-  fmt.Fprintf(&buffer, "%v\n", config.MultiFeatureProbExp.String())
+  fmt.Fprintf(&buffer, "Normalized multi-feature probabilities:\n")
+  fmt.Fprintf(&buffer, "%v\n", config.MultiFeatureProbNorm.String())
   fmt.Fprintf(&buffer, "ModHmm options:\n")
   fmt.Fprintf(&buffer, " ->  ModHMM Model File           : %v %s\n", config.Model, fileCheckMark(config.Model))
   fmt.Fprintf(&buffer, " ->  Genome Segmentation File    : %v %s\n", config.Segmentation, fileCheckMark(config.Segmentation))

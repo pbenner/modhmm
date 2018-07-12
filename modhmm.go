@@ -43,6 +43,8 @@ func main() {
     "                                feature enrichment analysis\n" +
     "     eval-single-feature      - call enriched regions of single feature coverages\n" +
     "     eval-multi-feature       - evaluate multi-feature models\n" +
+    "     eval-multi-feature-norm  - evaluate multi-feature models where the results are\n" +
+    "                                normalized for visual inspection in the genome browser\n" +
     "     segmentation             - compute genome segmentation\n")
   options.Parse(os.Args)
 
@@ -91,6 +93,8 @@ func main() {
     modhmm_single_feature_eval_main(config, options.Args())
   case "eval-multi-feature":
     modhmm_multi_feature_eval_main(config, options.Args())
+  case "eval-multi-feature-norm":
+    modhmm_multi_feature_eval_norm_main(config, options.Args())
   case "segmentation":
     modhmm_segmentation_main(config, options.Args())
   default:

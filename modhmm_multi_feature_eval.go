@@ -20,7 +20,6 @@ package main
 
 import   "fmt"
 import   "log"
-import   "math"
 import   "os"
 import   "strings"
 
@@ -96,7 +95,7 @@ var multiFeatureList = StringList{
 
 /* -------------------------------------------------------------------------- */
 
-func multi_feature_eval(config ConfigModHmm, classifier MatrixBatchClassifier, trackFiles []string, tracks []Track, result1, result2 string) []Track {
+func multi_feature_eval(config ConfigModHmm, classifier MatrixBatchClassifier, trackFiles []string, tracks []Track, filenameResult string) []Track {
   if len(tracks) != len(trackFiles) {
     tracks = make([]Track, len(trackFiles))
     for i, filename := range trackFiles {
@@ -110,13 +109,7 @@ func multi_feature_eval(config ConfigModHmm, classifier MatrixBatchClassifier, t
   result, err := BatchClassifyMultiTrack(config.SessionConfig, classifier, tracks, false); if err != nil {
     log.Fatal(err)
   }
-  if err := ExportTrack(config.SessionConfig, result, result1); err != nil {
-    log.Fatal(err)
-  }
-  (GenericMutableTrack{result}).Map(result, func(name string, position int, x float64) float64 {
-    return math.Exp(x)
-  })
-  if err := ExportTrack(config.SessionConfig, result, result2); err != nil {
+  if err := ExportTrack(config.SessionConfig, result, filenameResult); err != nil {
     log.Fatal(err)
   }
   return tracks
@@ -162,26 +155,23 @@ func modhmm_multi_feature_eval_dep(config ConfigModHmm) []string {
 func modhmm_multi_feature_eval(config ConfigModHmm, state string, tracks []Track) []Track {
 
   if !multiFeatureList.Contains(strings.ToLower(state)) {
-    log.Fatalf("unknown feature: %s", state)
+    log.Fatalf("unknown state: %s", state)
   }
 
   localConfig := config
   localConfig.BinSummaryStatistics = "mean"
 
-  dependencies := []string{}
-  dependencies  = append(dependencies, modhmm_single_feature_eval_dep(config)...)
-  dependencies  = append(dependencies, modhmm_multi_feature_eval_dep(config)...)
-  trackFiles   := modhmm_multi_feature_eval_dep(config)
+  dependencies   := []string{}
+  dependencies    = append(dependencies, modhmm_single_feature_eval_dep(config)...)
+  dependencies    = append(dependencies, modhmm_multi_feature_eval_dep(config)...)
+  trackFiles     := modhmm_multi_feature_eval_dep(config)
+  filenameResult := getFieldAsString(config.MultiFeatureProb, strings.ToUpper(state))
 
-  filenameResult1 := getFieldAsString(config.MultiFeatureProb,    strings.ToUpper(state))
-  filenameResult2 := getFieldAsString(config.MultiFeatureProbExp, strings.ToUpper(state))
-
-  if updateRequired(config, filenameResult1, dependencies...) ||
-    (updateRequired(config, filenameResult2, dependencies...)) {
+  if updateRequired(config, filenameResult, dependencies...) {
     modhmm_single_feature_eval_all(config)
     printStderr(config, 1, "==> Evaluating Multi-Feature Model (%s) <==\n", strings.ToUpper(state))
     classifier := get_multi_feature_model(config, state)
-    tracks = multi_feature_eval(localConfig, classifier, trackFiles, tracks, filenameResult1, filenameResult2)
+    tracks = multi_feature_eval(localConfig, classifier, trackFiles, tracks, filenameResult)
   }
   return tracks
 }
@@ -199,7 +189,7 @@ func modhmm_multi_feature_eval_main(config ConfigModHmm, args []string) {
 
   options := getopt.New()
   options.SetProgram(fmt.Sprintf("%s eval-multi-feature", os.Args[0]))
-  options.SetParameters("<STATE>\n")
+  options.SetParameters("[STATE]\n")
 
   optHelp := options.   BoolLong("help",     'h',     "print help")
 
