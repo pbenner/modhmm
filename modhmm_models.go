@@ -19,6 +19,7 @@ package main
 /* -------------------------------------------------------------------------- */
 
 import   "fmt"
+import   "strings"
 
 import . "github.com/pbenner/autodiff/statistics"
 import   "github.com/pbenner/autodiff/statistics/generic"
@@ -306,17 +307,40 @@ func getModHmmDefaultEstimator(config ConfigModHmm) (*matrixEstimator.HmmEstimat
   tr.At(jEPt2,jT2  ).SetValue(1.0)
 
   constraints := make([]generic.EqualityConstraint, m)
-  for i := 0; i < m; i++ {
-    constraint := generic.EqualityConstraint{}
-    for j := 0; j < m; j++ {
-      if i == j {
-        continue
+  switch strings.ToLower(config.Type) {
+  case "": fallthrough
+  case "likelihood":
+    printStderr(config, 2, "Implementing constraints for modhmm:likelihood\n")
+    // constrain self-transitions
+    constraints = append(constraints, generic.EqualityConstraint{
+      [2]int{jEA, jEA}, [2]int{jEAt1, jEAt1}, [2]int{jEAt2, jEAt2}})
+    constraints = append(constraints, generic.EqualityConstraint{
+      [2]int{jEP, jEP}, [2]int{jEPt1, jEPt1}, [2]int{jEPt2, jEPt2}})
+    constraints = append(constraints, generic.EqualityConstraint{
+      [2]int{jT1, jT1}, [2]int{jT2, jT2}})
+    // constrain transitions transcribed -> active enhancers
+    constraints = append(constraints, generic.EqualityConstraint{
+      [2]int{jT1, jEAt1}, [2]int{jT2, jEAt2}})
+    // constrain transitions transcribed -> poised enhancers
+    constraints = append(constraints, generic.EqualityConstraint{
+      [2]int{jT1, jEPt1}, [2]int{jT2, jEPt2}})
+    // constrain transitions transcribed -> active promoters
+    constraints = append(constraints, generic.EqualityConstraint{
+      [2]int{jT1, jPA}, [2]int{jT2, jPA}})
+  case "posterior":
+    printStderr(config, 2, "Implementing constraints for modhmm:posterior\n")
+    for i := 0; i < m; i++ {
+      constraint := generic.EqualityConstraint{}
+      for j := 0; j < m; j++ {
+        if i == j {
+          continue
+        }
+        if tr.ConstAt(i, j).GetValue() != 0 {
+          constraint = append(constraint, [2]int{i,j})
+        }
       }
-      if tr.ConstAt(i, j).GetValue() != 0 {
-        constraint = append(constraint, [2]int{i,j})
-      }
+      constraints = append(constraints, constraint)
     }
-    constraints = append(constraints, constraint)
   }
   // emissions
   estimators := make([]VectorEstimator, n)
