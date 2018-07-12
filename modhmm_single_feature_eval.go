@@ -139,12 +139,12 @@ func modhmm_single_feature_eval(config ConfigModHmm, feature string) {
     localConfig.BinSummaryStatistics = "mean"
   case "rna-low":
     filenameData    = config.SingleFeatureData.Rna
-    filenameModel   = config.SingleFeatureJson.RnaLow
-    filenameComp    = config.SingleFeatureComp.RnaLow
-    filenameResult1 = config.SingleFeatureFg.RnaLow
-    filenameResult2 = config.SingleFeatureBg.RnaLow
+    filenameModel   = config.SingleFeatureJson.Rna_low
+    filenameComp    = config.SingleFeatureComp.Rna_low
+    filenameResult1 = config.SingleFeatureFg.Rna_low
+    filenameResult2 = config.SingleFeatureBg.Rna_low
   default:
-    feature := strings.ToLower(feature)
+    feature := strings.Replace(strings.ToLower(feature), "-", "_", -1)
     filenameData    = getFieldAsString(config.SingleFeatureData, feature)
     filenameModel   = getFieldAsString(config.SingleFeatureJson, feature)
     filenameComp    = getFieldAsString(config.SingleFeatureComp, feature)
@@ -157,7 +157,7 @@ func modhmm_single_feature_eval(config ConfigModHmm, feature string) {
     checkModelFiles(config.SingleFeatureComp)
 
     modhmm_single_feature_coverage_all(config)
-    printStderr(config, 1, "==> Computing Single-Feature Classification (%s) <==\n", feature)
+    printStderr(config, 1, "==> Evaluating Single-Feature Model (%s) <==\n", feature)
     single_feature_eval(localConfig, filenameModel, filenameComp, filenameData, filenameResult1, filenameResult2)
   }
 }

@@ -155,8 +155,8 @@ func modhmm_multi_feature_eval_dep(config ConfigModHmm) []string {
     config.SingleFeatureBg.H3k4me3o1,
     config.SingleFeatureFg.Rna,
     config.SingleFeatureBg.Rna,
-    config.SingleFeatureFg.RnaLow,
-    config.SingleFeatureBg.RnaLow,
+    config.SingleFeatureFg.Rna_low,
+    config.SingleFeatureBg.Rna_low,
     config.SingleFeatureFg.Control,
     config.SingleFeatureBg.Control }
 }
@@ -181,7 +181,7 @@ func modhmm_multi_feature_eval(config ConfigModHmm, state string, tracks []Track
   if updateRequired(config, filenameResult1, dependencies...) ||
     (updateRequired(config, filenameResult2, dependencies...)) {
     modhmm_single_feature_eval_all(config)
-    printStderr(config, 1, "==> Computing Multi-Feature Classification (%s) <==\n", strings.ToUpper(state))
+    printStderr(config, 1, "==> Evaluating Multi-Feature Model (%s) <==\n", strings.ToUpper(state))
     classifier := get_multi_feature_model(config, state)
     tracks = multi_feature_eval(localConfig, classifier, trackFiles, tracks, filenameResult1, filenameResult2)
   }

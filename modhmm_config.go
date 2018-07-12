@@ -109,12 +109,12 @@ func (config *ConfigCoveragePaths) CompletePaths(dir, prefix, suffix string) {
 
 type ConfigSingleFeaturePaths struct {
   ConfigCoveragePaths
-  RnaLow     string `json:"RNA low"`
+  Rna_low     string `json:"RNA low"`
 }
 
 func (config *ConfigSingleFeaturePaths) CompletePaths(dir, prefix, suffix string) {
   config.ConfigCoveragePaths.CompletePaths(dir, prefix, suffix)
-  config.RnaLow    = completePath(dir, prefix, config.RnaLow,    fmt.Sprintf("rna-low%s", suffix))
+  config.Rna_low    = completePath(dir, prefix, config.Rna_low,    fmt.Sprintf("rna-low%s", suffix))
 }
 
 /* -------------------------------------------------------------------------- */
@@ -278,7 +278,7 @@ func (config ConfigSingleFeaturePaths) String() string {
   fmt.Fprintf(&buffer, " -> H3K4me3              : %v %s\n", config.H3k4me3,   fileCheckMark(config.H3k4me3))
   fmt.Fprintf(&buffer, " -> H3K4me3o1            : %v %s\n", config.H3k4me3o1, fileCheckMark(config.H3k4me3o1))
   fmt.Fprintf(&buffer, " -> RNA                  : %v %s\n", config.Rna,       fileCheckMark(config.Rna))
-  fmt.Fprintf(&buffer, " -> RNA (low)            : %v %s\n", config.RnaLow,    fileCheckMark(config.RnaLow))
+  fmt.Fprintf(&buffer, " -> RNA (low)            : %v %s\n", config.Rna_low,   fileCheckMark(config.Rna_low))
   fmt.Fprintf(&buffer, " -> Control              : %v %s\n", config.Control,   fileCheckMark(config.Control))
 
   return buffer.String()

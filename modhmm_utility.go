@@ -18,6 +18,7 @@ package main
 
 /* -------------------------------------------------------------------------- */
 
+import "fmt"
 import "os"
 import "path"
 import "reflect"
@@ -44,6 +45,7 @@ func collectStrings(config interface{}) []string {
 }
 
 func getField(config interface{}, field string) reflect.Value {
+  field = strings.Replace(field, "-", "_", -1)
   v := reflect.ValueOf(config)
   switch v.Kind() {
   case reflect.Struct:
@@ -55,7 +57,7 @@ func getField(config interface{}, field string) reflect.Value {
       }
     }
   }
-  panic("internal error")
+  panic(fmt.Sprintf("internal error: `%s' not found in struct", field))
 }
 
 func getFieldAsString(config interface{}, field string) string {
