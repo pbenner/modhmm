@@ -21,6 +21,7 @@ package main
 import   "fmt"
 import   "log"
 import   "os"
+import   "strings"
 
 import . "github.com/pbenner/ngstat/classification"
 import . "github.com/pbenner/ngstat/estimation"
@@ -98,17 +99,11 @@ func segment(config ConfigModHmm, trackFiles []string) {
 /* -------------------------------------------------------------------------- */
 
 func modhmm_segmentation_dep(config ConfigModHmm) []string {
-  return []string{
-    config.MultiFeatureProb.PA,
-    config.MultiFeatureProb.PB,
-    config.MultiFeatureProb.EA,
-    config.MultiFeatureProb.EP,
-    config.MultiFeatureProb.TR,
-    config.MultiFeatureProb.TL,
-    config.MultiFeatureProb.R1,
-    config.MultiFeatureProb.R2,
-    config.MultiFeatureProb.CL,
-    config.MultiFeatureProb.NS }
+  files := make([]string, len(multiFeatureList))
+  for i, state := range multiFeatureList {
+    files[i] =  getFieldAsString(config.MultiFeatureProb, strings.ToUpper(state))
+  }
+  return files
 }
 
 func modhmm_segmentation(config ConfigModHmm, model string) {
