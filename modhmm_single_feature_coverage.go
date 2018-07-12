@@ -228,20 +228,42 @@ func single_feature_coverage(config ConfigModHmm, feature string, filenameBam []
 
 /* -------------------------------------------------------------------------- */
 
+var singleFeatureListCoverage = StringList{
+  "atac", "h3k27ac", "h3k27me3", "h3k9me3", "h3k4me1", "h3k4me3", "h3k4me3o1", "rna", "control"}
+
+/* -------------------------------------------------------------------------- */
+
 func modhmm_single_feature_coverage(config ConfigModHmm, feature string) {
 
-  if strings.ToLower(feature) == "h3k4me3o1" {
-    if updateRequired(config, config.SingleFeatureData.H3k4me3o1, config.SingleFeatureData.H3k4me1, config.SingleFeatureData.H3k4me3) {
-      single_feature_coverage_h3k4me3o1(config)
-    }
-    return
+  if !singleFeatureListCoverage.Contains(strings.ToLower(feature)) {
+    log.Fatalf("unknown feature: %s", feature)
   }
 
   filenameBam  := []string{}
   filenameData := ""
-
   optionsList  := []interface{}{}
 
+  switch strings.ToLower(feature) {
+  case "atac":
+    filenameBam  = config.SingleFeatureBam.Atac
+    filenameData = config.SingleFeatureData.Atac
+    optionsList = append(optionsList, OptionPairedAsSingleEnd{true})
+    optionsList = append(optionsList, OptionFilterChroms{[]string{"chrM","M"}})
+  case "rna":
+    filenameBam  = config.SingleFeatureBam.Rna
+    filenameData = config.SingleFeatureData.Rna
+  case "h3k4me3o1":
+    if updateRequired(config, config.SingleFeatureData.H3k4me3o1, config.SingleFeatureData.H3k4me1, config.SingleFeatureData.H3k4me3) {
+      single_feature_coverage_h3k4me3o1(config)
+    }
+    return
+  default:
+    filenameBam  = getFieldAsStringSlice(config.SingleFeatureBam,  strings.ToLower(feature))
+    filenameData = getFieldAsString     (config.SingleFeatureData, strings.ToLower(feature))
+    optionsList = append(optionsList, OptionEstimateFraglen{true})
+    optionsList = append(optionsList, OptionFraglenRange{[2]int{150,250}})
+    optionsList = append(optionsList, OptionFraglenBinSize{10})
+  }
   if config.Verbose > 0 {
     optionsList = append(optionsList, OptionLogger{log.New(os.Stderr, fmt.Sprintf("[%s] ", feature), 0)})
   }
@@ -250,54 +272,6 @@ func modhmm_single_feature_coverage(config ConfigModHmm, feature string) {
   optionsList = append(optionsList, OptionFilterMapQ{30})
   optionsList = append(optionsList, OptionFilterDuplicates{true})
 
-  switch strings.ToLower(feature) {
-  case "atac":
-    filenameBam  = config.SingleFeatureBam.Atac
-    filenameData = config.SingleFeatureData.Atac
-    optionsList = append(optionsList, OptionPairedAsSingleEnd{true})
-    optionsList = append(optionsList, OptionFilterChroms{[]string{"chrM","M"}})
-  case "h3k27ac":
-    filenameBam  = config.SingleFeatureBam.H3k27ac
-    filenameData = config.SingleFeatureData.H3k27ac
-    optionsList = append(optionsList, OptionEstimateFraglen{true})
-    optionsList = append(optionsList, OptionFraglenRange{[2]int{150,250}})
-    optionsList = append(optionsList, OptionFraglenBinSize{10})
-  case "h3k27me3":
-    filenameBam  = config.SingleFeatureBam.H3k27me3
-    filenameData = config.SingleFeatureData.H3k27me3
-    optionsList = append(optionsList, OptionEstimateFraglen{true})
-    optionsList = append(optionsList, OptionFraglenRange{[2]int{150,250}})
-    optionsList = append(optionsList, OptionFraglenBinSize{10})
-  case "h3k9me3":
-    filenameBam  = config.SingleFeatureBam.H3k9me3
-    filenameData = config.SingleFeatureData.H3k9me3
-    optionsList = append(optionsList, OptionEstimateFraglen{true})
-    optionsList = append(optionsList, OptionFraglenRange{[2]int{150,250}})
-    optionsList = append(optionsList, OptionFraglenBinSize{10})
-  case "h3k4me1":
-    filenameBam  = config.SingleFeatureBam.H3k4me1
-    filenameData = config.SingleFeatureData.H3k4me1
-    optionsList = append(optionsList, OptionEstimateFraglen{true})
-    optionsList = append(optionsList, OptionFraglenRange{[2]int{150,250}})
-    optionsList = append(optionsList, OptionFraglenBinSize{10})
-  case "h3k4me3":
-    filenameBam  = config.SingleFeatureBam.H3k4me3
-    filenameData = config.SingleFeatureData.H3k4me3
-    optionsList = append(optionsList, OptionEstimateFraglen{true})
-    optionsList = append(optionsList, OptionFraglenRange{[2]int{150,250}})
-    optionsList = append(optionsList, OptionFraglenBinSize{10})
-  case "rna":
-    filenameBam  = config.SingleFeatureBam.Rna
-    filenameData = config.SingleFeatureData.Rna
-  case "control":
-    filenameBam  = config.SingleFeatureBam.Control
-    filenameData = config.SingleFeatureData.Control
-    optionsList = append(optionsList, OptionEstimateFraglen{true})
-    optionsList = append(optionsList, OptionFraglenRange{[2]int{150,250}})
-    optionsList = append(optionsList, OptionFraglenBinSize{10})
-  default:
-    log.Fatalf("unknown feature: %s", feature)
-  }
   if updateRequired(config, filenameData, filenameBam...) {
     if len(filenameBam) == 0 {
       log.Fatalf("ERROR: no bam files specified for feature `%s'", feature)
@@ -308,7 +282,7 @@ func modhmm_single_feature_coverage(config ConfigModHmm, feature string) {
 
 func modhmm_single_feature_coverage_all(config ConfigModHmm) {
   pool := threadpool.New(config.ThreadsCoverage, 10)
-  for _, feature := range []string{"atac", "h3k27ac", "h3k27me3", "h3k9me3", "h3k4me1", "h3k4me3", "rna", "control"} {
+  for _, feature := range singleFeatureListCoverage {
     f := feature
     pool.AddJob(0, func(pool threadpool.ThreadPool, erf func() error) error {
       modhmm_single_feature_coverage(config, f)

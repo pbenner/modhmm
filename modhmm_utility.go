@@ -43,18 +43,36 @@ func collectStrings(config interface{}) []string {
   return r
 }
 
-func getFieldString(config interface{}, field string) string {
+func getField(config interface{}, field string) reflect.Value {
   v := reflect.ValueOf(config)
   switch v.Kind() {
   case reflect.Struct:
     if r := reflect.Indirect(v).FieldByName(field); r.IsValid() {
-      return r.String()
+      return r
     } else {
-      return reflect.Indirect(v).FieldByName(strings.Title(field)).String()
+      if s := reflect.Indirect(v).FieldByName(strings.Title(field)); s.IsValid() {
+        return s
+      }
     }
-  default:
-    panic("internal error")
   }
+  panic("internal error")
+}
+
+func getFieldAsString(config interface{}, field string) string {
+  return getField(config, field).String()
+}
+
+func getFieldAsStringSlice(config interface{}, field string) []string {
+  v := getField(config, field)
+  switch v.Kind() {
+  case reflect.Slice:
+    r := make([]string, v.Len())
+    for i := 0; i < v.Len(); i++ {
+      r[i] = v.Index(i).String()
+    }
+    return r
+  }
+  panic("internal error")
 }
 
 /* file utilities
@@ -96,4 +114,26 @@ func divIntDown(a, b int) int {
 // Divide a by b, the result is rounded up.
 func divIntUp(a, b int) int {
   return (a+b-1)/b
+}
+
+/* -------------------------------------------------------------------------- */
+
+type StringList []string
+
+func (s StringList) Index(item string) int {
+  for i, x := range s {
+    if item == x {
+      return i
+    }
+  }
+  return -1
+}
+
+func (s StringList) Contains(item string) bool {
+  for _, x := range s {
+    if item == x {
+      return true
+    }
+  }
+  return false
 }

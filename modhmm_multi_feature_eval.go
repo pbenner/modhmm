@@ -39,8 +39,8 @@ func multi_feature_eval_mixture_weights(config ConfigModHmm) []float64 {
   checkModelFiles(config.SingleFeatureComp)
   pi := []float64{}
   for _, feature := range []string{"atac", "h3k27ac", "h3k27me3", "h3k9me3", "h3k4me1", "h3k4me3", "h3k4me3o1", "rna", "rnaLow", "control"} {
-    filenameModel := getFieldString(config.SingleFeatureJson, feature)
-    filenameComp  := getFieldString(config.SingleFeatureComp, feature)
+    filenameModel := getFieldAsString(config.SingleFeatureJson, feature)
+    filenameComp  := getFieldAsString(config.SingleFeatureComp, feature)
     p, q := ImportMixtureWeights(config, filenameModel, filenameComp)
     pi = append(pi, p, q)
   }
@@ -153,8 +153,8 @@ func modhmm_multi_feature_eval(config ConfigModHmm, state string, tracks []Track
   dependencies  = append(dependencies, modhmm_multi_feature_eval_dep(config)...)
   trackFiles   := modhmm_multi_feature_eval_dep(config)
 
-  filenameResult1 := getFieldString(config.MultiFeatureProb,    strings.ToUpper(state))
-  filenameResult2 := getFieldString(config.MultiFeatureProbExp, strings.ToUpper(state))
+  filenameResult1 := getFieldAsString(config.MultiFeatureProb,    strings.ToUpper(state))
+  filenameResult2 := getFieldAsString(config.MultiFeatureProbExp, strings.ToUpper(state))
 
   if updateRequired(config, filenameResult1, dependencies...) ||
     (updateRequired(config, filenameResult2, dependencies...)) {
