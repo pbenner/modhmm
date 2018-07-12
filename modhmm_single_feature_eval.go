@@ -100,6 +100,11 @@ func single_feature_eval(config ConfigModHmm, filenameModel, filenameComp, filen
 
 /* -------------------------------------------------------------------------- */
 
+var singleFeatureList = StringList{
+  "atac", "h3k27ac", "h3k27me3", "h3k9me3", "h3k4me1", "h3k4me3", "h3k4me3o1", "rna", "rnaLow", "control"}
+
+/* -------------------------------------------------------------------------- */
+
 func modhmm_single_feature_eval_dep(config ConfigModHmm) []string {
   r := []string{}
   r  = append(r, collectStrings(config.SingleFeatureData)...)
@@ -109,6 +114,10 @@ func modhmm_single_feature_eval_dep(config ConfigModHmm) []string {
 }
 
 func modhmm_single_feature_eval(config ConfigModHmm, feature string) {
+
+  if !singleFeatureList.Contains(strings.ToLower(feature)) {
+    log.Fatalf("unknown feature: %s", feature)
+  }
 
   dependencies := modhmm_single_feature_eval_dep(config)
 
@@ -121,42 +130,6 @@ func modhmm_single_feature_eval(config ConfigModHmm, feature string) {
   filenameResult2 := ""
 
   switch strings.ToLower(feature) {
-  case "atac":
-    filenameData    = config.SingleFeatureData.Atac
-    filenameModel   = config.SingleFeatureJson.Atac
-    filenameComp    = config.SingleFeatureComp.Atac
-    filenameResult1 = config.SingleFeatureFg.Atac
-    filenameResult2 = config.SingleFeatureBg.Atac
-  case "h3k27ac":
-    filenameData    = config.SingleFeatureData.H3k27ac
-    filenameModel   = config.SingleFeatureJson.H3k27ac
-    filenameComp    = config.SingleFeatureComp.H3k27ac
-    filenameResult1 = config.SingleFeatureFg.H3k27ac
-    filenameResult2 = config.SingleFeatureBg.H3k27ac
-  case "h3k27me3":
-    filenameData    = config.SingleFeatureData.H3k27me3
-    filenameModel   = config.SingleFeatureJson.H3k27me3
-    filenameComp    = config.SingleFeatureComp.H3k27me3
-    filenameResult1 = config.SingleFeatureFg.H3k27me3
-    filenameResult2 = config.SingleFeatureBg.H3k27me3
-  case "h3k9me3":
-    filenameData    = config.SingleFeatureData.H3k9me3
-    filenameModel   = config.SingleFeatureJson.H3k9me3
-    filenameComp    = config.SingleFeatureComp.H3k9me3
-    filenameResult1 = config.SingleFeatureFg.H3k9me3
-    filenameResult2 = config.SingleFeatureBg.H3k9me3
-  case "h3k4me1":
-    filenameData    = config.SingleFeatureData.H3k4me1
-    filenameModel   = config.SingleFeatureJson.H3k4me1
-    filenameComp    = config.SingleFeatureComp.H3k4me1
-    filenameResult1 = config.SingleFeatureFg.H3k4me1
-    filenameResult2 = config.SingleFeatureBg.H3k4me1
-  case "h3k4me3":
-    filenameData    = config.SingleFeatureData.H3k4me3
-    filenameModel   = config.SingleFeatureJson.H3k4me3
-    filenameComp    = config.SingleFeatureComp.H3k4me3
-    filenameResult1 = config.SingleFeatureFg.H3k4me3
-    filenameResult2 = config.SingleFeatureBg.H3k4me3
   case "h3k4me3o1":
     filenameData    = config.SingleFeatureData.H3k4me3o1
     filenameModel   = config.SingleFeatureJson.H3k4me3o1
@@ -164,26 +137,19 @@ func modhmm_single_feature_eval(config ConfigModHmm, feature string) {
     filenameResult1 = config.SingleFeatureFg.H3k4me3o1
     filenameResult2 = config.SingleFeatureBg.H3k4me3o1
     localConfig.BinSummaryStatistics = "mean"
-  case "rna":
-    filenameData    = config.SingleFeatureData.Rna
-    filenameModel   = config.SingleFeatureJson.Rna
-    filenameComp    = config.SingleFeatureComp.Rna
-    filenameResult1 = config.SingleFeatureFg.Rna
-    filenameResult2 = config.SingleFeatureBg.Rna
   case "rnalow":
     filenameData    = config.SingleFeatureData.Rna
     filenameModel   = config.SingleFeatureJson.RnaLow
     filenameComp    = config.SingleFeatureComp.RnaLow
     filenameResult1 = config.SingleFeatureFg.RnaLow
     filenameResult2 = config.SingleFeatureBg.RnaLow
-  case "control":
-    filenameData    = config.SingleFeatureData.Control
-    filenameModel   = config.SingleFeatureJson.Control
-    filenameComp    = config.SingleFeatureComp.Control
-    filenameResult1 = config.SingleFeatureFg.Control
-    filenameResult2 = config.SingleFeatureBg.Control
   default:
-    log.Fatalf("unknown feature: %s", feature)
+    feature := strings.ToLower(feature)
+    filenameData    = getFieldAsString(config.SingleFeatureData, feature)
+    filenameModel   = getFieldAsString(config.SingleFeatureJson, feature)
+    filenameComp    = getFieldAsString(config.SingleFeatureComp, feature)
+    filenameResult1 = getFieldAsString(config.SingleFeatureFg, feature)
+    filenameResult2 = getFieldAsString(config.SingleFeatureBg, feature)
   }
   if updateRequired(config, filenameResult1, dependencies...) ||
     (updateRequired(config, filenameResult2, dependencies...)) {
@@ -197,7 +163,7 @@ func modhmm_single_feature_eval(config ConfigModHmm, feature string) {
 }
 
 func modhmm_single_feature_eval_all(config ConfigModHmm) {
-  for _, feature := range []string{"atac", "h3k27ac", "h3k27me3", "h3k9me3", "h3k4me1", "h3k4me3", "h3k4me3o1", "rna", "rnaLow", "control"} {
+  for _, feature := range singleFeatureList {
     modhmm_single_feature_eval(config, feature)
   }
 }
