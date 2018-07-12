@@ -114,8 +114,8 @@ func modhmm_segmentation_dep(config ConfigModHmm) []string {
 func modhmm_segmentation(config ConfigModHmm, model string) {
 
   dependencies := []string{}
-  dependencies  = append(dependencies, modhmm_single_feature_classify_dep(config)...)
-  dependencies  = append(dependencies, modhmm_multi_feature_classify_dep(config)...)
+  dependencies  = append(dependencies, modhmm_single_feature_eval_dep(config)...)
+  dependencies  = append(dependencies, modhmm_multi_feature_eval_dep(config)...)
   dependencies  = append(dependencies, modhmm_segmentation_dep(config)...)
 
   trackFiles := modhmm_segmentation_dep(config)
@@ -124,7 +124,7 @@ func modhmm_segmentation(config ConfigModHmm, model string) {
   filenameSegmentation := config.Segmentation
 
   if updateRequired(config, filenameModel, dependencies...) {
-    modhmm_multi_feature_classify_all(config)
+    modhmm_multi_feature_eval_all(config)
 
     printStderr(config, 1, "==> Estimating ModHmm transition parameters <==\n")
     estimate(config, trackFiles, model)
@@ -140,7 +140,7 @@ func modhmm_segmentation(config ConfigModHmm, model string) {
 func modhmm_segmentation_main(config ConfigModHmm, args []string) {
 
   options := getopt.New()
-  options.SetProgram(fmt.Sprintf("%s classify-multi-feature-mixture", os.Args[0]))
+  options.SetProgram(fmt.Sprintf("%s segmentation", os.Args[0]))
   options.SetParameters("<STATE>\n")
 
   optHelp  := options.   BoolLong("help",     'h',            "print help")

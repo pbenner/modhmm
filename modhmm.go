@@ -38,12 +38,12 @@ func main() {
 
   options.SetParameters("<COMMAND>\n\n" +
     " Commands:\n" +
-    "     single-feature-coverage         - compute a coverage from bam files\n" +
-    "     estimate-single-feature-mixture - estimate mixture distribution for single\n" +
-    "                                       feature enrichment analysis\n" +
-    "     classify-single-feature         - call enriched regions in single feature data\n" +
-    "     classify-multi-feature          - execute multi-feature classifier\n" +
-    "     segmentation                    - compute genome segmentation\n")
+    "     single-feature-coverage  - compute coverages from bam files\n" +
+    "     estimate-single-feature  - estimate mixture distribution for single-\n" +
+    "                                feature enrichment analysis\n" +
+    "     eval-single-feature      - call enriched regions of single feature coverages\n" +
+    "     eval-multi-feature       - evaluate multi-feature models\n" +
+    "     segmentation             - compute genome segmentation\n")
   options.Parse(os.Args)
 
   config := DefaultModHmmConfig()
@@ -85,12 +85,12 @@ func main() {
   switch command {
   case "single-feature-coverage":
     modhmm_single_feature_coverage_main(config, options.Args())
-  case "estimate-single-feature-mixture":
+  case "estimate-single-feature":
     modhmm_single_feature_estimate_main(config, options.Args())
-  case "classify-single-feature":
-    modhmm_single_feature_classify_main(config, options.Args())
-  case "classify-multi-feature":
-    modhmm_multi_feature_classify_main(config, options.Args())
+  case "eval-single-feature":
+    modhmm_single_feature_eval_main(config, options.Args())
+  case "eval-multi-feature":
+    modhmm_multi_feature_eval_main(config, options.Args())
   case "segmentation":
     modhmm_segmentation_main(config, options.Args())
   default:

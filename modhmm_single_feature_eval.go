@@ -49,7 +49,7 @@ func checkModelFiles(config interface{}) {
 
 /* -------------------------------------------------------------------------- */
 
-func single_feature_classify(config ConfigModHmm, filenameModel, filenameComp, filenameData, filenameResult1, filenameResult2 string) {
+func single_feature_eval(config ConfigModHmm, filenameModel, filenameComp, filenameData, filenameResult1, filenameResult2 string) {
   mixture := &scalarDistribution.Mixture{}
 
   printStderr(config, 1, "Importing mixture model from `%s'... ", filenameModel)
@@ -62,10 +62,19 @@ func single_feature_classify(config ConfigModHmm, filenameModel, filenameComp, f
   k := ImportComponents(config, filenameComp, mixture.NComponents())
   r := Components(k).Invert(mixture.NComponents())
 
-  scalarClassifier1 := scalarClassifier.MixturePosterior{mixture, k}
-  vectorClassifier1 := vectorClassifier.ScalarBatchIid{scalarClassifier1, 1}
+  var scalarClassifier1 ScalarBatchClassifier
+  var scalarClassifier2 ScalarBatchClassifier
 
-  scalarClassifier2 := scalarClassifier.MixturePosterior{mixture, r}
+  switch strings.ToLower(config.Type) {
+  case "":
+  case "likelihood":
+    scalarClassifier1 = scalarClassifier.MixtureLikelihood{mixture, k}
+    scalarClassifier2 = scalarClassifier.MixtureLikelihood{mixture, r}
+  case "posterior":
+    scalarClassifier1 = scalarClassifier.MixturePosterior{mixture, k}
+    scalarClassifier2 = scalarClassifier.MixturePosterior{mixture, r}
+  }
+  vectorClassifier1 := vectorClassifier.ScalarBatchIid{scalarClassifier1, 1}
   vectorClassifier2 := vectorClassifier.ScalarBatchIid{scalarClassifier2, 1}
 
   if data, err := ImportTrack(config.SessionConfig, filenameData); err != nil {
@@ -89,7 +98,7 @@ func single_feature_classify(config ConfigModHmm, filenameModel, filenameComp, f
 
 /* -------------------------------------------------------------------------- */
 
-func modhmm_single_feature_classify_dep(config ConfigModHmm) []string {
+func modhmm_single_feature_eval_dep(config ConfigModHmm) []string {
   r := []string{}
   r  = append(r, collectStrings(config.SingleFeatureData)...)
   r  = append(r, collectStrings(config.SingleFeatureJson)...)
@@ -97,9 +106,9 @@ func modhmm_single_feature_classify_dep(config ConfigModHmm) []string {
   return r
 }
 
-func modhmm_single_feature_classify(config ConfigModHmm, feature string) {
+func modhmm_single_feature_eval(config ConfigModHmm, feature string) {
 
-  dependencies := modhmm_single_feature_classify_dep(config)
+  dependencies := modhmm_single_feature_eval_dep(config)
 
   localConfig := config
   localConfig.BinSummaryStatistics = "discrete mean"
@@ -181,22 +190,22 @@ func modhmm_single_feature_classify(config ConfigModHmm, feature string) {
 
     modhmm_single_feature_coverage_all(config)
     printStderr(config, 1, "==> Computing Single-Feature Classification (%s) <==\n", feature)
-    single_feature_classify(localConfig, filenameModel, filenameComp, filenameData, filenameResult1, filenameResult2)
+    single_feature_eval(localConfig, filenameModel, filenameComp, filenameData, filenameResult1, filenameResult2)
   }
 }
 
-func modhmm_single_feature_classify_all(config ConfigModHmm) {
+func modhmm_single_feature_eval_all(config ConfigModHmm) {
   for _, feature := range []string{"atac", "h3k27ac", "h3k27me3", "h3k9me3", "h3k4me1", "h3k4me3", "h3k4me3o1", "rna", "rnaLow", "control"} {
-    modhmm_single_feature_classify(config, feature)
+    modhmm_single_feature_eval(config, feature)
   }
 }
 
 /* -------------------------------------------------------------------------- */
 
-func modhmm_single_feature_classify_main(config ConfigModHmm, args []string) {
+func modhmm_single_feature_eval_main(config ConfigModHmm, args []string) {
 
   options := getopt.New()
-  options.SetProgram(fmt.Sprintf("%s classify-single-feature", os.Args[0]))
+  options.SetProgram(fmt.Sprintf("%s eval-single-feature", os.Args[0]))
   options.SetParameters("<FEATURE>\n")
 
   optHelp := options.   BoolLong("help",     'h',     "print help")
@@ -215,8 +224,8 @@ func modhmm_single_feature_classify_main(config ConfigModHmm, args []string) {
   }
 
   if len(options.Args()) == 0 {
-    modhmm_single_feature_classify_all(config)
+    modhmm_single_feature_eval_all(config)
   } else {
-    modhmm_single_feature_classify(config, options.Args()[0])
+    modhmm_single_feature_eval(config, options.Args()[0])
   }
 }

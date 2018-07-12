@@ -161,6 +161,7 @@ type ConfigModHmm struct {
   SingleFeatureBg            ConfigSingleFeaturePaths
   MultiFeatureClass          ConfigMultiFeaturePaths
   MultiFeatureClassExp       ConfigMultiFeaturePaths
+  Type                       string                    `json:"Type"`
   Directory                  string                    `json:"Directory"`
   Model                      string                    `json:"ModHmm Model File"`
   Segmentation               string                    `json:"Genome Segmentation File"`

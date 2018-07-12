@@ -34,7 +34,7 @@ import   "github.com/pborman/getopt"
 
 /* -------------------------------------------------------------------------- */
 
-func multi_feature_classify_mixture_weights(config ConfigModHmm) []float64 {
+func multi_feature_eval_mixture_weights(config ConfigModHmm) []float64 {
   checkModelFiles(config.SingleFeatureJson)
   checkModelFiles(config.SingleFeatureComp)
   pi := []float64{}
@@ -49,7 +49,7 @@ func multi_feature_classify_mixture_weights(config ConfigModHmm) []float64 {
 
 /* -------------------------------------------------------------------------- */
 
-func multi_feature_classify(config ConfigModHmm, classifier MatrixBatchClassifier, trackFiles []string, tracks []Track, result1, result2 string) []Track {
+func multi_feature_eval(config ConfigModHmm, classifier MatrixBatchClassifier, trackFiles []string, tracks []Track, result1, result2 string) []Track {
   if len(tracks) != len(trackFiles) {
     tracks = make([]Track, len(trackFiles))
     for i, filename := range trackFiles {
@@ -77,7 +77,7 @@ func multi_feature_classify(config ConfigModHmm, classifier MatrixBatchClassifie
 
 /* -------------------------------------------------------------------------- */
 
-func modhmm_multi_feature_classify_dep(config ConfigModHmm) []string {
+func modhmm_multi_feature_eval_dep(config ConfigModHmm) []string {
   return []string{
     config.SingleFeatureFg.Atac,
     config.SingleFeatureBg.Atac,
@@ -101,18 +101,20 @@ func modhmm_multi_feature_classify_dep(config ConfigModHmm) []string {
     config.SingleFeatureBg.Control }
 }
 
-func modhmm_multi_feature_classify(config ConfigModHmm, state string, tracks []Track) []Track {
+func modhmm_multi_feature_eval(config ConfigModHmm, state string, tracks []Track) []Track {
 
   localConfig := config
   localConfig.BinSummaryStatistics = "mean"
 
   dependencies := []string{}
-  dependencies  = append(dependencies, modhmm_single_feature_classify_dep(config)...)
-  dependencies  = append(dependencies, modhmm_multi_feature_classify_dep(config)...)
-  trackFiles   := modhmm_multi_feature_classify_dep(config)
+  dependencies  = append(dependencies, modhmm_single_feature_eval_dep(config)...)
+  dependencies  = append(dependencies, modhmm_multi_feature_eval_dep(config)...)
+  trackFiles   := modhmm_multi_feature_eval_dep(config)
 
   filenameResult1 := ""
   filenameResult2 := ""
+
+  pi := multi_feature_eval_mixture_weights(config)
 
   var classifier MatrixBatchClassifier
 
@@ -120,68 +122,68 @@ func modhmm_multi_feature_classify(config ConfigModHmm, state string, tracks []T
   case "pa":
     filenameResult1 = config.MultiFeatureClass.PA
     filenameResult2 = config.MultiFeatureClassExp.PA
-    classifier = ClassifierPA{}
+    classifier = ModelPA{BasicMultiFeatureModel{pi}}
   case "pb":
     filenameResult1 = config.MultiFeatureClass.PB
     filenameResult2 = config.MultiFeatureClassExp.PB
-    classifier = ClassifierPB{}
+    classifier = ModelPB{BasicMultiFeatureModel{pi}}
   case "ea":
     filenameResult1 = config.MultiFeatureClass.EA
     filenameResult2 = config.MultiFeatureClassExp.EA
-    classifier = ClassifierEA{}
+    classifier = ModelEA{BasicMultiFeatureModel{pi}}
   case "ep":
     filenameResult1 = config.MultiFeatureClass.EP
     filenameResult2 = config.MultiFeatureClassExp.EP
-    classifier = ClassifierEP{}
+    classifier = ModelEP{BasicMultiFeatureModel{pi}}
   case "tr":
     filenameResult1 = config.MultiFeatureClass.TR
     filenameResult2 = config.MultiFeatureClassExp.TR
-    classifier = ClassifierTR{}
+    classifier = ModelTR{BasicMultiFeatureModel{pi}}
   case "tl":
     filenameResult1 = config.MultiFeatureClass.TL
     filenameResult2 = config.MultiFeatureClassExp.TL
-    classifier = ClassifierTL{}
+    classifier = ModelTL{BasicMultiFeatureModel{pi}}
   case "r1":
     filenameResult1 = config.MultiFeatureClass.R1
     filenameResult2 = config.MultiFeatureClassExp.R1
-    classifier = ClassifierR1{}
+    classifier = ModelR1{BasicMultiFeatureModel{pi}}
   case "r2":
     filenameResult1 = config.MultiFeatureClass.R2
     filenameResult2 = config.MultiFeatureClassExp.R2
-    classifier = ClassifierR2{}
+    classifier = ModelR2{BasicMultiFeatureModel{pi}}
   case "ns":
     filenameResult1 = config.MultiFeatureClass.NS
     filenameResult2 = config.MultiFeatureClassExp.NS
-    classifier = ClassifierNS{}
+    classifier = ModelNS{BasicMultiFeatureModel{pi}}
   case "cl":
     filenameResult1 = config.MultiFeatureClass.CL
     filenameResult2 = config.MultiFeatureClassExp.CL
-    classifier = ClassifierCL{}
+    classifier = ModelCL{BasicMultiFeatureModel{pi}}
   default:
     log.Fatalf("unknown state: %s", state)
   }
   if updateRequired(config, filenameResult1, dependencies...) ||
     (updateRequired(config, filenameResult2, dependencies...)) {
-    modhmm_single_feature_classify_all(config)
+    modhmm_single_feature_eval_all(config)
     printStderr(config, 1, "==> Computing Multi-Feature Classification (%s) <==\n", state)
-    tracks = multi_feature_classify(localConfig, classifier, trackFiles, tracks, filenameResult1, filenameResult2)
+    tracks = multi_feature_eval(localConfig, classifier, trackFiles, tracks, filenameResult1, filenameResult2)
   }
   return tracks
 }
 
-func modhmm_multi_feature_classify_all(config ConfigModHmm) {
+func modhmm_multi_feature_eval_all(config ConfigModHmm) {
   var tracks []Track
   for _, feature := range []string{"pa", "pb", "ea", "ep", "tr", "tl", "r1", "r2", "ns", "cl"} {
-    tracks = modhmm_multi_feature_classify(config, feature, tracks)
+    tracks = modhmm_multi_feature_eval(config, feature, tracks)
   }
 }
 
 /* -------------------------------------------------------------------------- */
 
-func modhmm_multi_feature_classify_main(config ConfigModHmm, args []string) {
+func modhmm_multi_feature_eval_main(config ConfigModHmm, args []string) {
 
   options := getopt.New()
-  options.SetProgram(fmt.Sprintf("%s classify-multi-feature-mixture", os.Args[0]))
+  options.SetProgram(fmt.Sprintf("%s eval-multi-feature", os.Args[0]))
   options.SetParameters("<STATE>\n")
 
   optHelp := options.   BoolLong("help",     'h',     "print help")
@@ -199,8 +201,8 @@ func modhmm_multi_feature_classify_main(config ConfigModHmm, args []string) {
     os.Exit(1)
   }
   if len(options.Args()) == 0 {
-    modhmm_multi_feature_classify_all(config)
+    modhmm_multi_feature_eval_all(config)
   } else {
-    modhmm_multi_feature_classify(config, options.Args()[0], nil)
+    modhmm_multi_feature_eval(config, options.Args()[0], nil)
   }
 }
