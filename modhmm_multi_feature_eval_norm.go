@@ -38,14 +38,13 @@ import   "github.com/pborman/getopt"
 /* -------------------------------------------------------------------------- */
 
 type normalizationClassifier struct {
-  k int
+  k, n int
 }
 
 func (obj normalizationClassifier) Eval(s Scalar, x ConstMatrix) error {
-  r    := math.Inf(-1)
-  n, _ := x.Dims()
+  r := math.Inf(-1)
 
-  for i := 0; i < n; i++ {
+  for i := 0; i < obj.n; i++ {
     r = LogAdd(r, x.ValueAt(i, 0))
   }
   r = x.ValueAt(obj.k, 0) - r
@@ -54,12 +53,12 @@ func (obj normalizationClassifier) Eval(s Scalar, x ConstMatrix) error {
   s.SetValue(r); return nil
 }
 
-func (normalizationClassifier) Dims() (int, int) {
-  return len(multiFeatureList), 1
+func (obj normalizationClassifier) Dims() (int, int) {
+  return obj.n, 1
 }
 
 func (obj normalizationClassifier) CloneMatrixBatchClassifier() MatrixBatchClassifier {
-  return normalizationClassifier{obj.k}
+  return normalizationClassifier{obj.k, obj.n}
 }
 
 /* -------------------------------------------------------------------------- */
@@ -75,7 +74,7 @@ func multi_feature_eval_norm_dep(config ConfigModHmm, state string, trackFiles [
       }
     }
   }
-  classifier := normalizationClassifier{multiFeatureList.Index(state)}
+  classifier := normalizationClassifier{multiFeatureList.Index(state), len(tracks)}
 
   result, err := BatchClassifyMultiTrack(config.SessionConfig, classifier, tracks, false); if err != nil {
     log.Fatal(err)
