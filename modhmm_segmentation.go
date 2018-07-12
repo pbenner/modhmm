@@ -101,7 +101,7 @@ func segment(config ConfigModHmm, trackFiles []string) {
 func modhmm_segmentation_dep(config ConfigModHmm) []string {
   files := make([]string, len(multiFeatureList))
   for i, state := range multiFeatureList {
-    files[i] =  getFieldAsString(config.MultiFeatureProb, strings.ToUpper(state))
+    files[i] = getFieldAsString(config.MultiFeatureProb, strings.ToUpper(state))
   }
   return files
 }
