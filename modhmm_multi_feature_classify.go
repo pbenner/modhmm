@@ -34,6 +34,12 @@ import   "github.com/pborman/getopt"
 
 /* -------------------------------------------------------------------------- */
 
+func multi_feature_classify_mixture_weights(config ConfigModHmm) {
+
+}
+
+/* -------------------------------------------------------------------------- */
+
 func multi_feature_classify(config ConfigModHmm, classifier MatrixBatchClassifier, trackFiles []string, tracks []Track, result1, result2 string) []Track {
   if len(tracks) != len(trackFiles) {
     tracks = make([]Track, len(trackFiles))

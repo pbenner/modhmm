@@ -21,16 +21,10 @@ package main
 import "os"
 import "path"
 import "reflect"
+import "strings"
 
-/* -------------------------------------------------------------------------- */
-
-func fileExists(filename string) bool {
-  if _, err := os.Stat(filename); err != nil {
-    return false
-  } else {
-    return true
-  }
-}
+/* struct operations
+ * -------------------------------------------------------------------------- */
 
 func collectStrings(config interface{}) []string {
   r := []string{}
@@ -47,6 +41,31 @@ func collectStrings(config interface{}) []string {
     }
   }
   return r
+}
+
+func getFieldString(config interface{}, field string) string {
+  v := reflect.ValueOf(config)
+  switch v.Kind() {
+  case reflect.Struct:
+    if r := reflect.Indirect(v).FieldByName(field); r.IsValid() {
+      return r.String()
+    } else {
+      return reflect.Indirect(v).FieldByName(strings.Title(field)).String()
+    }
+  default:
+    panic("internal error")
+  }
+}
+
+/* file utilities
+ * -------------------------------------------------------------------------- */
+
+func fileExists(filename string) bool {
+  if _, err := os.Stat(filename); err != nil {
+    return false
+  } else {
+    return true
+  }
 }
 
 func updateRequired(config ConfigModHmm, target string, deps ...string) bool {
