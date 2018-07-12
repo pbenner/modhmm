@@ -124,41 +124,39 @@ func multi_feature_eval(config ConfigModHmm, classifier MatrixBatchClassifier, t
 
 /* -------------------------------------------------------------------------- */
 
-const jAtac      =  0
-const jH3k27ac   =  2
-const jH3k27me3  =  4
-const jH3k9me3   =  6
-const jH3k4me1   =  8
-const jH3k4me3   = 10
-const jH3k4me3o1 = 12
-const jRna       = 14
-const jRnaLow    = 16
-const jControl   = 18
+var jAtac      int
+var jH3k27ac   int
+var jH3k27me3  int
+var jH3k9me3   int
+var jH3k4me1   int
+var jH3k4me3   int
+var jH3k4me3o1 int
+var jRna       int
+var jRnaLow    int
+var jControl   int
+
+func init() {
+  jAtac      = 2*singleFeatureList.Index("atac")
+  jH3k27ac   = 2*singleFeatureList.Index("h3k27ac")
+  jH3k27me3  = 2*singleFeatureList.Index("h3k27me3")
+  jH3k9me3   = 2*singleFeatureList.Index("h3k9me3")
+  jH3k4me1   = 2*singleFeatureList.Index("h3k4me1")
+  jH3k4me3   = 2*singleFeatureList.Index("h3k4me3")
+  jH3k4me3o1 = 2*singleFeatureList.Index("h3k4me3o1")
+  jRna       = 2*singleFeatureList.Index("rna")
+  jRnaLow    = 2*singleFeatureList.Index("rna-low")
+  jControl   = 2*singleFeatureList.Index("control")
+}
 
 /* -------------------------------------------------------------------------- */
 
 func modhmm_multi_feature_eval_dep(config ConfigModHmm) []string {
-  return []string{
-    config.SingleFeatureFg.Atac,
-    config.SingleFeatureBg.Atac,
-    config.SingleFeatureFg.H3k27ac,
-    config.SingleFeatureBg.H3k27ac,
-    config.SingleFeatureFg.H3k27me3,
-    config.SingleFeatureBg.H3k27me3,
-    config.SingleFeatureFg.H3k9me3,
-    config.SingleFeatureBg.H3k9me3,
-    config.SingleFeatureFg.H3k4me1,
-    config.SingleFeatureBg.H3k4me1,
-    config.SingleFeatureFg.H3k4me3,
-    config.SingleFeatureBg.H3k4me3,
-    config.SingleFeatureFg.H3k4me3o1,
-    config.SingleFeatureBg.H3k4me3o1,
-    config.SingleFeatureFg.Rna,
-    config.SingleFeatureBg.Rna,
-    config.SingleFeatureFg.Rna_low,
-    config.SingleFeatureBg.Rna_low,
-    config.SingleFeatureFg.Control,
-    config.SingleFeatureBg.Control }
+  files := []string{}
+  for _, feature := range singleFeatureList {
+    files = append(files, getFieldAsString(config.SingleFeatureFg, feature))
+    files = append(files, getFieldAsString(config.SingleFeatureBg, feature))
+  }
+  return files
 }
 
 func modhmm_multi_feature_eval(config ConfigModHmm, state string, tracks []Track) []Track {
