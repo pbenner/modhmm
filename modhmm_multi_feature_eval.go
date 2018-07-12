@@ -49,6 +49,48 @@ func multi_feature_eval_mixture_weights(config ConfigModHmm) []float64 {
 
 /* -------------------------------------------------------------------------- */
 
+func get_multi_feature_model(config ConfigModHmm, state string) MatrixBatchClassifier {
+  switch config.Type {
+  case "": fallthrough
+  case "likelihood":
+    pi := multi_feature_eval_mixture_weights(config)
+    switch strings.ToLower(state) {
+    case "pa": return ModelPA{BasicMultiFeatureModel{pi}}
+    case "pb": return ModelPB{BasicMultiFeatureModel{pi}}
+    case "ea": return ModelEA{BasicMultiFeatureModel{pi}}
+    case "ep": return ModelEP{BasicMultiFeatureModel{pi}}
+    case "tr": return ModelTR{BasicMultiFeatureModel{pi}}
+    case "tl": return ModelTL{BasicMultiFeatureModel{pi}}
+    case "r1": return ModelR1{BasicMultiFeatureModel{pi}}
+    case "r2": return ModelR2{BasicMultiFeatureModel{pi}}
+    case "ns": return ModelNS{BasicMultiFeatureModel{pi}}
+    case "cl": return ModelCL{BasicMultiFeatureModel{pi}}
+    default:
+      log.Fatalf("unknown state: %s", state)
+    }
+  case "posterior":
+    switch strings.ToLower(state) {
+    case "pa": return ClassifierPA{}
+    case "pb": return ClassifierPB{}
+    case "ea": return ClassifierEA{}
+    case "ep": return ClassifierEP{}
+    case "tr": return ClassifierTR{}
+    case "tl": return ClassifierTL{}
+    case "r1": return ClassifierR1{}
+    case "r2": return ClassifierR2{}
+    case "ns": return ClassifierNS{}
+    case "cl": return ClassifierCL{}
+    default:
+      log.Fatalf("unknown state: %s", state)
+    }
+  default:
+    log.Fatal("invalid model type `%s'", config.Type)
+  }
+  return nil
+}
+
+/* -------------------------------------------------------------------------- */
+
 func multi_feature_eval(config ConfigModHmm, classifier MatrixBatchClassifier, trackFiles []string, tracks []Track, result1, result2 string) []Track {
   if len(tracks) != len(trackFiles) {
     tracks = make([]Track, len(trackFiles))
@@ -111,57 +153,10 @@ func modhmm_multi_feature_eval(config ConfigModHmm, state string, tracks []Track
   dependencies  = append(dependencies, modhmm_multi_feature_eval_dep(config)...)
   trackFiles   := modhmm_multi_feature_eval_dep(config)
 
-  filenameResult1 := ""
-  filenameResult2 := ""
+  filenameResult1 := getFieldString(config.MultiFeatureProb,    strings.ToUpper(state))
+  filenameResult2 := getFieldString(config.MultiFeatureProbExp, strings.ToUpper(state))
+  classifier := get_multi_feature_model(config, state)
 
-  pi := multi_feature_eval_mixture_weights(config)
-
-  var classifier MatrixBatchClassifier
-
-  switch strings.ToLower(state) {
-  case "pa":
-    filenameResult1 = config.MultiFeatureProb.PA
-    filenameResult2 = config.MultiFeatureProbExp.PA
-    classifier = ModelPA{BasicMultiFeatureModel{pi}}
-  case "pb":
-    filenameResult1 = config.MultiFeatureProb.PB
-    filenameResult2 = config.MultiFeatureProbExp.PB
-    classifier = ModelPB{BasicMultiFeatureModel{pi}}
-  case "ea":
-    filenameResult1 = config.MultiFeatureProb.EA
-    filenameResult2 = config.MultiFeatureProbExp.EA
-    classifier = ModelEA{BasicMultiFeatureModel{pi}}
-  case "ep":
-    filenameResult1 = config.MultiFeatureProb.EP
-    filenameResult2 = config.MultiFeatureProbExp.EP
-    classifier = ModelEP{BasicMultiFeatureModel{pi}}
-  case "tr":
-    filenameResult1 = config.MultiFeatureProb.TR
-    filenameResult2 = config.MultiFeatureProbExp.TR
-    classifier = ModelTR{BasicMultiFeatureModel{pi}}
-  case "tl":
-    filenameResult1 = config.MultiFeatureProb.TL
-    filenameResult2 = config.MultiFeatureProbExp.TL
-    classifier = ModelTL{BasicMultiFeatureModel{pi}}
-  case "r1":
-    filenameResult1 = config.MultiFeatureProb.R1
-    filenameResult2 = config.MultiFeatureProbExp.R1
-    classifier = ModelR1{BasicMultiFeatureModel{pi}}
-  case "r2":
-    filenameResult1 = config.MultiFeatureProb.R2
-    filenameResult2 = config.MultiFeatureProbExp.R2
-    classifier = ModelR2{BasicMultiFeatureModel{pi}}
-  case "ns":
-    filenameResult1 = config.MultiFeatureProb.NS
-    filenameResult2 = config.MultiFeatureProbExp.NS
-    classifier = ModelNS{BasicMultiFeatureModel{pi}}
-  case "cl":
-    filenameResult1 = config.MultiFeatureProb.CL
-    filenameResult2 = config.MultiFeatureProbExp.CL
-    classifier = ModelCL{BasicMultiFeatureModel{pi}}
-  default:
-    log.Fatalf("unknown state: %s", state)
-  }
   if updateRequired(config, filenameResult1, dependencies...) ||
     (updateRequired(config, filenameResult2, dependencies...)) {
     modhmm_single_feature_eval_all(config)
