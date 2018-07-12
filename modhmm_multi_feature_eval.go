@@ -155,12 +155,12 @@ func modhmm_multi_feature_eval(config ConfigModHmm, state string, tracks []Track
 
   filenameResult1 := getFieldString(config.MultiFeatureProb,    strings.ToUpper(state))
   filenameResult2 := getFieldString(config.MultiFeatureProbExp, strings.ToUpper(state))
-  classifier := get_multi_feature_model(config, state)
 
   if updateRequired(config, filenameResult1, dependencies...) ||
     (updateRequired(config, filenameResult2, dependencies...)) {
     modhmm_single_feature_eval_all(config)
     printStderr(config, 1, "==> Computing Multi-Feature Classification (%s) <==\n", strings.ToUpper(state))
+    classifier := get_multi_feature_model(config, state)
     tracks = multi_feature_eval(localConfig, classifier, trackFiles, tracks, filenameResult1, filenameResult2)
   }
   return tracks
