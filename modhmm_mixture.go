@@ -18,7 +18,7 @@ package main
 
 /* -------------------------------------------------------------------------- */
 
-//import   "fmt"
+import   "fmt"
 import   "io"
 import   "log"
 import   "math"
@@ -63,6 +63,23 @@ func (obj Components) Invert(n int) []int {
   return r
 }
 
+func (obj Components) Check(n int) error {
+  m := make(map[int]struct{})
+  for _, c := range obj {
+    if c < 0 {
+      return fmt.Errorf("invalid negative component `%d'", c)
+    }
+    if c >= n {
+      return fmt.Errorf("component `%d' is too large; mixture distribution has only `%d' components", c, n)
+    }
+    if _, ok := m[c]; ok {
+      return fmt.Errorf("component `%d' appears multiple times", c)
+    }
+    m[c] = struct{}{}
+  }
+  return nil
+}
+
 func (obj *Components) Import(reader io.Reader, args... interface{}) error {
   return JsonImport(reader, obj)
 }
@@ -71,14 +88,19 @@ func (obj *Components) Export(writer io.Writer) error {
   return JsonExport(writer, obj)
 }
 
-func ImportComponents(config ConfigModHmm, filename string) []int {
+func ImportComponents(config ConfigModHmm, filename string, n int) []int {
   var k Components
   printStderr(config, 1, "Importing foreground components from `%s'... ", filename)
   if err := ImportFile(&k, filename); err != nil {
     printStderr(config, 1, "failed\n")
     log.Fatalf("ERROR: could not import components from `%s': %v", filename, err)
   }
-  printStderr(config, 1, "done\n")
+  if err := k.Check(n); err != nil {
+    printStderr(config, 1, "failed\n")
+    log.Fatalf("ERROR: invalid components file `%s': %v", filename, err)
+  } else {
+    printStderr(config, 1, "done\n")
+  }
   return []int(k)
 }
 
@@ -96,7 +118,7 @@ func ExportComponents(config ConfigModHmm, filename string, k []int) {
 func ImportMixtureWeights(config ConfigModHmm, filenameModel, filenameComp string) (float64, float64) {
   mixture := ImportMixture(config, filenameModel)
 
-  k := ImportComponents(config, filenameComp)
+  k := ImportComponents(config, filenameComp, mixture.NComponents())
   r := Components(k).Invert(mixture.NComponents())
 
   p := math.Inf(-1)
