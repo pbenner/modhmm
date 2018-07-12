@@ -159,8 +159,8 @@ type ConfigModHmm struct {
   SingleFeatureComp          ConfigSingleFeaturePaths `json:"Model Component Files"`
   SingleFeatureFg            ConfigSingleFeaturePaths
   SingleFeatureBg            ConfigSingleFeaturePaths
-  MultiFeatureClass          ConfigMultiFeaturePaths
-  MultiFeatureClassExp       ConfigMultiFeaturePaths
+  MultiFeatureProb           ConfigMultiFeaturePaths
+  MultiFeatureProbExp        ConfigMultiFeaturePaths
   Type                       string                    `json:"Type"`
   Directory                  string                    `json:"Directory"`
   Model                      string                    `json:"ModHmm Model File"`
@@ -223,8 +223,8 @@ func (config *ConfigModHmm) CompletePaths() {
   config.SingleFeatureComp   .CompletePaths(config.SingleFeatureJsonDir, "", ".components.json")
   config.SingleFeatureFg     .CompletePaths(config.Directory, "single-feature-", ".fg.bw")
   config.SingleFeatureBg     .CompletePaths(config.Directory, "single-feature-", ".bg.bw")
-  config.MultiFeatureClass   .CompletePaths(config.Directory, "multi-feature-", ".bw")
-  config.MultiFeatureClassExp.CompletePaths(config.Directory, "multi-feature-", ".exp.bw")
+  config.MultiFeatureProb   .CompletePaths(config.Directory, "multi-feature-", ".bw")
+  config.MultiFeatureProbExp.CompletePaths(config.Directory, "multi-feature-", ".exp.bw")
 }
 
 /* -------------------------------------------------------------------------- */
@@ -313,14 +313,14 @@ func (config ConfigModHmm) String() string {
   fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureJson.String())
   fmt.Fprintf(&buffer, "Single-feature foreground mixture components:\n")
   fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureComp.String())
-  fmt.Fprintf(&buffer, "Single-feature foreground classifications:\n")
+  fmt.Fprintf(&buffer, "Single-feature foreground probabilities:\n")
   fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureFg.String())
-  fmt.Fprintf(&buffer, "Single-feature background classifications:\n")
+  fmt.Fprintf(&buffer, "Single-feature background probabilities:\n")
   fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureBg.String())
-  fmt.Fprintf(&buffer, "Multi-feature classifications (log-scale):\n")
-  fmt.Fprintf(&buffer, "%v\n", config.MultiFeatureClass.String())
-  fmt.Fprintf(&buffer, "Multi-feature classifications:\n")
-  fmt.Fprintf(&buffer, "%v\n", config.MultiFeatureClassExp.String())
+  fmt.Fprintf(&buffer, "Multi-feature probabilities (log-scale):\n")
+  fmt.Fprintf(&buffer, "%v\n", config.MultiFeatureProb.String())
+  fmt.Fprintf(&buffer, "Multi-feature probabilities:\n")
+  fmt.Fprintf(&buffer, "%v\n", config.MultiFeatureProbExp.String())
   fmt.Fprintf(&buffer, "ModHmm options:\n")
   fmt.Fprintf(&buffer, " ->  ModHMM Model File           : %v %s\n", config.Model, fileCheckMark(config.Model))
   fmt.Fprintf(&buffer, " ->  Genome Segmentation File    : %v %s\n", config.Segmentation, fileCheckMark(config.Segmentation))

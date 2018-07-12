@@ -120,44 +120,44 @@ func modhmm_multi_feature_eval(config ConfigModHmm, state string, tracks []Track
 
   switch strings.ToLower(state) {
   case "pa":
-    filenameResult1 = config.MultiFeatureClass.PA
-    filenameResult2 = config.MultiFeatureClassExp.PA
+    filenameResult1 = config.MultiFeatureProb.PA
+    filenameResult2 = config.MultiFeatureProbExp.PA
     classifier = ModelPA{BasicMultiFeatureModel{pi}}
   case "pb":
-    filenameResult1 = config.MultiFeatureClass.PB
-    filenameResult2 = config.MultiFeatureClassExp.PB
+    filenameResult1 = config.MultiFeatureProb.PB
+    filenameResult2 = config.MultiFeatureProbExp.PB
     classifier = ModelPB{BasicMultiFeatureModel{pi}}
   case "ea":
-    filenameResult1 = config.MultiFeatureClass.EA
-    filenameResult2 = config.MultiFeatureClassExp.EA
+    filenameResult1 = config.MultiFeatureProb.EA
+    filenameResult2 = config.MultiFeatureProbExp.EA
     classifier = ModelEA{BasicMultiFeatureModel{pi}}
   case "ep":
-    filenameResult1 = config.MultiFeatureClass.EP
-    filenameResult2 = config.MultiFeatureClassExp.EP
+    filenameResult1 = config.MultiFeatureProb.EP
+    filenameResult2 = config.MultiFeatureProbExp.EP
     classifier = ModelEP{BasicMultiFeatureModel{pi}}
   case "tr":
-    filenameResult1 = config.MultiFeatureClass.TR
-    filenameResult2 = config.MultiFeatureClassExp.TR
+    filenameResult1 = config.MultiFeatureProb.TR
+    filenameResult2 = config.MultiFeatureProbExp.TR
     classifier = ModelTR{BasicMultiFeatureModel{pi}}
   case "tl":
-    filenameResult1 = config.MultiFeatureClass.TL
-    filenameResult2 = config.MultiFeatureClassExp.TL
+    filenameResult1 = config.MultiFeatureProb.TL
+    filenameResult2 = config.MultiFeatureProbExp.TL
     classifier = ModelTL{BasicMultiFeatureModel{pi}}
   case "r1":
-    filenameResult1 = config.MultiFeatureClass.R1
-    filenameResult2 = config.MultiFeatureClassExp.R1
+    filenameResult1 = config.MultiFeatureProb.R1
+    filenameResult2 = config.MultiFeatureProbExp.R1
     classifier = ModelR1{BasicMultiFeatureModel{pi}}
   case "r2":
-    filenameResult1 = config.MultiFeatureClass.R2
-    filenameResult2 = config.MultiFeatureClassExp.R2
+    filenameResult1 = config.MultiFeatureProb.R2
+    filenameResult2 = config.MultiFeatureProbExp.R2
     classifier = ModelR2{BasicMultiFeatureModel{pi}}
   case "ns":
-    filenameResult1 = config.MultiFeatureClass.NS
-    filenameResult2 = config.MultiFeatureClassExp.NS
+    filenameResult1 = config.MultiFeatureProb.NS
+    filenameResult2 = config.MultiFeatureProbExp.NS
     classifier = ModelNS{BasicMultiFeatureModel{pi}}
   case "cl":
-    filenameResult1 = config.MultiFeatureClass.CL
-    filenameResult2 = config.MultiFeatureClassExp.CL
+    filenameResult1 = config.MultiFeatureProb.CL
+    filenameResult2 = config.MultiFeatureProbExp.CL
     classifier = ModelCL{BasicMultiFeatureModel{pi}}
   default:
     log.Fatalf("unknown state: %s", state)

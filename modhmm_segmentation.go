@@ -99,16 +99,16 @@ func segment(config ConfigModHmm, trackFiles []string) {
 
 func modhmm_segmentation_dep(config ConfigModHmm) []string {
   return []string{
-    config.MultiFeatureClass.PA,
-    config.MultiFeatureClass.PB,
-    config.MultiFeatureClass.EA,
-    config.MultiFeatureClass.EP,
-    config.MultiFeatureClass.TR,
-    config.MultiFeatureClass.TL,
-    config.MultiFeatureClass.R1,
-    config.MultiFeatureClass.R2,
-    config.MultiFeatureClass.CL,
-    config.MultiFeatureClass.NS }
+    config.MultiFeatureProb.PA,
+    config.MultiFeatureProb.PB,
+    config.MultiFeatureProb.EA,
+    config.MultiFeatureProb.EP,
+    config.MultiFeatureProb.TR,
+    config.MultiFeatureProb.TL,
+    config.MultiFeatureProb.R1,
+    config.MultiFeatureProb.R2,
+    config.MultiFeatureProb.CL,
+    config.MultiFeatureProb.NS }
 }
 
 func modhmm_segmentation(config ConfigModHmm, model string) {
