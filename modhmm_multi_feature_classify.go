@@ -34,8 +34,17 @@ import   "github.com/pborman/getopt"
 
 /* -------------------------------------------------------------------------- */
 
-func multi_feature_classify_mixture_weights(config ConfigModHmm) {
-
+func multi_feature_classify_mixture_weights(config ConfigModHmm) []float64 {
+  checkModelFiles(config.SingleFeatureJson)
+  checkModelFiles(config.SingleFeatureComp)
+  pi := []float64{}
+  for _, feature := range []string{"atac", "h3k27ac", "h3k27me3", "h3k9me3", "h3k4me1", "h3k4me3", "h3k4me3o1", "rna", "rnaLow", "control"} {
+    filenameModel := getFieldString(config.SingleFeatureJson, feature)
+    filenameComp  := getFieldString(config.SingleFeatureComp, feature)
+    p, q := ImportMixtureWeights(config, filenameModel, filenameComp)
+    pi = append(pi, p, q)
+  }
+  return pi
 }
 
 /* -------------------------------------------------------------------------- */
