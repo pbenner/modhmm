@@ -435,16 +435,16 @@ type ModelCL struct {
 
 func (obj ModelCL) Eval(s Scalar, x ConstMatrix) error {
   r := 0.0
-  r += obj.Nil           (x, jAtac)
-  r += obj.Nil           (x, jH3k27ac)
-  r += obj.Nil           (x, jH3k27me3)
-  r += obj.Nil           (x, jH3k9me3)
-  r += obj.Nil           (x, jH3k4me1)
-  r += obj.Nil           (x, jH3k4me3)
-  r += obj.Nil           (x, jH3k4me3o1)
-  r += obj.Nil           (x, jRna)
-  r += obj.Nil           (x, jRnaLow)
-  r += obj.NoPeakAtCenter(x, jControl)
+  r += obj.Nil         (x, jAtac)
+  r += obj.Nil         (x, jH3k27ac)
+  r += obj.Nil         (x, jH3k27me3)
+  r += obj.Nil         (x, jH3k9me3)
+  r += obj.Nil         (x, jH3k4me1)
+  r += obj.Nil         (x, jH3k4me3)
+  r += obj.Nil         (x, jH3k4me3o1)
+  r += obj.Nil         (x, jRna)
+  r += obj.Nil         (x, jRnaLow)
+  r += obj.PeakAtCenter(x, jControl)
 
   s.SetValue(r); return nil
 }
