@@ -91,6 +91,11 @@ func get_multi_feature_model(config ConfigModHmm, state string) MatrixBatchClass
 
 /* -------------------------------------------------------------------------- */
 
+var multiFeatureList = StringList{
+  "pa", "pb", "ea", "ep", "tr", "tl", "r1", "r2", "ns", "cl"}
+
+/* -------------------------------------------------------------------------- */
+
 func multi_feature_eval(config ConfigModHmm, classifier MatrixBatchClassifier, trackFiles []string, tracks []Track, result1, result2 string) []Track {
   if len(tracks) != len(trackFiles) {
     tracks = make([]Track, len(trackFiles))
@@ -116,6 +121,19 @@ func multi_feature_eval(config ConfigModHmm, classifier MatrixBatchClassifier, t
   }
   return tracks
 }
+
+/* -------------------------------------------------------------------------- */
+
+const jAtac      =  0
+const jH3k27ac   =  2
+const jH3k27me3  =  4
+const jH3k9me3   =  6
+const jH3k4me1   =  8
+const jH3k4me3   = 10
+const jH3k4me3o1 = 12
+const jRna       = 14
+const jRnaLow    = 16
+const jControl   = 18
 
 /* -------------------------------------------------------------------------- */
 
@@ -145,6 +163,10 @@ func modhmm_multi_feature_eval_dep(config ConfigModHmm) []string {
 
 func modhmm_multi_feature_eval(config ConfigModHmm, state string, tracks []Track) []Track {
 
+  if !multiFeatureList.Contains(strings.ToLower(state)) {
+    log.Fatalf("unknown feature: %s", state)
+  }
+
   localConfig := config
   localConfig.BinSummaryStatistics = "mean"
 
@@ -168,7 +190,7 @@ func modhmm_multi_feature_eval(config ConfigModHmm, state string, tracks []Track
 
 func modhmm_multi_feature_eval_all(config ConfigModHmm) {
   var tracks []Track
-  for _, feature := range []string{"pa", "pb", "ea", "ep", "tr", "tl", "r1", "r2", "ns", "cl"} {
+  for _, feature := range multiFeatureList {
     tracks = modhmm_multi_feature_eval(config, feature, tracks)
   }
 }

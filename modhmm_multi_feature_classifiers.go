@@ -27,19 +27,6 @@ import . "github.com/pbenner/autodiff/logarithmetic"
 
 /* -------------------------------------------------------------------------- */
 
-const jAtac      =  0
-const jH3k27ac   =  2
-const jH3k27me3  =  4
-const jH3k9me3   =  6
-const jH3k4me1   =  8
-const jH3k4me3   = 10
-const jH3k4me3o1 = 12
-const jRna       = 14
-const jRnaLow    = 16
-const jControl   = 18
-
-/* -------------------------------------------------------------------------- */
-
 type BasicClassifier struct {
 }
 
