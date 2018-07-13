@@ -45,6 +45,7 @@ func main() {
     "     eval-multi-feature       - evaluate multi-feature models\n" +
     "     eval-multi-feature-norm  - evaluate multi-feature models where the results are\n" +
     "                                normalized for visual inspection in the genome browser\n" +
+    "     posterior-marginals      - compute posterior marginals for the hidden states\n" +
     "     segmentation             - compute genome segmentation\n")
   options.Parse(os.Args)
 
@@ -97,6 +98,8 @@ func main() {
     modhmm_multi_feature_eval_norm_main(config, options.Args())
   case "segmentation":
     modhmm_segmentation_main(config, options.Args())
+  case "posterior-marginals":
+    modhmm_posterior_main(config, options.Args())
   default:
     options.PrintUsage(os.Stderr)
     os.Exit(1)
