@@ -243,8 +243,8 @@ type ModelPB struct {
 
 func (obj ModelPB) Eval(s Scalar, x ConstMatrix) error {
   r := 0.0
-//  r += obj.Nil_     (x, jAtac, []float64{math.Log(0.5), math.Log(0.5)})
-  r += obj.Nil      (x, jAtac)
+  r += LogAdd(obj.  PeakAtCenter(x, jAtac) + math.Log(0.5),
+              obj.NoPeakAtCenter(x, jAtac) + math.Log(0.5))
   r += obj.Nil      (x, jH3k27ac)
   r += obj.PeakAny  (x, jH3k27me3)
   r += obj.Nil      (x, jH3k9me3)
@@ -304,8 +304,8 @@ type ModelEP struct {
 
 func (obj ModelEP) Eval(s Scalar, x ConstMatrix) error {
   r := 0.0
-//  r += obj.Nil_     (x, jAtac, []float64{math.Log(0.5), math.Log(0.5)})
-  r += obj.Nil      (x, jAtac)
+  r += LogAdd(obj.  PeakAtCenter(x, jAtac) + math.Log(0.5),
+              obj.NoPeakAtCenter(x, jAtac) + math.Log(0.5))
   r += obj.Nil      (x, jH3k27ac)
   r += obj.PeakAny  (x, jH3k27me3)
   r += obj.Nil      (x, jH3k9me3)
