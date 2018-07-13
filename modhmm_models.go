@@ -334,13 +334,13 @@ func getModHmmDefaultEstimator(config ConfigModHmm) (*matrixEstimator.HmmEstimat
       [2]int{jT1, jT1}, [2]int{jT2, jT2}})
     // transition into active enhancers
     constraints = append(constraints, generic.EqualityConstraint{
-      [2]int{jR1, jEA}, [2]int{jR2, jEA}, [2]int{jTL, jEA}, [2]int{jTL, jEA}, [2]int{jCL, jEA}, [2]int{jT1, jEAt1}, [2]int{jT2, jEAt2}})
+      [2]int{jR1, jEA}, [2]int{jR2, jEA}, [2]int{jTL, jEA}, [2]int{jNS, jEA}, [2]int{jCL, jEA}, [2]int{jT1, jEAt1}, [2]int{jT2, jEAt2}})
     // transition into poised enhancers
     constraints = append(constraints, generic.EqualityConstraint{
-      [2]int{jR1, jEP}, [2]int{jR2, jEP}, [2]int{jTL, jEP}, [2]int{jTL, jEP}, [2]int{jCL, jEP}, [2]int{jT1, jEPt1}, [2]int{jT2, jEPt2}})
+      [2]int{jR1, jEP}, [2]int{jR2, jEP}, [2]int{jTL, jEP}, [2]int{jNS, jEP}, [2]int{jCL, jEP}, [2]int{jT1, jEPt1}, [2]int{jT2, jEPt2}})
     // transition into bivalend promoter
     constraints = append(constraints, generic.EqualityConstraint{
-      [2]int{jR1, jPB}, [2]int{jR2, jPB}, [2]int{jTL, jPB}, [2]int{jTL, jPB}, [2]int{jCL, jPB}, [2]int{jT1, jPBt1}, [2]int{jT2, jPBt2}})
+      [2]int{jR1, jPB}, [2]int{jR2, jPB}, [2]int{jTL, jPB}, [2]int{jNS, jPB}, [2]int{jCL, jPB}, [2]int{jT1, jPBt1}, [2]int{jT2, jPBt2}})
   case "posterior":
     printStderr(config, 2, "Implementing constraints for modhmm:posterior\n")
     for i := 0; i < m; i++ {
