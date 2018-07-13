@@ -160,13 +160,12 @@ func importFraglen(config ConfigModHmm, feature, filename string) int {
 /* -------------------------------------------------------------------------- */
 
 func single_feature_coverage_h3k4me3o1(config ConfigModHmm) {
-  configLocal := config
-  configLocal.BinOverlap = 2
-  configLocal.BinSummaryStatistics = "discrete mean"
-  track1, err := ImportTrack(configLocal.SessionConfig, config.SingleFeatureData.H3k4me1); if err != nil {
+  config.BinOverlap = 2
+  config.BinSummaryStatistics = "discrete mean"
+  track1, err := ImportTrack(config.SessionConfig, config.SingleFeatureData.H3k4me1); if err != nil {
     log.Fatal(err)
   }
-  track2, err := ImportTrack(configLocal.SessionConfig, config.SingleFeatureData.H3k4me3); if err != nil {
+  track2, err := ImportTrack(config.SessionConfig, config.SingleFeatureData.H3k4me3); if err != nil {
     log.Fatal(err)
   }
   if err := (GenericMutableTrack{track1}).MapList([]Track{track1, track2}, func(seqname string, position int, values ...float64) float64 {
@@ -220,9 +219,12 @@ func single_feature_coverage(config ConfigModHmm, feature string, filenameBam []
   if err != nil {
     log.Fatal(err)
   } else {
+    printStderr(config, 1, "Attempting to write track `%s'\n", filenameData)
+    config.SessionConfig.Verbose = 0
     if err := ExportTrack(config.SessionConfig, result, filenameData); err != nil {
-      log.Fatal(err)
+      log.Fatalf("Writing track `%s' failed: %v", filenameData, err)
     }
+    printStderr(config, 1, "Wrote track `%s'\n", filenameData)
   }
 }
 
