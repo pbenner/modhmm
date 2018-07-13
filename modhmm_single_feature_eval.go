@@ -100,11 +100,6 @@ func single_feature_eval(config ConfigModHmm, filenameModel, filenameComp, filen
 
 /* -------------------------------------------------------------------------- */
 
-var singleFeatureList = StringList{
-  "atac", "h3k27ac", "h3k27me3", "h3k9me3", "h3k4me1", "h3k4me3", "h3k4me3o1", "rna", "rna-low", "control"}
-
-/* -------------------------------------------------------------------------- */
-
 func modhmm_single_feature_eval_dep(config ConfigModHmm) []string {
   r := []string{}
   r  = append(r, collectStrings(config.SingleFeatureData)...)

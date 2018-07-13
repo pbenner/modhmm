@@ -158,16 +158,17 @@ type ConfigModHmm struct {
   SingleFeatureJsonDir       string                   `json:"Model Directory"`
   SingleFeatureJson          ConfigSingleFeaturePaths `json:"Model Files"`
   SingleFeatureComp          ConfigSingleFeaturePaths `json:"Model Component Files"`
-  SingleFeatureFg            ConfigSingleFeaturePaths
-  SingleFeatureBg            ConfigSingleFeaturePaths
-  MultiFeatureProb           ConfigMultiFeaturePaths
-  MultiFeatureProbNorm       ConfigMultiFeaturePaths
-  Type                       string                    `json:"Type"`
-  Directory                  string                    `json:"Directory"`
-  Model                      string                    `json:"ModHmm Model File"`
-  ModelDir                   string                    `json:"ModHmm Model Directory"`
-  Segmentation               string                    `json:"ModHmm Segmentation File"`
-  SegmentationDir            string                    `json:"ModHmm Segmentation Directory"`
+  SingleFeatureFg            ConfigSingleFeaturePaths `json:"Single-Feature Foreground"`
+  SingleFeatureBg            ConfigSingleFeaturePaths `json:"Single-Feature Background"`
+  MultiFeatureProb           ConfigMultiFeaturePaths  `json:"Multi-Feature Probabilities"`
+  MultiFeatureProbNorm       ConfigMultiFeaturePaths  `json:"Normalized Multi-Feature Probabilities"`
+  Posterior                  ConfigMultiFeaturePaths  `json:"Posterior Marginals"`
+  Type                       string                   `json:"Type"`
+  Directory                  string                   `json:"Directory"`
+  Model                      string                   `json:"ModHmm Model File"`
+  ModelDir                   string                   `json:"ModHmm Model Directory"`
+  Segmentation               string                   `json:"ModHmm Segmentation File"`
+  SegmentationDir            string                   `json:"ModHmm Segmentation Directory"`
   Description                string
 }
 
@@ -235,6 +236,7 @@ func (config *ConfigModHmm) CompletePaths() {
   config.SingleFeatureBg     .CompletePaths(config.Directory, "single-feature-", ".bg.bw")
   config.MultiFeatureProb    .CompletePaths(config.Directory, "multi-feature-", ".bw")
   config.MultiFeatureProbNorm.CompletePaths(config.Directory, "multi-feature-norm-", ".bw")
+  config.Posterior           .CompletePaths(config.Directory, "posterior-marginal-", ".bw")
 }
 
 /* -------------------------------------------------------------------------- */
@@ -332,6 +334,8 @@ func (config ConfigModHmm) String() string {
   fmt.Fprintf(&buffer, "%v\n", config.MultiFeatureProb.String())
   fmt.Fprintf(&buffer, "Normalized multi-feature probabilities:\n")
   fmt.Fprintf(&buffer, "%v\n", config.MultiFeatureProbNorm.String())
+  fmt.Fprintf(&buffer, "Posterior marginals:\n")
+  fmt.Fprintf(&buffer, "%v\n", config.Posterior.String())
   fmt.Fprintf(&buffer, "ModHmm options:\n")
   fmt.Fprintf(&buffer, " ->  Description                  : %v\n"   , config.Description)
   fmt.Fprintf(&buffer, " ->  Directory                    : %v\n"   , config.Directory)

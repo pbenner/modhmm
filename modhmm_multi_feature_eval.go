@@ -90,11 +90,6 @@ func get_multi_feature_model(config ConfigModHmm, state string) MatrixBatchClass
 
 /* -------------------------------------------------------------------------- */
 
-var multiFeatureList = StringList{
-  "pa", "pb", "ea", "ep", "tr", "tl", "r1", "r2", "ns", "cl"}
-
-/* -------------------------------------------------------------------------- */
-
 func multi_feature_eval(config ConfigModHmm, classifier MatrixBatchClassifier, trackFiles []string, tracks []Track, filenameResult string) []Track {
   if len(tracks) != len(trackFiles) {
     tracks = make([]Track, len(trackFiles))
@@ -113,32 +108,6 @@ func multi_feature_eval(config ConfigModHmm, classifier MatrixBatchClassifier, t
     log.Fatal(err)
   }
   return tracks
-}
-
-/* -------------------------------------------------------------------------- */
-
-var jAtac      int
-var jH3k27ac   int
-var jH3k27me3  int
-var jH3k9me3   int
-var jH3k4me1   int
-var jH3k4me3   int
-var jH3k4me3o1 int
-var jRna       int
-var jRnaLow    int
-var jControl   int
-
-func init() {
-  jAtac      = 2*singleFeatureList.Index("atac")
-  jH3k27ac   = 2*singleFeatureList.Index("h3k27ac")
-  jH3k27me3  = 2*singleFeatureList.Index("h3k27me3")
-  jH3k9me3   = 2*singleFeatureList.Index("h3k9me3")
-  jH3k4me1   = 2*singleFeatureList.Index("h3k4me1")
-  jH3k4me3   = 2*singleFeatureList.Index("h3k4me3")
-  jH3k4me3o1 = 2*singleFeatureList.Index("h3k4me3o1")
-  jRna       = 2*singleFeatureList.Index("rna")
-  jRnaLow    = 2*singleFeatureList.Index("rna-low")
-  jControl   = 2*singleFeatureList.Index("control")
 }
 
 /* -------------------------------------------------------------------------- */

@@ -228,11 +228,6 @@ func single_feature_coverage(config ConfigModHmm, feature string, filenameBam []
 
 /* -------------------------------------------------------------------------- */
 
-var singleFeatureListCoverage = StringList{
-  "atac", "h3k27ac", "h3k27me3", "h3k9me3", "h3k4me1", "h3k4me3", "h3k4me3o1", "rna", "control"}
-
-/* -------------------------------------------------------------------------- */
-
 func modhmm_single_feature_coverage(config ConfigModHmm, feature string) {
 
   if !singleFeatureListCoverage.Contains(strings.ToLower(feature)) {
