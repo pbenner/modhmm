@@ -118,6 +118,21 @@ func (obj BasicMultiFeatureModel) PeakAtCenter(x ConstMatrix, i int) float64 {
   return obj.PeakAt(x, i, n/2)
 }
 
+func (obj BasicMultiFeatureModel) PeakRange(x ConstMatrix, i, k1, k2 int) float64 {
+     r := 0.0
+  _, n := x.Dims()
+  for j := 0; j < n; j++ {
+    if j >= k1 && j < k2 {
+      r += x.ValueAt(i, j)
+    } else {
+      r += LogAdd(
+        x.ValueAt(i  , j) + obj.pi[i  ],
+        x.ValueAt(i+1, j) + obj.pi[i+1])
+    }
+  }
+  return r
+}
+
 func (obj BasicMultiFeatureModel) NoPeakAt(x ConstMatrix, i, k int) float64 {
      r := 0.0
   _, n := x.Dims()
@@ -435,16 +450,16 @@ type ModelCL struct {
 
 func (obj ModelCL) Eval(s Scalar, x ConstMatrix) error {
   r := 0.0
-  r += obj.Nil         (x, jAtac)
-  r += obj.Nil         (x, jH3k27ac)
-  r += obj.Nil         (x, jH3k27me3)
-  r += obj.Nil         (x, jH3k9me3)
-  r += obj.Nil         (x, jH3k4me1)
-  r += obj.Nil         (x, jH3k4me3)
-  r += obj.Nil         (x, jH3k4me3o1)
-  r += obj.Nil         (x, jRna)
-  r += obj.Nil         (x, jRnaLow)
-  r += obj.PeakAtCenter(x, jControl)
+  r += obj.Nil      (x, jAtac)
+  r += obj.Nil      (x, jH3k27ac)
+  r += obj.Nil      (x, jH3k27me3)
+  r += obj.Nil      (x, jH3k9me3)
+  r += obj.Nil      (x, jH3k4me1)
+  r += obj.Nil      (x, jH3k4me3)
+  r += obj.Nil      (x, jH3k4me3o1)
+  r += obj.Nil      (x, jRna)
+  r += obj.Nil      (x, jRnaLow)
+  r += obj.PeakRange(x, jControl, 1, 4)
 
   s.SetValue(r); return nil
 }
