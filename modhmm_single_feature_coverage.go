@@ -278,6 +278,9 @@ func modhmm_single_feature_coverage(config ConfigModHmm, feature string) {
 func modhmm_single_feature_coverage_all(config ConfigModHmm) {
   pool := threadpool.New(config.ThreadsCoverage, 10)
   for _, feature := range singleFeatureListCoverage {
+    if feature == "h3k4me3o1" {
+      continue
+    }
     f := feature
     pool.AddJob(0, func(pool threadpool.ThreadPool, erf func() error) error {
       modhmm_single_feature_coverage(config, f)
