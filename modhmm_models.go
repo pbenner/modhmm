@@ -168,20 +168,23 @@ func getModHmmDefaultEstimator(config ConfigModHmm) (*matrixEstimator.HmmEstimat
   const jR2   =  4 // repressed h3k9me3
   const jNS   =  5 // no signal
   const jCL   =  6 // control
-  const jPA   =  7 // promoter active
-  const jPB   =  8 // promoter bivalent
-  const jT1   =  9 // transcribed
-  const jT2   = 10 // transcribed
-  const jEAt1 = 11 // enhancer active
-  const jEPt1 = 12 // enhancer poised
-  const jEAt2 = 13 // enhancer active
-  const jEPt2 = 14 // enhancer poised
+  const jPA1  =  7 // promoter active
+  const jPA2  =  8 // promoter active
+  const jPB   =  9 // promoter bivalent
+  const jT1   = 10 // transcribed
+  const jT2   = 11 // transcribed
+  const jEAt1 = 12 // enhancer active
+  const jEPt1 = 13 // enhancer poised
+  const jEAt2 = 14 // enhancer active
+  const jEPt2 = 15 // enhancer poised
+  const jPBt1 = 16 // promoter bivalent
+  const jPBt2 = 17 // promoter bivalent
 
   stateNames := []string{
-    "EA", "EP", "TL", "R1", "R2", "NS", "CL", "PA", "PB", "TR", "TR", "EA:tr", "EP:tr", "EA:tr", "EP:tr"}
+    "EA", "EP", "TL", "R1", "R2", "NS", "CL", "PA", "PA", "PB", "TR", "TR", "EA:tr", "EP:tr", "EA:tr", "EP:tr", "PB:tr", "PB:tr"}
 
   n := 10
-  m := 15
+  m := 18
 
   stateMap := make([]int, m)
   stateMap[jEA]   = iEA
@@ -190,8 +193,11 @@ func getModHmmDefaultEstimator(config ConfigModHmm) (*matrixEstimator.HmmEstimat
   stateMap[jEPt1] = iEP
   stateMap[jEAt2] = iEA
   stateMap[jEPt2] = iEP
-  stateMap[jPA]   = iPA
+  stateMap[jPA1]  = iPA
+  stateMap[jPA2]  = iPA
   stateMap[jPB]   = iPB
+  stateMap[jPBt1] = iPB
+  stateMap[jPBt1] = iPB
   stateMap[jT1]   = iTR
   stateMap[jT2]   = iTR
   stateMap[jTL]   = iTL
@@ -221,26 +227,29 @@ func getModHmmDefaultEstimator(config ConfigModHmm) (*matrixEstimator.HmmEstimat
   tr.At(jEP  ,jR2  ).SetValue(1.0)
   tr.At(jEP  ,jTL  ).SetValue(1.0)
   // promoter bivalent
-  tr.At(jPA  ,jCL  ).SetValue(1.0)
-  tr.At(jPA  ,jNS  ).SetValue(1.0)
-  tr.At(jPA  ,jR1  ).SetValue(1.0)
-  tr.At(jPA  ,jR2  ).SetValue(1.0)
-  tr.At(jPA  ,jT2  ).SetValue(1.0)
-  tr.At(jPA  ,jTL  ).SetValue(1.0)
-  // promoter bivalent
   tr.At(jPB  ,jCL  ).SetValue(1.0)
   tr.At(jPB  ,jNS  ).SetValue(1.0)
   tr.At(jPB  ,jR1  ).SetValue(1.0)
   tr.At(jPB  ,jR2  ).SetValue(1.0)
   tr.At(jPB  ,jT2  ).SetValue(1.0)
   tr.At(jPB  ,jTL  ).SetValue(1.0)
+  // transcribed (low)
+  tr.At(jTL  ,jCL  ).SetValue(1.0)
+  tr.At(jTL  ,jEA  ).SetValue(1.0)
+  tr.At(jTL  ,jEP  ).SetValue(1.0)
+  tr.At(jTL  ,jNS  ).SetValue(1.0)
+  tr.At(jTL  ,jR1  ).SetValue(1.0)
+  tr.At(jTL  ,jR2  ).SetValue(1.0)
+  tr.At(jTL  ,jPA1 ).SetValue(1.0)
+  tr.At(jTL  ,jPB  ).SetValue(1.0)
+  tr.At(jTL  ,jT1  ).SetValue(1.0)
   // no signal
   tr.At(jNS  ,jCL  ).SetValue(1.0)
   tr.At(jNS  ,jEA  ).SetValue(1.0)
   tr.At(jNS  ,jEP  ).SetValue(1.0)
   tr.At(jNS  ,jR1  ).SetValue(1.0)
   tr.At(jNS  ,jR2  ).SetValue(1.0)
-  tr.At(jNS  ,jPA  ).SetValue(1.0)
+  tr.At(jNS  ,jPA1 ).SetValue(1.0)
   tr.At(jNS  ,jPB  ).SetValue(1.0)
   tr.At(jNS  ,jT1  ).SetValue(1.0)
   tr.At(jNS  ,jTL  ).SetValue(1.0)
@@ -250,7 +259,7 @@ func getModHmmDefaultEstimator(config ConfigModHmm) (*matrixEstimator.HmmEstimat
   tr.At(jCL  ,jNS  ).SetValue(1.0)
   tr.At(jCL  ,jR1  ).SetValue(1.0)
   tr.At(jCL  ,jR2  ).SetValue(1.0)
-  tr.At(jCL  ,jPA  ).SetValue(1.0)
+  tr.At(jCL  ,jPA1 ).SetValue(1.0)
   tr.At(jCL  ,jPB  ).SetValue(1.0)
   tr.At(jCL  ,jT1  ).SetValue(1.0)
   tr.At(jCL  ,jTL  ).SetValue(1.0)
@@ -260,7 +269,7 @@ func getModHmmDefaultEstimator(config ConfigModHmm) (*matrixEstimator.HmmEstimat
   tr.At(jR1  ,jEP  ).SetValue(1.0)
   tr.At(jR1  ,jNS  ).SetValue(1.0)
   tr.At(jR1  ,jR2  ).SetValue(1.0)
-  tr.At(jR1  ,jPA  ).SetValue(1.0)
+  tr.At(jR1  ,jPA1 ).SetValue(1.0)
   tr.At(jR1  ,jPB  ).SetValue(1.0)
   tr.At(jR1  ,jT1  ).SetValue(1.0)
   tr.At(jR1  ,jTL  ).SetValue(1.0)
@@ -270,41 +279,42 @@ func getModHmmDefaultEstimator(config ConfigModHmm) (*matrixEstimator.HmmEstimat
   tr.At(jR2  ,jEP  ).SetValue(1.0)
   tr.At(jR2  ,jNS  ).SetValue(1.0)
   tr.At(jR2  ,jR1  ).SetValue(1.0)
-  tr.At(jR2  ,jPA  ).SetValue(1.0)
+  tr.At(jR2  ,jPA1 ).SetValue(1.0)
   tr.At(jR2  ,jPB  ).SetValue(1.0)
   tr.At(jR2  ,jT1  ).SetValue(1.0)
   tr.At(jR2  ,jTL  ).SetValue(1.0)
+  // promoter active 1
+  tr.At(jPA1 ,jT2  ).SetValue(1.0)
+  // promoter active 2
+  tr.At(jPA2 ,jT2  ).SetValue(1.0)
+  tr.At(jPA2 ,jCL  ).SetValue(1.0)
+  tr.At(jPA2 ,jNS  ).SetValue(1.0)
+  tr.At(jPA2 ,jR1  ).SetValue(1.0)
+  tr.At(jPA2 ,jR2  ).SetValue(1.0)
+  tr.At(jPA2 ,jTL  ).SetValue(1.0)
   // transcribed 1
+  tr.At(jT1  ,jPA2 ).SetValue(1.0)
   tr.At(jT1  ,jEAt1).SetValue(1.0)
   tr.At(jT1  ,jEPt1).SetValue(1.0)
-  tr.At(jT1  ,jPA  ).SetValue(1.0)
-  tr.At(jT1  ,jPB  ).SetValue(1.0)
+  tr.At(jT1  ,jPBt1).SetValue(1.0)
   // transcribed 2
-  tr.At(jT2  ,jCL  ).SetValue(1.0)
+  tr.At(jT2  ,jPA2 ).SetValue(1.0)
   tr.At(jT2  ,jEAt2).SetValue(1.0)
   tr.At(jT2  ,jEPt2).SetValue(1.0)
+  tr.At(jT2  ,jPBt2).SetValue(1.0)
+  tr.At(jT2  ,jCL  ).SetValue(1.0)
   tr.At(jT2  ,jNS  ).SetValue(1.0)
   tr.At(jT2  ,jR1  ).SetValue(1.0)
   tr.At(jT2  ,jR2  ).SetValue(1.0)
-  tr.At(jT2  ,jPA  ).SetValue(1.0)
-  tr.At(jT2  ,jPB  ).SetValue(1.0)
   tr.At(jT2  ,jTL  ).SetValue(1.0)
-  // transcribed (low)
-  tr.At(jTL  ,jCL  ).SetValue(1.0)
-  tr.At(jTL  ,jEA  ).SetValue(1.0)
-  tr.At(jTL  ,jEP  ).SetValue(1.0)
-  tr.At(jTL  ,jNS  ).SetValue(1.0)
-  tr.At(jTL  ,jR1  ).SetValue(1.0)
-  tr.At(jTL  ,jR2  ).SetValue(1.0)
-  tr.At(jTL  ,jPA  ).SetValue(1.0)
-  tr.At(jTL  ,jPB  ).SetValue(1.0)
-  tr.At(jTL  ,jT1  ).SetValue(1.0)
-  // enhancer active transcribed
+  // ea/ep/pb transcribed
   tr.At(jEAt1,jT1  ).SetValue(1.0)
-  tr.At(jEAt2,jT2  ).SetValue(1.0)
-  // enhancer poised transcribed
   tr.At(jEPt1,jT1  ).SetValue(1.0)
+  tr.At(jPBt1,jT1  ).SetValue(1.0)
+  // ea/ep/pb transcribed
+  tr.At(jEAt2,jT2  ).SetValue(1.0)
   tr.At(jEPt2,jT2  ).SetValue(1.0)
+  tr.At(jPBt2,jT2  ).SetValue(1.0)
 
   constraints := make([]generic.EqualityConstraint, m)
   switch strings.ToLower(config.Type) {
@@ -313,20 +323,24 @@ func getModHmmDefaultEstimator(config ConfigModHmm) (*matrixEstimator.HmmEstimat
     printStderr(config, 2, "Implementing constraints for modhmm:likelihood\n")
     // constrain self-transitions
     constraints = append(constraints, generic.EqualityConstraint{
+      [2]int{jPA1, jPA1}, [2]int{jPA2, jPA2}})
+    constraints = append(constraints, generic.EqualityConstraint{
       [2]int{jEA, jEA}, [2]int{jEAt1, jEAt1}, [2]int{jEAt2, jEAt2}})
     constraints = append(constraints, generic.EqualityConstraint{
       [2]int{jEP, jEP}, [2]int{jEPt1, jEPt1}, [2]int{jEPt2, jEPt2}})
     constraints = append(constraints, generic.EqualityConstraint{
+      [2]int{jPB, jPB}, [2]int{jPBt1, jPBt1}, [2]int{jPBt2, jPBt2}})
+    constraints = append(constraints, generic.EqualityConstraint{
       [2]int{jT1, jT1}, [2]int{jT2, jT2}})
-    // constrain transitions transcribed -> active enhancers
+    // transition into active enhancers
     constraints = append(constraints, generic.EqualityConstraint{
-      [2]int{jT1, jEAt1}, [2]int{jT2, jEAt2}})
-    // constrain transitions transcribed -> poised enhancers
+      [2]int{jR1, jEA}, [2]int{jR2, jEA}, [2]int{jTL, jEA}, [2]int{jTL, jEA}, [2]int{jCL, jEA}, [2]int{jT1, jEAt1}, [2]int{jT2, jEAt2}})
+    // transition into poised enhancers
     constraints = append(constraints, generic.EqualityConstraint{
-      [2]int{jT1, jEPt1}, [2]int{jT2, jEPt2}})
-    // constrain transitions transcribed -> active promoters
+      [2]int{jR1, jEP}, [2]int{jR2, jEP}, [2]int{jTL, jEP}, [2]int{jTL, jEP}, [2]int{jCL, jEP}, [2]int{jT1, jEPt1}, [2]int{jT2, jEPt2}})
+    // transition into bivalend promoter
     constraints = append(constraints, generic.EqualityConstraint{
-      [2]int{jT1, jPA}, [2]int{jT2, jPA}})
+      [2]int{jR1, jPB}, [2]int{jR2, jPB}, [2]int{jTL, jPB}, [2]int{jTL, jPB}, [2]int{jCL, jPB}, [2]int{jT1, jPBt1}, [2]int{jT2, jPBt2}})
   case "posterior":
     printStderr(config, 2, "Implementing constraints for modhmm:posterior\n")
     for i := 0; i < m; i++ {
