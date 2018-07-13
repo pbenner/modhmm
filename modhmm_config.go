@@ -165,7 +165,9 @@ type ConfigModHmm struct {
   Type                       string                    `json:"Type"`
   Directory                  string                    `json:"Directory"`
   Model                      string                    `json:"ModHmm Model File"`
-  Segmentation               string                    `json:"Genome Segmentation File"`
+  ModelDir                   string                    `json:"ModHmm Model Directory"`
+  Segmentation               string                    `json:"ModHmm Segmentation File"`
+  SegmentationDir            string                    `json:"ModHmm Segmentation Directory"`
   Description                string
 }
 
@@ -213,11 +215,17 @@ func (config *ConfigModHmm) CompletePaths() {
   if config.SingleFeatureJsonDir == "" {
     config.SingleFeatureJsonDir = config.Directory
   }
+  if config.ModelDir == "" {
+    config.ModelDir = config.Directory
+  }
+  if config.SegmentationDir == "" {
+    config.SegmentationDir = config.Directory
+  }
   if config.Model == "" {
-    config.Model = completePath(config.Directory, "", config.Model, "segmentation.json")
+    config.Model = completePath(config.ModelDir, "", config.Model, "segmentation.json")
   }
   if config.Segmentation == "" {
-    config.Segmentation = completePath(config.Directory, "", config.Segmentation, "segmentation.bed.gz")
+    config.Segmentation = completePath(config.SegmentationDir, "", config.Segmentation, "segmentation.bed.gz")
   }
   config.SingleFeatureBam    .CompletePaths(config.SingleFeatureBamDir, "", "")
   config.SingleFeatureData   .CompletePaths(config.SingleFeatureDataDir, "coverage-", ".bw")
@@ -325,9 +333,12 @@ func (config ConfigModHmm) String() string {
   fmt.Fprintf(&buffer, "Normalized multi-feature probabilities:\n")
   fmt.Fprintf(&buffer, "%v\n", config.MultiFeatureProbNorm.String())
   fmt.Fprintf(&buffer, "ModHmm options:\n")
-  fmt.Fprintf(&buffer, " ->  ModHMM Model File           : %v %s\n", config.Model, fileCheckMark(config.Model))
-  fmt.Fprintf(&buffer, " ->  Genome Segmentation File    : %v %s\n", config.Segmentation, fileCheckMark(config.Segmentation))
-  fmt.Fprintf(&buffer, " ->  Description                 : %v\n", config.Description)
+  fmt.Fprintf(&buffer, " ->  Description                  : %v\n"   , config.Description)
+  fmt.Fprintf(&buffer, " ->  Directory                    : %v\n"   , config.Directory)
+  fmt.Fprintf(&buffer, " ->  ModHmm Model File            : %v %s\n", config.Model, fileCheckMark(config.Model))
+  fmt.Fprintf(&buffer, " ->  ModHmm Model Directory       : %v\n"   , config.ModelDir)
+  fmt.Fprintf(&buffer, " ->  ModHmm Segmentation File     : %v %s\n", config.Segmentation, fileCheckMark(config.Segmentation))
+  fmt.Fprintf(&buffer, " ->  ModHmm Segmentation Directory: %v\n"   , config.SegmentationDir)
 
   return buffer.String()
 }
