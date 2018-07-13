@@ -31,7 +31,7 @@ type BasicMultiFeatureModel struct {
   pi []float64
 }
 
-func (obj BasicMultiFeatureModel) PeakSym(x ConstMatrix, i int) float64 {
+func (obj BasicMultiFeatureModel) PeakSym_(x ConstMatrix, i int, pi []float64) float64 {
   _, n := x.Dims()
   r    := math.Inf(-1)
   s    := math.Inf(-1)
@@ -48,23 +48,23 @@ func (obj BasicMultiFeatureModel) PeakSym(x ConstMatrix, i int) float64 {
   for j1 := 0; j1 < divIntUp(n,2); j1++ {
     j2 := n-j1-1
     if j1 == j2 {
-      r = LogAdd(r, c + x.ValueAt(i, j1) + obj.pi[i])
-      s = LogAdd(s, d + obj.pi[i])
+      r = LogAdd(r, c + x.ValueAt(i, j1) + pi[0])
+      s = LogAdd(s, d + pi[0])
     } else {
       // peak at (j1, j2)
-      t1 := x.ValueAt(i, j1) + obj.pi[i] + x.ValueAt(i, j2) + obj.pi[i]
-      t2 := 2.0*obj.pi[i]
+      t1 := x.ValueAt(i, j1) + pi[0] + x.ValueAt(i, j2) + pi[0]
+      t2 := 2.0*pi[0]
       // no peak at (j1, j2)
-      s1 := LogAdd(x.ValueAt(i+0, j1) + obj.pi[i+0] + x.ValueAt(i+1, j2) + obj.pi[i+1],  // p(x_j1,    peak at j1) p(x_j2, no peak at j2)
-            LogAdd(x.ValueAt(i+1, j1) + obj.pi[i+1] + x.ValueAt(i+0, j2) + obj.pi[i+0],  // p(x_j1, no peak at j1) p(x_j2,    peak at j2)
-                   x.ValueAt(i+1, j1) + obj.pi[i+1] + x.ValueAt(i+1, j2) + obj.pi[i+1])) // p(x_j1, no peak at j1) p(x_j2, no peak at j2)
-      s2 := LogAdd(obj.pi[i+0] + obj.pi[i+1],  // p(   peak at j1) p(no peak at j2)
-            LogAdd(obj.pi[i+1] + obj.pi[i+0],  // p(no peak at j1) p(   peak at j2)
-                   obj.pi[i+1] + obj.pi[i+1])) // p(no peak at j1) p(no peak at j2)
+      s1 := LogAdd(x.ValueAt(i+0, j1) + pi[0] + x.ValueAt(i+1, j2) + pi[1],  // p(x_j1,    peak at j1) p(x_j2, no peak at j2)
+            LogAdd(x.ValueAt(i+1, j1) + pi[1] + x.ValueAt(i+0, j2) + pi[0],  // p(x_j1, no peak at j1) p(x_j2,    peak at j2)
+                   x.ValueAt(i+1, j1) + pi[1] + x.ValueAt(i+1, j2) + pi[1])) // p(x_j1, no peak at j1) p(x_j2, no peak at j2)
+      s2 := LogAdd(pi[0] + pi[1],  // p(   peak at j1) p(no peak at j2)
+            LogAdd(pi[1] + pi[0],  // p(no peak at j1) p(   peak at j2)
+                   pi[1] + pi[1])) // p(no peak at j1) p(no peak at j2)
       // peak at (j1, j2) => t1 * p(x_{j1+1}) ... p(x_{j2-1})
       for k := j1+1; k < j2; k++ {
-        t1 += LogAdd(x.ValueAt(i+0, k) + obj.pi[i+0],
-                     x.ValueAt(i+1, k) + obj.pi[i+1])
+        t1 += LogAdd(x.ValueAt(i+0, k) + pi[0],
+                     x.ValueAt(i+1, k) + pi[1])
       }
       r = LogAdd(r, c+t1)
       s = LogAdd(s, d+t2)
@@ -76,29 +76,37 @@ func (obj BasicMultiFeatureModel) PeakSym(x ConstMatrix, i int) float64 {
   return r - s
 }
 
-func (obj BasicMultiFeatureModel) PeakAny(x ConstMatrix, i int) float64 {
+func (obj BasicMultiFeatureModel) PeakSym(x ConstMatrix, i int) float64 {
+  return obj.PeakSym_(x, i, obj.pi[i:i+2])
+}
+
+func (obj BasicMultiFeatureModel) PeakAny_(x ConstMatrix, i int, pi []float64) float64 {
   _, n := x.Dims()
   r    := math.Inf(-1)
   for j1 := 0; j1 < n; j1++ {
     t := 0.0
     for j2 := 0; j2 < n; j2++ {
       if j1 == j2 {
-        t += x.ValueAt(i+0, j2) + obj.pi[i  ]
+        t += x.ValueAt(i+0, j2) + pi[0]
       } else
       if j1 >  j2 {
-        t += x.ValueAt(i+1, j2) + obj.pi[i+1]
+        t += x.ValueAt(i+1, j2) + pi[1]
       } else {
         t += LogAdd(
-          x.ValueAt(i  , j2) + obj.pi[i  ],
-          x.ValueAt(i+1, j2) + obj.pi[i+1])
+          x.ValueAt(i+0, j2) + pi[0],
+          x.ValueAt(i+1, j2) + pi[1])
       }
     }
     r = LogAdd(r, t)
   }
-  return r - LogSub(0, float64(n)*obj.pi[i])
+  return r - LogSub(0, float64(n)*pi[0])
 }
 
-func (obj BasicMultiFeatureModel) PeakAt(x ConstMatrix, i, k int) float64 {
+func (obj BasicMultiFeatureModel) PeakAny(x ConstMatrix, i int) float64 {
+  return obj.PeakAny_(x, i, obj.pi[i:i+2])
+}
+
+func (obj BasicMultiFeatureModel) PeakAt_(x ConstMatrix, i, k int, pi []float64) float64 {
      r := 0.0
   _, n := x.Dims()
   for j := 0; j < n; j++ {
@@ -106,19 +114,27 @@ func (obj BasicMultiFeatureModel) PeakAt(x ConstMatrix, i, k int) float64 {
       r += x.ValueAt(i, j)
     } else {
       r += LogAdd(
-        x.ValueAt(i  , j) + obj.pi[i  ],
-        x.ValueAt(i+1, j) + obj.pi[i+1])
+        x.ValueAt(i  , j) + pi[0],
+        x.ValueAt(i+1, j) + pi[1])
     }
   }
   return r
 }
 
-func (obj BasicMultiFeatureModel) PeakAtCenter(x ConstMatrix, i int) float64 {
-  _, n := x.Dims()
-  return obj.PeakAt(x, i, n/2)
+func (obj BasicMultiFeatureModel) PeakAt(x ConstMatrix, i, k int) float64 {
+  return obj.PeakAt_(x, i, k, obj.pi[i:i+2])
 }
 
-func (obj BasicMultiFeatureModel) PeakRange(x ConstMatrix, i, k1, k2 int) float64 {
+func (obj BasicMultiFeatureModel) PeakAtCenter_(x ConstMatrix, i int, pi []float64) float64 {
+  _, n := x.Dims()
+  return obj.PeakAt_(x, i, n/2, pi)
+}
+
+func (obj BasicMultiFeatureModel) PeakAtCenter(x ConstMatrix, i int) float64 {
+  return obj.PeakAtCenter_(x, i, obj.pi[i:i+2])
+}
+
+func (obj BasicMultiFeatureModel) PeakRange_(x ConstMatrix, i, k1, k2 int, pi []float64) float64 {
      r := 0.0
   _, n := x.Dims()
   for j := 0; j < n; j++ {
@@ -126,14 +142,18 @@ func (obj BasicMultiFeatureModel) PeakRange(x ConstMatrix, i, k1, k2 int) float6
       r += x.ValueAt(i, j)
     } else {
       r += LogAdd(
-        x.ValueAt(i  , j) + obj.pi[i  ],
-        x.ValueAt(i+1, j) + obj.pi[i+1])
+        x.ValueAt(i  , j) + pi[0],
+        x.ValueAt(i+1, j) + pi[1])
     }
   }
   return r
 }
 
-func (obj BasicMultiFeatureModel) NoPeakAt(x ConstMatrix, i, k int) float64 {
+func (obj BasicMultiFeatureModel) PeakRange(x ConstMatrix, i, k1, k2 int) float64 {
+  return obj.PeakRange_(x, i, k1, k2, obj.pi[i:i+2])
+}
+
+func (obj BasicMultiFeatureModel) NoPeakAt_(x ConstMatrix, i, k int, pi []float64) float64 {
      r := 0.0
   _, n := x.Dims()
   for j := 0; j < n; j++ {
@@ -141,16 +161,24 @@ func (obj BasicMultiFeatureModel) NoPeakAt(x ConstMatrix, i, k int) float64 {
       r += x.ValueAt(i+1, j)
     } else {
       r += LogAdd(
-        x.ValueAt(i  , j) + obj.pi[i  ],
-        x.ValueAt(i+1, j) + obj.pi[i+1])
+        x.ValueAt(i  , j) + pi[0],
+        x.ValueAt(i+1, j) + pi[1])
     }
   }
   return r
 }
 
-func (obj BasicMultiFeatureModel) NoPeakAtCenter(x ConstMatrix, i int) float64 {
+func (obj BasicMultiFeatureModel) NoPeakAt(x ConstMatrix, i, k int) float64 {
+  return obj.NoPeakAt_(x, i, k, obj.pi[i:i+2])
+}
+
+func (obj BasicMultiFeatureModel) NoPeakAtCenter_(x ConstMatrix, i int, pi []float64) float64 {
   _, n := x.Dims()
-  return obj.NoPeakAt(x, i, n/2)
+  return obj.NoPeakAt_(x, i, n/2, pi)
+}
+
+func (obj BasicMultiFeatureModel) NoPeakAtCenter(x ConstMatrix, i int) float64 {
+  return obj.NoPeakAtCenter_(x, i, obj.pi[i:i+2])
 }
 
 func (obj BasicMultiFeatureModel) NoPeakAll(x ConstMatrix, i int) float64 {
@@ -162,15 +190,19 @@ func (obj BasicMultiFeatureModel) NoPeakAll(x ConstMatrix, i int) float64 {
   return r
 }
 
-func (obj BasicMultiFeatureModel) Nil(x ConstMatrix, i int) float64 {
+func (obj BasicMultiFeatureModel) Nil_(x ConstMatrix, i int, pi []float64) float64 {
   _, n := x.Dims()
   r    := 0.0
   for j := 0; j < n; j++ {
     r += LogAdd(
-      x.ValueAt(i  , j) + obj.pi[i  ],
-      x.ValueAt(i+1, j) + obj.pi[i+1])
+      x.ValueAt(i  , j) + pi[0],
+      x.ValueAt(i+1, j) + pi[1])
   }
   return r
+}
+
+func (obj BasicMultiFeatureModel) Nil(x ConstMatrix, i int) float64 {
+  return obj.Nil_(x, i, obj.pi[i:i+2])
 }
 
 /* -------------------------------------------------------------------------- */
@@ -211,7 +243,7 @@ type ModelPB struct {
 
 func (obj ModelPB) Eval(s Scalar, x ConstMatrix) error {
   r := 0.0
-  r += obj.Nil      (x, jAtac)
+  r += obj.Nil_     (x, jAtac, []float64{math.Log(0.5), math.Log(0.5)})
   r += obj.Nil      (x, jH3k27ac)
   r += obj.PeakAny  (x, jH3k27me3)
   r += obj.Nil      (x, jH3k9me3)
@@ -271,7 +303,7 @@ type ModelEP struct {
 
 func (obj ModelEP) Eval(s Scalar, x ConstMatrix) error {
   r := 0.0
-  r += obj.Nil      (x, jAtac)
+  r += obj.Nil_     (x, jAtac, []float64{math.Log(0.5), math.Log(0.5)})
   r += obj.Nil      (x, jH3k27ac)
   r += obj.PeakAny  (x, jH3k27me3)
   r += obj.Nil      (x, jH3k9me3)
