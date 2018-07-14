@@ -219,9 +219,10 @@ func single_feature_coverage(config ConfigModHmm, feature string, filenameBam []
   if err != nil {
     log.Fatal(err)
   } else {
+    configLocal := config
+    configLocal.Verbose = 0
     printStderr(config, 1, "Attempting to write track `%s'\n", filenameData)
-    config.SessionConfig.Verbose = 0
-    if err := ExportTrack(config.SessionConfig, result, filenameData); err != nil {
+    if err := ExportTrack(configLocal.SessionConfig, result, filenameData); err != nil {
       log.Fatalf("Writing track `%s' failed: %v", filenameData, err)
     }
     printStderr(config, 1, "Wrote track `%s'\n", filenameData)
