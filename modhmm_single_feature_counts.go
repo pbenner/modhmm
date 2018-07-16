@@ -65,7 +65,7 @@ func single_feature_counts(config ConfigModHmm, filenameIn, filenameOut string) 
 /* -------------------------------------------------------------------------- */
 
 func modhmm_single_feature_counts(config ConfigModHmm, feature string) {
-  if !singleFeatureList.Contains(strings.ToLower(feature)) {
+  if !coverageList.Contains(strings.ToLower(feature)) {
     log.Fatalf("unknown feature: %s", feature)
   }
 
@@ -81,7 +81,7 @@ func modhmm_single_feature_counts(config ConfigModHmm, feature string) {
 }
 
 func modhmm_single_feature_counts_all(config ConfigModHmm) {
-  for _, feature := range singleFeatureList {
+  for _, feature := range coverageList {
     modhmm_single_feature_counts(config, feature)
   }
 }
