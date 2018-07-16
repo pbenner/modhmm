@@ -75,8 +75,9 @@ func modhmm_single_feature_counts(config ConfigModHmm, feature string) {
   if strings.ToLower(feature) != "h3k4me3o1" {
     config.BinSummaryStatistics = "discrete mean"
   }
-
-  single_feature_counts(config, filenameIn, filenameOut)
+  if updateRequired(config, filenameOut, filenameOut) {
+    single_feature_counts(config, filenameIn, filenameOut)
+  }
 }
 
 func modhmm_single_feature_counts_all(config ConfigModHmm) {
