@@ -65,7 +65,7 @@ func single_feature_eval(config ConfigModHmm, filenameModel, filenameComp, filen
   k := ImportComponents(config, filenameComp, mixture.NComponents())
   r := Components(k).Invert(mixture.NComponents())
 
-  printStderr(config, 1, "Importing reference counts from `%s'... ")
+  printStderr(config, 1, "Importing reference counts from `%s'... ", filenameCnts)
   if err := counts.ImportFile(filenameCnts); err != nil {
     printStderr(config, 1, "failed\n")
     log.Fatal(err)
