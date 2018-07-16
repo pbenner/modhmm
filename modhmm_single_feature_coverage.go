@@ -159,7 +159,7 @@ func importFraglen(config ConfigModHmm, feature, filename string) int {
 
 /* -------------------------------------------------------------------------- */
 
-func single_feature_coverage_h3k4me3o1(config ConfigModHmm) {
+func coverage_h3k4me3o1(config ConfigModHmm) {
   config.BinOverlap = 2
   config.BinSummaryStatistics = "discrete mean"
   track1, err := ImportTrack(config.SessionConfig, config.SingleFeatureData.H3k4me1); if err != nil {
@@ -182,7 +182,7 @@ func single_feature_coverage_h3k4me3o1(config ConfigModHmm) {
 
 /* -------------------------------------------------------------------------- */
 
-func single_feature_coverage(config ConfigModHmm, feature string, filenameBam []string, filenameData string, optionsList []interface{}) {
+func coverage(config ConfigModHmm, feature string, filenameBam []string, filenameData string, optionsList []interface{}) {
   fraglen := make([]int, len(filenameBam))
 
   // split filename:fraglen
@@ -231,9 +231,9 @@ func single_feature_coverage(config ConfigModHmm, feature string, filenameBam []
 
 /* -------------------------------------------------------------------------- */
 
-func modhmm_single_feature_coverage(config ConfigModHmm, feature string) {
+func modhmm_coverage(config ConfigModHmm, feature string) {
 
-  if !singleFeatureListCoverage.Contains(strings.ToLower(feature)) {
+  if !coverageList.Contains(strings.ToLower(feature)) {
     log.Fatalf("unknown feature: %s", feature)
   }
 
@@ -252,7 +252,7 @@ func modhmm_single_feature_coverage(config ConfigModHmm, feature string) {
     filenameData = config.SingleFeatureData.Rna
   case "h3k4me3o1":
     if updateRequired(config, config.SingleFeatureData.H3k4me3o1, config.SingleFeatureData.H3k4me1, config.SingleFeatureData.H3k4me3) {
-      single_feature_coverage_h3k4me3o1(config)
+      coverage_h3k4me3o1(config)
     }
     return
   default:
@@ -274,33 +274,33 @@ func modhmm_single_feature_coverage(config ConfigModHmm, feature string) {
     if len(filenameBam) == 0 {
       log.Fatalf("ERROR: no bam files specified for feature `%s'", feature)
     }
-    single_feature_coverage(config, feature, filenameBam, filenameData, optionsList)
+    coverage(config, feature, filenameBam, filenameData, optionsList)
   }
 }
 
-func modhmm_single_feature_coverage_all(config ConfigModHmm) {
+func modhmm_coverage_all(config ConfigModHmm) {
   pool := threadpool.New(config.ThreadsCoverage, 10)
-  for _, feature := range singleFeatureListCoverage {
+  for _, feature := range coverageList {
     if feature == "h3k4me3o1" {
       continue
     }
     f := feature
     pool.AddJob(0, func(pool threadpool.ThreadPool, erf func() error) error {
-      modhmm_single_feature_coverage(config, f)
+      modhmm_coverage(config, f)
       return nil
     })
   }
   pool.Wait(0)
 
-  modhmm_single_feature_coverage(config, "h3k4me3o1")
+  modhmm_coverage(config, "h3k4me3o1")
 }
 
 /* -------------------------------------------------------------------------- */
 
-func modhmm_single_feature_coverage_main(config ConfigModHmm, args []string) {
+func modhmm_coverage_main(config ConfigModHmm, args []string) {
 
   options := getopt.New()
-  options.SetProgram(fmt.Sprintf("%s single-feature-coverage", os.Args[0]))
+  options.SetProgram(fmt.Sprintf("%s coverage", os.Args[0]))
   options.SetParameters("<FEATURE>\n")
 
   optHelp := options.   BoolLong("help",     'h',     "print help")
@@ -319,8 +319,8 @@ func modhmm_single_feature_coverage_main(config ConfigModHmm, args []string) {
   }
 
   if len(options.Args()) == 0 {
-    modhmm_single_feature_coverage_all(config)
+    modhmm_coverage_all(config)
   } else {
-    modhmm_single_feature_coverage(config, options.Args()[0])
+    modhmm_coverage(config, options.Args()[0])
   }
 }

@@ -18,7 +18,7 @@ package main
 
 /* -------------------------------------------------------------------------- */
 
-var singleFeatureListCoverage = StringList{
+var coverageList = StringList{
   "atac", "h3k27ac", "h3k27me3", "h3k9me3", "h3k4me1", "h3k4me3", "h3k4me3o1", "rna", "control"}
 
 /* -------------------------------------------------------------------------- */
