@@ -158,6 +158,7 @@ type ConfigModHmm struct {
   SingleFeatureJsonDir       string                   `json:"Model Directory"`
   SingleFeatureJson          ConfigSingleFeaturePaths `json:"Model Files"`
   SingleFeatureComp          ConfigSingleFeaturePaths `json:"Model Component Files"`
+  SingleFeatureCnts          ConfigSingleFeaturePaths `json:"Model Counts Files"`
   SingleFeatureFg            ConfigSingleFeaturePaths `json:"Single-Feature Foreground"`
   SingleFeatureBg            ConfigSingleFeaturePaths `json:"Single-Feature Background"`
   MultiFeatureProb           ConfigMultiFeaturePaths  `json:"Multi-Feature Probabilities"`
@@ -232,6 +233,7 @@ func (config *ConfigModHmm) CompletePaths() {
   config.SingleFeatureData   .CompletePaths(config.SingleFeatureDataDir, "coverage-", ".bw")
   config.SingleFeatureJson   .CompletePaths(config.SingleFeatureJsonDir, "", ".json")
   config.SingleFeatureComp   .CompletePaths(config.SingleFeatureJsonDir, "", ".components.json")
+  config.SingleFeatureComp   .CompletePaths(config.SingleFeatureJsonDir, "", ".counts.json")
   config.SingleFeatureFg     .CompletePaths(config.Directory, "single-feature-", ".fg.bw")
   config.SingleFeatureBg     .CompletePaths(config.Directory, "single-feature-", ".bg.bw")
   config.MultiFeatureProb    .CompletePaths(config.Directory, "multi-feature-", ".bw")
@@ -324,6 +326,8 @@ func (config ConfigModHmm) String() string {
   fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureData.String())
   fmt.Fprintf(&buffer, "Single-feature mixture distributions:\n")
   fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureJson.String())
+  fmt.Fprintf(&buffer, "Single-feature count statistics:\n")
+  fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureCnts.String())
   fmt.Fprintf(&buffer, "Single-feature foreground mixture components:\n")
   fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureComp.String())
   fmt.Fprintf(&buffer, "Single-feature foreground probabilities:\n")

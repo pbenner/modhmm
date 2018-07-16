@@ -131,39 +131,16 @@ func single_feature_estimate(config ConfigModHmm, estimator VectorEstimator, fil
 func modhmm_single_feature_estimate(config ConfigModHmm, feature string, n []int) {
   var estimator VectorEstimator
 
-  localConfig := config
-  filenameIn  := ""
-  filenameOut := ""
+  if !singleFeatureList.Contains(strings.ToLower(feature)) {
+    log.Fatalf("unknown feature: %s", feature)
+  }
+
+  filenameIn  := getFieldAsString(config.SingleFeatureData, strings.ToLower(feature))
+  filenameOut := getFieldAsString(config.SingleFeatureJson, strings.ToLower(feature))
   discrete    := true
 
-  switch strings.ToLower(feature) {
-  case "atac":
-    filenameIn  = config.SingleFeatureData.Atac
-    filenameOut = config.SingleFeatureJson.Atac
-  case "h3k27ac":
-    filenameIn  = config.SingleFeatureData.H3k27ac
-    filenameOut = config.SingleFeatureJson.H3k27ac
-  case "h3k27me3":
-    filenameIn  = config.SingleFeatureData.H3k27me3
-    filenameOut = config.SingleFeatureJson.H3k27me3
-  case "h3k9me3":
-    filenameIn  = config.SingleFeatureData.H3k9me3
-    filenameOut = config.SingleFeatureJson.H3k9me3
-  case "h3k4me1":
-    filenameIn  = config.SingleFeatureData.H3k4me1
-    filenameOut = config.SingleFeatureJson.H3k4me1
-  case "h3k4me3":
-    filenameIn  = config.SingleFeatureData.H3k4me3
-    filenameOut = config.SingleFeatureJson.H3k4me3
-  case "h3k4me3o1":
-    filenameIn  = config.SingleFeatureData.H3k4me3o1
-    filenameOut = config.SingleFeatureJson.H3k4me3o1
-    discrete    = false
-  case "control":
-    filenameIn  = config.SingleFeatureData.Control
-    filenameOut = config.SingleFeatureJson.Control
-  default:
-    log.Fatalf("unknown feature: %s", feature)
+  if strings.ToLower(feature) == "h3k4me3o1" {
+    discrete = false
   }
 
   if  discrete && len(n) != 3 {
@@ -173,14 +150,14 @@ func modhmm_single_feature_estimate(config ConfigModHmm, feature string, n []int
     log.Fatalf("feature `%s' is continuous and requires two integer arguments", feature)
   }
   if discrete {
-    localConfig.BinSummaryStatistics = "discrete mean"
+    config.BinSummaryStatistics = "discrete mean"
     estimator = newEstimator(config, n[0], n[1], n[2])
   } else {
-    localConfig.BinSummaryStatistics = "mean"
+    config.BinSummaryStatistics = "mean"
     estimator = newContinuousEstimator(config, n[0], n[1])
   }
 
-  single_feature_estimate(localConfig, estimator, filenameIn, filenameOut)
+  single_feature_estimate(config, estimator, filenameIn, filenameOut)
 }
 
 /* -------------------------------------------------------------------------- */
@@ -192,7 +169,7 @@ func modhmm_single_feature_estimate_main(config ConfigModHmm, args []string) {
   options.SetParameters("<FEATURE> <N_DELTA> <N_POISSON> <N_GEOMETRIC>\n")
   options.SetParameters("<FEATURE> <N_LOGNORMAL> <N_EXPONENTIAL>\n")
 
-  optHelp := options.   BoolLong("help",     'h',     "print help")
+  optHelp := options.   BoolLong("help", 'h', "print help")
 
   options.Parse(args)
 

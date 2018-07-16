@@ -51,8 +51,9 @@ func checkModelFiles(config interface{}) {
 
 /* -------------------------------------------------------------------------- */
 
-func single_feature_eval(config ConfigModHmm, filenameModel, filenameComp, filenameData, filenameResult1, filenameResult2 string) {
+func single_feature_eval(config ConfigModHmm, filenameModel, filenameComp, filenameData, filenameCnts, filenameResult1, filenameResult2 string) {
   mixture := &scalarDistribution.Mixture{}
+  counts  := Counts{}
 
   printStderr(config, 1, "Importing mixture model from `%s'... ", filenameModel)
   if err := ImportDistribution(filenameModel, mixture, BareRealType); err != nil {
@@ -63,6 +64,13 @@ func single_feature_eval(config ConfigModHmm, filenameModel, filenameComp, filen
 
   k := ImportComponents(config, filenameComp, mixture.NComponents())
   r := Components(k).Invert(mixture.NComponents())
+
+  printStderr(config, 1, "Importing reference counts from `%s'... ")
+  if err := counts.ImportFile(filenameCnts); err != nil {
+    printStderr(config, 1, "failed\n")
+    log.Fatal(err)
+  }
+  printStderr(config, 1, "done\n")
 
   var scalarClassifier1 ScalarBatchClassifier
   var scalarClassifier2 ScalarBatchClassifier
@@ -85,11 +93,7 @@ func single_feature_eval(config ConfigModHmm, filenameModel, filenameComp, filen
     log.Fatal(err)
   } else {
     printStderr(config, 1, "Quantile normalizing track to reference distribution... ")
-    if err := (GenericMutableTrack{data}).QuantileNormalizeCounts(func(x int) float64 {
-      r := BareReal(0.0)
-      mixture.LogPdf(&r, ConstReal(float64(x)))
-      return r.GetValue()
-    }); err != nil {
+    if err := (GenericMutableTrack{data}).QuantileNormalizeToCounts(counts.X, counts.Y); err != nil {
       printStderr(config, 1, "failed\n")
       log.Fatal(err)
     }
@@ -134,12 +138,14 @@ func modhmm_single_feature_eval(config ConfigModHmm, feature string) {
   filenameModel   := ""
   filenameComp    := ""
   filenameData    := ""
+  filenameCnts    := ""
   filenameResult1 := ""
   filenameResult2 := ""
 
   switch strings.ToLower(feature) {
   case "h3k4me3o1":
     filenameData    = config.SingleFeatureData.H3k4me3o1
+    filenameCnts    = config.SingleFeatureCnts.H3k4me3o1
     filenameModel   = config.SingleFeatureJson.H3k4me3o1
     filenameComp    = config.SingleFeatureComp.H3k4me3o1
     filenameResult1 = config.SingleFeatureFg.H3k4me3o1
@@ -147,6 +153,7 @@ func modhmm_single_feature_eval(config ConfigModHmm, feature string) {
     localConfig.BinSummaryStatistics = "mean"
   case "rna-low":
     filenameData    = config.SingleFeatureData.Rna
+    filenameCnts    = config.SingleFeatureCnts.Rna
     filenameModel   = config.SingleFeatureJson.Rna_low
     filenameComp    = config.SingleFeatureComp.Rna_low
     filenameResult1 = config.SingleFeatureFg.Rna_low
@@ -154,6 +161,7 @@ func modhmm_single_feature_eval(config ConfigModHmm, feature string) {
   default:
     feature := strings.Replace(strings.ToLower(feature), "-", "_", -1)
     filenameData    = getFieldAsString(config.SingleFeatureData, feature)
+    filenameCnts    = getFieldAsString(config.SingleFeatureCnts, feature)
     filenameModel   = getFieldAsString(config.SingleFeatureJson, feature)
     filenameComp    = getFieldAsString(config.SingleFeatureComp, feature)
     filenameResult1 = getFieldAsString(config.SingleFeatureFg, feature)
@@ -166,7 +174,7 @@ func modhmm_single_feature_eval(config ConfigModHmm, feature string) {
 
     modhmm_coverage_all(config)
     printStderr(config, 1, "==> Evaluating Single-Feature Model (%s) <==\n", feature)
-    single_feature_eval(localConfig, filenameModel, filenameComp, filenameData, filenameResult1, filenameResult2)
+    single_feature_eval(localConfig, filenameModel, filenameComp, filenameData, filenameCnts, filenameResult1, filenameResult2)
   }
 }
 
