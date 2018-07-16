@@ -171,6 +171,7 @@ func modhmm_single_feature_eval(config ConfigModHmm, feature string) {
     (updateRequired(config, filenameResult2, dependencies...)) {
     checkModelFiles(config.SingleFeatureJson)
     checkModelFiles(config.SingleFeatureComp)
+    checkModelFiles(config.SingleFeatureCnts)
 
     modhmm_coverage_all(config)
     printStderr(config, 1, "==> Evaluating Single-Feature Model (%s) <==\n", feature)
