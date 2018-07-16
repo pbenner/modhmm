@@ -39,9 +39,9 @@ func main() {
   options.SetParameters("<COMMAND>\n\n" +
     " Commands:\n" +
     "     coverage                   - compute single-feature coverages from bam files\n" +
-    "     estimate-single-feature    - estimate mixture distribution for single-\n" +
-    "                                 feature enrichment analysis\n" +
     "     compute-counts             - compute coverage counts used for quantile normalization\n" +
+    "     estimate-single-feature    - estimate mixture distribution for single-\n" +
+    "                                  feature enrichment analysis\n" +
     "     eval-single-feature        - call enriched regions of single feature coverages\n" +
     "     eval-multi-feature         - evaluate multi-feature models\n" +
     "     eval-multi-feature-norm    - evaluate multi-feature models where the results are\n" +
@@ -87,12 +87,12 @@ func main() {
   printStderr(config, 1, "%v\n", config)
 
   switch command {
-  case "single-feature-coverage":
+  case "coverage":
     modhmm_coverage_main(config, options.Args())
+  case "compute-counts":
+    modhmm_compute_counts_main(config, options.Args())
   case "estimate-single-feature":
     modhmm_single_feature_estimate_main(config, options.Args())
-  case "compute-counts":
-    modhmm_single_feature_counts_main(config, options.Args())
   case "eval-single-feature":
     modhmm_single_feature_eval_main(config, options.Args())
   case "eval-multi-feature":

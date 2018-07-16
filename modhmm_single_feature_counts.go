@@ -31,7 +31,7 @@ import   "github.com/pborman/getopt"
 
 /* -------------------------------------------------------------------------- */
 
-func single_feature_counts(config ConfigModHmm, filenameIn, filenameOut string) {
+func compute_counts(config ConfigModHmm, filenameIn, filenameOut string) {
   if track, err := ImportTrack(config.SessionConfig, filenameIn); err != nil {
     log.Fatal(err)
   } else {
@@ -64,7 +64,7 @@ func single_feature_counts(config ConfigModHmm, filenameIn, filenameOut string) 
 
 /* -------------------------------------------------------------------------- */
 
-func modhmm_single_feature_counts(config ConfigModHmm, feature string) {
+func modhmm_compute_counts(config ConfigModHmm, feature string) {
   if !coverageList.Contains(strings.ToLower(feature)) {
     log.Fatalf("unknown feature: %s", feature)
   }
@@ -76,22 +76,22 @@ func modhmm_single_feature_counts(config ConfigModHmm, feature string) {
     config.BinSummaryStatistics = "discrete mean"
   }
   if updateRequired(config, filenameOut, filenameOut) {
-    single_feature_counts(config, filenameIn, filenameOut)
+    compute_counts(config, filenameIn, filenameOut)
   }
 }
 
-func modhmm_single_feature_counts_all(config ConfigModHmm) {
+func modhmm_compute_counts_all(config ConfigModHmm) {
   for _, feature := range coverageList {
-    modhmm_single_feature_counts(config, feature)
+    modhmm_compute_counts(config, feature)
   }
 }
 
 /* -------------------------------------------------------------------------- */
 
-func modhmm_single_feature_counts_main(config ConfigModHmm, args []string) {
+func modhmm_compute_counts_main(config ConfigModHmm, args []string) {
 
   options := getopt.New()
-  options.SetProgram(fmt.Sprintf("%s compute-single-feature-counts", os.Args[0]))
+  options.SetProgram(fmt.Sprintf("%s compute-counts", os.Args[0]))
 
   optHelp := options.   BoolLong("help",        'h',     "print help")
 
@@ -108,8 +108,8 @@ func modhmm_single_feature_counts_main(config ConfigModHmm, args []string) {
     os.Exit(1)
   }
   if len(options.Args()) == 0 {
-    modhmm_single_feature_counts_all(config)
+    modhmm_compute_counts_all(config)
   } else {
-    modhmm_single_feature_counts(config, options.Args()[0])
+    modhmm_compute_counts(config, options.Args()[0])
   }
 }
