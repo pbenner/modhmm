@@ -32,6 +32,8 @@ import   "github.com/pbenner/autodiff/statistics/scalarClassifier"
 import   "github.com/pbenner/autodiff/statistics/scalarDistribution"
 import   "github.com/pbenner/autodiff/statistics/vectorClassifier"
 
+import . "github.com/pbenner/gonetics"
+
 import   "github.com/pborman/getopt"
 
 /* -------------------------------------------------------------------------- */
@@ -82,6 +84,17 @@ func single_feature_eval(config ConfigModHmm, filenameModel, filenameComp, filen
   if data, err := ImportTrack(config.SessionConfig, filenameData); err != nil {
     log.Fatal(err)
   } else {
+    printStderr(config, 1, "Quantile normalizing track to reference distribution... ")
+    if err := (GenericMutableTrack{data}).QuantileNormalizeCounts(func(x int) float64 {
+      r := BareReal(0.0)
+      mixture.LogPdf(&r, ConstReal(float64(x)))
+      return r.GetValue()
+    }); err != nil {
+      printStderr(config, 1, "failed\n")
+      log.Fatal(err)
+    }
+    printStderr(config, 1, "done\n")
+
     result1, err := BatchClassifySingleTrack(config.SessionConfig, vectorClassifier1, data); if err != nil {
       log.Fatal(err)
     }
