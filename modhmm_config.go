@@ -233,7 +233,7 @@ func (config *ConfigModHmm) CompletePaths() {
   config.SingleFeatureData   .CompletePaths(config.SingleFeatureDataDir, "coverage-", ".bw")
   config.SingleFeatureJson   .CompletePaths(config.SingleFeatureJsonDir, "", ".json")
   config.SingleFeatureComp   .CompletePaths(config.SingleFeatureJsonDir, "", ".components.json")
-  config.SingleFeatureComp   .CompletePaths(config.SingleFeatureJsonDir, "", ".counts.json")
+  config.SingleFeatureCnts   .CompletePaths(config.SingleFeatureJsonDir, "", ".counts.json")
   config.SingleFeatureFg     .CompletePaths(config.Directory, "single-feature-", ".fg.bw")
   config.SingleFeatureBg     .CompletePaths(config.Directory, "single-feature-", ".bg.bw")
   config.MultiFeatureProb    .CompletePaths(config.Directory, "multi-feature-", ".bw")

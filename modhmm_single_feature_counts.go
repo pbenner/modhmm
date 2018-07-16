@@ -53,9 +53,12 @@ func single_feature_counts(config ConfigModHmm, filenameIn, filenameOut string) 
       c.Y[i] = v
       i++
     }
+    printStderr(config, 1, "Exporting counts to `%s'... ", filenameOut)
     if err := c.ExportFile(filenameOut); err != nil {
+      printStderr(config, 1, "failed\n")
       log.Fatal(err)
     }
+    printStderr(config, 1, "done\n")
   }
 }
 
