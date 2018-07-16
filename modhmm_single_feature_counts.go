@@ -72,7 +72,7 @@ func modhmm_single_feature_counts(config ConfigModHmm, feature string) {
   filenameIn  := getFieldAsString(config.SingleFeatureData, strings.ToLower(feature))
   filenameOut := getFieldAsString(config.SingleFeatureCnts, strings.ToLower(feature))
 
-  if strings.ToLower(feature) == "h3k4me3o1" {
+  if strings.ToLower(feature) != "h3k4me3o1" {
     config.BinSummaryStatistics = "discrete mean"
   }
 
