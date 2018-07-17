@@ -166,6 +166,7 @@ type ConfigModHmm struct {
   MultiFeatureProb           ConfigMultiFeaturePaths  `json:"Multi-Feature Probabilities"`
   MultiFeatureProbNorm       ConfigMultiFeaturePaths  `json:"Normalized Multi-Feature Probabilities"`
   Posterior                  ConfigMultiFeaturePaths  `json:"Posterior Marginals"`
+  PosteriorDir               string                   `json:"Posterior Marginals Directory"`
   Type                       string                   `json:"Type"`
   Directory                  string                   `json:"Directory"`
   Model                      string                   `json:"ModHmm Model File"`
@@ -231,6 +232,9 @@ func (config *ConfigModHmm) CompletePaths() {
   if config.SegmentationDir == "" {
     config.SegmentationDir = config.Directory
   }
+  if config.PosteriorDir == "" {
+    config.PosteriorDir = config.Directory
+  }
   if config.Model == "" {
     config.Model = completePath(config.ModelDir, "", config.Model, "segmentation.json")
   }
@@ -246,7 +250,7 @@ func (config *ConfigModHmm) CompletePaths() {
   config.SingleFeatureBg     .CompletePaths(config.SingleFeatureDir, "single-feature-", ".bg.bw")
   config.MultiFeatureProb    .CompletePaths(config.MultiFeatureDir, "multi-feature-", ".bw")
   config.MultiFeatureProbNorm.CompletePaths(config.MultiFeatureDir, "multi-feature-norm-", ".bw")
-  config.Posterior           .CompletePaths(config.Directory, "posterior-marginal-", ".bw")
+  config.Posterior           .CompletePaths(config.PosteriorDir, "posterior-marginal-", ".bw")
 }
 
 /* -------------------------------------------------------------------------- */
