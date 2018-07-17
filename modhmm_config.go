@@ -159,8 +159,10 @@ type ConfigModHmm struct {
   SingleFeatureJsonDir       string                   `json:"Model Directory"`
   SingleFeatureJson          ConfigSingleFeaturePaths `json:"Model Files"`
   SingleFeatureComp          ConfigSingleFeaturePaths `json:"Model Component Files"`
+  SingleFeatureDir           string                   `json:"Single-Feature Directory"`
   SingleFeatureFg            ConfigSingleFeaturePaths `json:"Single-Feature Foreground"`
   SingleFeatureBg            ConfigSingleFeaturePaths `json:"Single-Feature Background"`
+  MultiFeatureDir            string                   `json:"Multi-Feature Directory"`
   MultiFeatureProb           ConfigMultiFeaturePaths  `json:"Multi-Feature Probabilities"`
   MultiFeatureProbNorm       ConfigMultiFeaturePaths  `json:"Normalized Multi-Feature Probabilities"`
   Posterior                  ConfigMultiFeaturePaths  `json:"Posterior Marginals"`
@@ -217,6 +219,12 @@ func (config *ConfigModHmm) CompletePaths() {
   if config.SingleFeatureJsonDir == "" {
     config.SingleFeatureJsonDir = config.Directory
   }
+  if config.SingleFeatureDir == "" {
+    config.SingleFeatureDir = config.Directory
+  }
+  if config.MultiFeatureDir == "" {
+    config.MultiFeatureDir = config.Directory
+  }
   if config.ModelDir == "" {
     config.ModelDir = config.Directory
   }
@@ -234,10 +242,10 @@ func (config *ConfigModHmm) CompletePaths() {
   config.SingleFeatureJson   .CompletePaths(config.SingleFeatureJsonDir, "", ".json")
   config.SingleFeatureComp   .CompletePaths(config.SingleFeatureJsonDir, "", ".components.json")
   config.SingleFeatureCnts   .CompletePaths(config.SingleFeatureJsonDir, "", ".counts.json")
-  config.SingleFeatureFg     .CompletePaths(config.Directory, "single-feature-", ".fg.bw")
-  config.SingleFeatureBg     .CompletePaths(config.Directory, "single-feature-", ".bg.bw")
-  config.MultiFeatureProb    .CompletePaths(config.Directory, "multi-feature-", ".bw")
-  config.MultiFeatureProbNorm.CompletePaths(config.Directory, "multi-feature-norm-", ".bw")
+  config.SingleFeatureFg     .CompletePaths(config.SingleFeatureDir, "single-feature-", ".fg.bw")
+  config.SingleFeatureBg     .CompletePaths(config.SingleFeatureDir, "single-feature-", ".bg.bw")
+  config.MultiFeatureProb    .CompletePaths(config.MultiFeatureDir, "multi-feature-", ".bw")
+  config.MultiFeatureProbNorm.CompletePaths(config.MultiFeatureDir, "multi-feature-norm-", ".bw")
   config.Posterior           .CompletePaths(config.Directory, "posterior-marginal-", ".bw")
 }
 
