@@ -74,7 +74,7 @@ func multi_feature_eval_norm(config ConfigModHmm, state string, trackFiles []str
       }
     }
   }
-  classifier := normalizationClassifier{multiFeatureList.Index(state), len(tracks)}
+  classifier := normalizationClassifier{multiFeatureList.Index(strings.ToLower(state)), len(tracks)}
 
   result, err := BatchClassifyMultiTrack(config.SessionConfig, classifier, tracks, false); if err != nil {
     log.Fatal(err)
