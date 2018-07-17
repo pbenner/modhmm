@@ -128,6 +128,7 @@ func modhmm_compute_counts(config ConfigModHmm, feature string) {
     config.BinSummaryStatistics = "discrete mean"
   }
   if updateRequired(config, filenameOut, filenameOut) {
+    modhmm_coverage_all(config)
     compute_counts(config, filenameIn, filenameOut)
   }
 }

@@ -122,6 +122,7 @@ func modhmm_single_feature_eval_dep(config ConfigModHmm) []string {
   r  = append(r, collectStrings(config.SingleFeatureData)...)
   r  = append(r, collectStrings(config.SingleFeatureJson)...)
   r  = append(r, collectStrings(config.SingleFeatureComp)...)
+  r  = append(r, collectStrings(config.SingleFeatureCnts)...)
   return r
 }
 
