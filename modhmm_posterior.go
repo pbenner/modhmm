@@ -69,7 +69,7 @@ func posterior(config ConfigModHmm, state string, trackFiles []string, tracks []
   printStderr(config, 1, "done\n")
 
   states := getStateIndices(modhmm, state)
-  printStderr(config, 1, "State %s with maps to state indices %v\n", state, states)
+  printStderr(config, 1, "State %s maps to state indices %v\n", state, states)
 
   result, err := ClassifyMultiTrack(config.SessionConfig, matrixClassifier.HmmPosterior{&modhmm.Hmm, states, false}, tracks, true); if err != nil {
     panic(err)
