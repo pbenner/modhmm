@@ -139,7 +139,7 @@ func modhmm_multi_feature_eval_norm_main(config ConfigModHmm, args []string) {
     os.Exit(0)
   }
   // command arguments
-  if len(options.Args()) > 0 {
+  if len(options.Args()) > 1 {
     options.PrintUsage(os.Stderr)
     os.Exit(1)
   }
