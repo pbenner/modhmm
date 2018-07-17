@@ -23,6 +23,7 @@ import   "io"
 import   "log"
 import   "math"
 import   "os"
+import   "sort"
 import   "strings"
 
 import . "github.com/pbenner/ngstat/config"
@@ -37,6 +38,21 @@ import   "github.com/pborman/getopt"
 type Counts struct {
   X []float64
   Y []int
+}
+
+/* -------------------------------------------------------------------------- */
+
+func (obj Counts) Len() int {
+  return len(obj.X)
+}
+
+func (obj Counts) Less(i, j int) bool {
+  return obj.X[i] < obj.X[j]
+}
+
+func (obj Counts) Swap(i, j int) {
+  obj.X[i], obj.X[j] = obj.X[j], obj.X[i]
+  obj.Y[i], obj.Y[j] = obj.Y[j], obj.Y[i]
 }
 
 /* -------------------------------------------------------------------------- */
@@ -87,6 +103,8 @@ func compute_counts(config ConfigModHmm, filenameIn, filenameOut string) {
       c.Y[i] = v
       i++
     }
+    sort.Sort(c)
+
     printStderr(config, 1, "Exporting counts to `%s'... ", filenameOut)
     if err := c.ExportFile(filenameOut); err != nil {
       printStderr(config, 1, "failed\n")
