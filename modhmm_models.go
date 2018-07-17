@@ -197,7 +197,7 @@ func getModHmmDefaultEstimator(config ConfigModHmm) (*matrixEstimator.HmmEstimat
   stateMap[jPA2]  = iPA
   stateMap[jPB]   = iPB
   stateMap[jPBt1] = iPB
-  stateMap[jPBt1] = iPB
+  stateMap[jPBt2] = iPB
   stateMap[jT1]   = iTR
   stateMap[jT2]   = iTR
   stateMap[jTL]   = iTL
