@@ -106,6 +106,21 @@ func (obj BasicMultiFeatureModel) PeakAny(x ConstMatrix, i int) float64 {
   return obj.PeakAny_(x, i, obj.pi[i:i+2])
 }
 
+func (obj BasicMultiFeatureModel) PeakAnyWidth_(x ConstMatrix, i int, pi []float64) float64 {
+  _, n := x.Dims()
+  m    := divIntUp(n,2)
+  r    := math.Inf(-1)
+  for j1 := 0; j1 < m; j1++ {
+    j2 := n-j1-1
+    r   = LogAdd(r, obj.PeakRange_(x, i, j1, j2, pi))
+  }
+  return r - math.Log(float64(m))
+}
+
+func (obj BasicMultiFeatureModel) PeakAnyWidth(x ConstMatrix, i int) float64 {
+  return obj.PeakAnyWidth_(x, i, obj.pi[i:i+2])
+}
+
 func (obj BasicMultiFeatureModel) PeakAt_(x ConstMatrix, i, k int, pi []float64) float64 {
      r := 0.0
   _, n := x.Dims()
