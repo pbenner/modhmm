@@ -225,7 +225,6 @@ func getModHmmDefaultEstimator(config ConfigModHmm) (*matrixEstimator.HmmEstimat
   tr.At(jPB  ,jNS  ).SetValue(1.0)
   tr.At(jPB  ,jR1  ).SetValue(1.0)
   tr.At(jPB  ,jR2  ).SetValue(1.0)
-  tr.At(jPB  ,jT2  ).SetValue(1.0)
   tr.At(jPB  ,jTL  ).SetValue(1.0)
   // transcribed (low)
   tr.At(jTL  ,jCL  ).SetValue(1.0)

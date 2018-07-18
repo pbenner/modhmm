@@ -136,7 +136,6 @@ func modhmm_segmentation_main(config ConfigModHmm, args []string) {
 
   options := getopt.New()
   options.SetProgram(fmt.Sprintf("%s segmentation", os.Args[0]))
-  options.SetParameters("<STATE>\n")
 
   optHelp  := options.   BoolLong("help",     'h',            "print help")
   optModel := options. StringLong("model",     0 , "default", "default, dense")
