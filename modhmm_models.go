@@ -155,17 +155,6 @@ func getModHmmDenseEstimator(config ConfigModHmm) (*matrixEstimator.HmmEstimator
 /* -------------------------------------------------------------------------- */
 
 func getModHmmDefaultEstimator(config ConfigModHmm) (*matrixEstimator.HmmEstimator, []string) {
-  const iPA =  0 // promoter active
-  const iPB =  1 // promoter bivalent
-  const iEA =  2 // enhancer active
-  const iEP =  3 // enhancer poised
-  const iTR =  4 // transcribed
-  const iTL =  5 // transcribed (low)
-  const iR1 =  6 // repressed h3k27me3
-  const iR2 =  7 // repressed h3k9me3
-  const iCL =  8 // control
-  const iNS =  9 // no signal
-
   const jEA   =  0 // enhancer active
   const jEP   =  1 // enhancer poised
   const jTL   =  2 // transcribed (low)
@@ -236,7 +225,6 @@ func getModHmmDefaultEstimator(config ConfigModHmm) (*matrixEstimator.HmmEstimat
   tr.At(jPB  ,jNS  ).SetValue(1.0)
   tr.At(jPB  ,jR1  ).SetValue(1.0)
   tr.At(jPB  ,jR2  ).SetValue(1.0)
-  tr.At(jPB  ,jT2  ).SetValue(1.0)
   tr.At(jPB  ,jTL  ).SetValue(1.0)
   // transcribed (low)
   tr.At(jTL  ,jCL  ).SetValue(1.0)
