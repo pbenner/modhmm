@@ -93,6 +93,22 @@ func (obj BasicClassifier) PeakAtCenter(x ConstMatrix, i int) float64 {
   return x.ValueAt(i, n/2)
 }
 
+func (obj BasicClassifier) PeakRange(x ConstMatrix, i, k1, k2 int) float64 {
+  r := 0.0
+  for j := k1; j < k2; j++ {
+    r += x.ValueAt(i, j)
+  }
+  return r
+}
+
+func (obj BasicClassifier) NoPeakRange(x ConstMatrix, i, k1, k2 int) float64 {
+  r := 0.0
+  for j := k1; j < k2; j++ {
+    r += x.ValueAt(i+1, j)
+  }
+  return r
+}
+
 func (obj BasicClassifier) NoPeakAt(x ConstMatrix, i, k int) float64 {
   return x.ValueAt(i+1, k)
 }
