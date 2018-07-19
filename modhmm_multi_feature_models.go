@@ -31,7 +31,7 @@ type BasicMultiFeatureModel struct {
   pi []float64
 }
 
-func (obj BasicMultiFeatureModel) PeakSym_(x ConstMatrix, i int, pi []float64) float64 {
+func (obj BasicMultiFeatureModel) PeakSym_(x ConstMatrix, i, min int, pi []float64) float64 {
   _, n := x.Dims()
   r    := math.Inf(-1)
   s    := math.Inf(-1)
@@ -47,6 +47,9 @@ func (obj BasicMultiFeatureModel) PeakSym_(x ConstMatrix, i int, pi []float64) f
   // j1 defines the positive region
   for j1 := 0; j1 < divIntUp(n,2); j1++ {
     j2 := n-j1-1
+    if j2 - j1 + 1 < min {
+      break
+    }
     if j1 == j2 {
       r = LogAdd(r, c + x.ValueAt(i, j1) + pi[0])
       s = LogAdd(s, d + pi[0])
@@ -76,8 +79,8 @@ func (obj BasicMultiFeatureModel) PeakSym_(x ConstMatrix, i int, pi []float64) f
   return r - s
 }
 
-func (obj BasicMultiFeatureModel) PeakSym(x ConstMatrix, i int) float64 {
-  return obj.PeakSym_(x, i, obj.pi[i:i+2])
+func (obj BasicMultiFeatureModel) PeakSym(x ConstMatrix, i, min int) float64 {
+  return obj.PeakSym_(x, i, min, obj.pi[i:i+2])
 }
 
 func (obj BasicMultiFeatureModel) PeakAny_(x ConstMatrix, i int, pi []float64) float64 {
@@ -293,7 +296,7 @@ func (obj ModelEA) Eval(s Scalar, x ConstMatrix) error {
   r += obj.PeakAny     (x, jH3k27ac)
   r += obj.Nil         (x, jH3k27me3)
   r += obj.Nil         (x, jH3k9me3)
-  r += obj.PeakSym     (x, jH3k4me1)
+  r += obj.PeakSym     (x, jH3k4me1, 0)
   r += obj.Nil         (x, jH3k4me3)
   r += obj.NoPeakAll   (x, jH3k4me3o1)
   r += obj.Nil         (x, jRna)
@@ -324,7 +327,7 @@ func (obj ModelEP) Eval(s Scalar, x ConstMatrix) error {
   r += obj.Nil      (x, jH3k27ac)
   r += obj.PeakAny  (x, jH3k27me3)
   r += obj.Nil      (x, jH3k9me3)
-  r += obj.PeakSym  (x, jH3k4me1)
+  r += obj.PeakSym  (x, jH3k4me1, 0)
   r += obj.Nil      (x, jH3k4me3)
   r += obj.NoPeakAll(x, jH3k4me3o1)
   r += obj.Nil      (x, jRna)

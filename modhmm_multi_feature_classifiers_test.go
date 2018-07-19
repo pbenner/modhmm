@@ -26,38 +26,35 @@ import . "github.com/pbenner/autodiff"
 
 /* -------------------------------------------------------------------------- */
 
-func Test1(t *testing.T) {
-  pi := []float64{math.Log(0.3), math.Log(0.7)}
-  m  := BasicMultiFeatureModel{pi}
+func TestCl1(t *testing.T) {
+  m  := BasicClassifier{}
   x  := NewMatrix(BareRealType, 2, 3, []float64{
-    math.Log(0.04), math.Log(0.09), math.Log(0.01),
-    math.Log(0.14), math.Log(0.03), math.Log(0.18) })
+    math.Log(0.7), math.Log(0.4), math.Log(0.8),
+    math.Log(0.3), math.Log(0.6), math.Log(0.2) })
 
-  if math.Abs(math.Exp(m.PeakSym(x, 0, 0)) - 0.001057537) > 1e-8 {
+  if math.Abs(math.Exp(m.PeakSym(x, 0, 0)) - 0.736) > 1e-2 {
     t.Error("test failed")
   }
 }
 
-func Test2(t *testing.T) {
-  pi := []float64{math.Log(0.3), math.Log(0.7)}
-  m  := BasicMultiFeatureModel{pi}
+func TestCl2(t *testing.T) {
+  m  := BasicClassifier{}
   x  := NewMatrix(BareRealType, 2, 4, []float64{
-    math.Log(0.04), math.Log(0.09), math.Log(0.01), math.Log(0.04),
-    math.Log(0.14), math.Log(0.03), math.Log(0.18), math.Log(0.03) })
+    math.Log(0.7), math.Log(0.4), math.Log(0.8), math.Log(0.3),
+    math.Log(0.3), math.Log(0.6), math.Log(0.2), math.Log(0.7) })
 
-  if math.Abs(math.Exp(m.PeakSym(x, 0, 0)) - 6.829634e-06) > 1e-12 {
+  if math.Abs(math.Exp(m.PeakSym(x, 0, 0)) - 0.4628) > 1e-3 {
     t.Error("test failed")
   }
 }
 
-func Test3(t *testing.T) {
-  pi := []float64{math.Log(0.3), math.Log(0.7)}
-  m  := BasicMultiFeatureModel{pi}
+func TestCl3(t *testing.T) {
+  m  := BasicClassifier{}
   x  := NewMatrix(BareRealType, 2, 5, []float64{
-    math.Log(0.04), math.Log(0.09), math.Log(0.01), math.Log(0.04), math.Log(0.25),
-    math.Log(0.14), math.Log(0.03), math.Log(0.18), math.Log(0.03), math.Log(0.05) })
+    math.Log(0.7), math.Log(0.4), math.Log(0.8), math.Log(0.3), math.Log(0.1),
+    math.Log(0.3), math.Log(0.6), math.Log(0.2), math.Log(0.7), math.Log(0.9) })
 
-  if math.Abs(math.Exp(m.PeakSym(x, 0, 0)) - 1.6519249161373184e-06) > 1e-12 {
+  if math.Abs(math.Exp(m.PeakSym(x, 0, 0)) - 0.83632) > 1e-4 {
     t.Error("test failed")
   }
 }

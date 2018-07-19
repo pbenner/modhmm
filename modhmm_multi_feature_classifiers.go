@@ -30,7 +30,7 @@ import . "github.com/pbenner/autodiff/logarithmetic"
 type BasicClassifier struct {
 }
 
-func (obj BasicClassifier) PeakSym(x ConstMatrix, m int) float64 {
+func (obj BasicClassifier) PeakSym(x ConstMatrix, m, min int) float64 {
   _, n := x.Dims()
   r    := math.Inf(-1)
   // pattern:
@@ -45,6 +45,9 @@ func (obj BasicClassifier) PeakSym(x ConstMatrix, m int) float64 {
     t := 0.0
     for i := 0; i <= k; i++ {
       j := n-i-1
+      if j - i + 1 < min {
+        break
+      }
       if i >= k {
         // positive
         if i == j {
@@ -188,7 +191,7 @@ func (obj ClassifierEA) Eval(s Scalar, x ConstMatrix) error {
     r += obj.PeakAny(x, jH3k27ac)
   }
   { // h3k4me1 peak at any position
-    r += obj.PeakSym(x, jH3k4me1)
+    r += obj.PeakSym(x, jH3k4me1, 0)
   }
   { // no h3k4me3o1 peak at all positions
     r += obj.NoPeakAll(x, jH3k4me3o1)
@@ -223,7 +226,7 @@ func (obj ClassifierEP) Eval(s Scalar, x ConstMatrix) error {
     r += obj.PeakAny(x, jH3k27me3)
   }
   { // h3k4me1 peak at any position
-    r += obj.PeakSym(x, jH3k4me1)
+    r += obj.PeakSym(x, jH3k4me1, 0)
   }
   { // no h3k4me3o1 peak at all positions
     r += obj.NoPeakAll(x, jH3k4me3o1)
