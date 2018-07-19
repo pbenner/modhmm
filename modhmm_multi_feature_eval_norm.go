@@ -63,6 +63,25 @@ func (obj normalizationClassifier) CloneMatrixBatchClassifier() MatrixBatchClass
 
 /* -------------------------------------------------------------------------- */
 
+type expClassifier struct {
+  k, n int
+}
+
+func (obj expClassifier) Eval(s Scalar, x ConstMatrix) error {
+  s.SetValue(math.Exp(x.ValueAt(obj.k, 0)))
+  return nil
+}
+
+func (obj expClassifier) Dims() (int, int) {
+  return obj.n, 1
+}
+
+func (obj expClassifier) CloneMatrixBatchClassifier() MatrixBatchClassifier {
+  return expClassifier{obj.k, obj.n}
+}
+
+/* -------------------------------------------------------------------------- */
+
 func multi_feature_eval_norm(config ConfigModHmm, state string, trackFiles []string, tracks []Track, filenameResult string) []Track {
   if len(tracks) != len(trackFiles) {
     tracks = make([]Track, len(trackFiles))
@@ -74,13 +93,25 @@ func multi_feature_eval_norm(config ConfigModHmm, state string, trackFiles []str
       }
     }
   }
-  classifier := normalizationClassifier{multiFeatureList.Index(strings.ToLower(state)), len(tracks)}
+  var classifier MatrixBatchClassifier
 
-  result, err := BatchClassifyMultiTrack(config.SessionConfig, classifier, tracks, false); if err != nil {
-    log.Fatal(err)
+  n := len(tracks)
+  i := multiFeatureList.Index(strings.ToLower(state))
+
+  switch config.Type {
+  case "likelihood":
+    classifier = normalizationClassifier{i, n}
+  case "posterior":
+    classifier = expClassifier{i, n}
+  default:
+    log.Fatal("invalid model type `%s'", config.Type)
   }
-  if err := ExportTrack(config.SessionConfig, result, filenameResult); err != nil {
+  if result, err := BatchClassifyMultiTrack(config.SessionConfig, classifier, tracks, false); err != nil {
     log.Fatal(err)
+  } else {
+    if err := ExportTrack(config.SessionConfig, result, filenameResult); err != nil {
+      log.Fatal(err)
+    }
   }
   return tracks
 }

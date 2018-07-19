@@ -50,7 +50,6 @@ func multi_feature_eval_mixture_weights(config ConfigModHmm) []float64 {
 
 func get_multi_feature_model(config ConfigModHmm, state string) MatrixBatchClassifier {
   switch config.Type {
-  case "": fallthrough
   case "likelihood":
     pi := multi_feature_eval_mixture_weights(config)
     switch strings.ToLower(state) {

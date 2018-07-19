@@ -76,7 +76,6 @@ func single_feature_eval(config ConfigModHmm, filenameModel, filenameComp, filen
   var scalarClassifier2 ScalarBatchClassifier
 
   switch strings.ToLower(config.Type) {
-  case "": fallthrough
   case "likelihood":
     scalarClassifier1 = scalarClassifier.MixtureLikelihood{mixture, k}
     scalarClassifier2 = scalarClassifier.MixtureLikelihood{mixture, r}

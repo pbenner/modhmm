@@ -137,7 +137,7 @@ func getModHmmDenseEstimator(config ConfigModHmm) (*matrixEstimator.HmmEstimator
     estimators[i] = vectorEstimator.NilEstimator{&EmissionDistribution{i, n}}
   }
 
-  if estimator, err := matrixEstimator.NewHmmEstimator(pi, tr, nil, nil, nil, estimators, 1e-2, -1); err != nil {
+  if estimator, err := matrixEstimator.NewHmmEstimator(pi, tr, nil, nil, nil, estimators, 1e-0, -1); err != nil {
     panic(err)
   } else {
     estimator.ChunkSize = 10000
@@ -311,7 +311,6 @@ func getModHmmDefaultEstimator(config ConfigModHmm) (*matrixEstimator.HmmEstimat
 
   constraints := make([]generic.EqualityConstraint, m)
   switch strings.ToLower(config.Type) {
-  case "": fallthrough
   case "likelihood":
     printStderr(config, 2, "Implementing constraints for modhmm:likelihood\n")
     // constrain self-transitions
@@ -355,7 +354,7 @@ func getModHmmDefaultEstimator(config ConfigModHmm) (*matrixEstimator.HmmEstimat
     estimators[i] = vectorEstimator.NilEstimator{&EmissionDistribution{i, n}}
   }
 
-  if estimator, err := matrixEstimator.NewConstrainedHmmEstimator(pi, tr, stateMap, nil, nil, constraints, estimators, 1e-2, -1); err != nil {
+  if estimator, err := matrixEstimator.NewConstrainedHmmEstimator(pi, tr, stateMap, nil, nil, constraints, estimators, 1e-0, -1); err != nil {
     panic(err)
   } else {
     estimator.ChunkSize = 10000

@@ -25,7 +25,6 @@ import   "path"
 import   "path/filepath"
 
 import . "github.com/pbenner/ngstat/config"
-import . "github.com/pbenner/autodiff"
 
 /* -------------------------------------------------------------------------- */
 
@@ -187,7 +186,7 @@ func (config *ConfigModHmm) Export(writer io.Writer) error {
 }
 
 func (config *ConfigModHmm) ImportFile(filename string) error {
-  if err := ImportFile(config, filename, BareRealType); err != nil {
+  if err := ImportFile(config, filename); err != nil {
     return err
   }
   return nil
@@ -203,6 +202,7 @@ func DefaultModHmmConfig() ConfigModHmm {
   config.BinSummaryStatistics = "mean"
   config.Threads              = 1
   config.ThreadsCoverage      = 1
+  config.Type                 = "posterior"
   config.Verbose              = 0
   return config
 }
