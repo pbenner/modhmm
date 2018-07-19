@@ -41,25 +41,27 @@ func (obj BasicClassifier) PeakSym(x ConstMatrix, m int) float64 {
   // *               *
   //
   // k defines the positive region
-  for k := 0; k <= n/2; k++ {
+  for k := 0; k < divIntUp(n,2); k++ {
     t := 0.0
     for i := 0; i <= k; i++ {
       j := n-i-1
       if i >= k {
         // positive
         if i == j {
-          t += x.ConstAt(m, i).GetValue()
+          t += x.ValueAt(m, i)
         } else {
-          t += x.ConstAt(m, i).GetValue()
-          t += x.ConstAt(m, j).GetValue()
+          t += x.ValueAt(m, i)
+          t += x.ValueAt(m, j)
         }
       } else {
         // negative
         if i == j {
-          t += x.ConstAt(m+1, i).GetValue()
+          t += x.ValueAt(m+1, i)
         } else {
-          t += x.ConstAt(m+1, i).GetValue()
-          t += x.ConstAt(m+1, j).GetValue()
+          t += LogAdd(LogAdd(
+            x.ValueAt(m+0, i)+x.ValueAt(m+1, j),
+            x.ValueAt(m+1, i)+x.ValueAt(m+0, j)),
+            x.ValueAt(m+1, i)+x.ValueAt(m+1, j))
         }
       }
     }
@@ -70,33 +72,33 @@ func (obj BasicClassifier) PeakSym(x ConstMatrix, m int) float64 {
 
 func (obj BasicClassifier) PeakAny(x ConstMatrix, i int) float64 {
   _, n := x.Dims()
-  t    := x.ConstAt(i,   0).GetValue()
-  r    := x.ConstAt(i+1, 0).GetValue()
+  t    := x.ValueAt(i,   0)
+  r    := x.ValueAt(i+1, 0)
   for k := 1; k < n; k++ {
-    t  = LogAdd(t, r + x.ConstAt(i, k).GetValue())
-    r += x.ConstAt(i+1, k).GetValue()
+    t  = LogAdd(t, r + x.ValueAt(i, k))
+    r += x.ValueAt(i+1, k)
   }
   return t
 }
 
 func (obj BasicClassifier) PeakAt(x ConstMatrix, i, k int) float64 {
-  return x.ConstAt(i, k).GetValue()
+  return x.ValueAt(i, k)
 }
 
 func (obj BasicClassifier) PeakAtCenter(x ConstMatrix, i int) float64 {
   _, n := x.Dims()
-  return x.ConstAt(i, n/2).GetValue()
+  return x.ValueAt(i, n/2)
 }
 
 func (obj BasicClassifier) NoPeakAt(x ConstMatrix, i, k int) float64 {
-  return x.ConstAt(i+1, k).GetValue()
+  return x.ValueAt(i+1, k)
 }
 
 func (obj BasicClassifier) NoPeakAll(x ConstMatrix, i int) float64 {
   _, n := x.Dims()
-  r    := x.ConstAt(i+1, 0).GetValue()
+  r    := x.ValueAt(i+1, 0)
   for k := 1; k < n; k++ {
-    r += x.ConstAt(i+1, k).GetValue()
+    r += x.ValueAt(i+1, k)
   }
   return r
 }
