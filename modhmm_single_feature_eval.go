@@ -179,10 +179,14 @@ func modhmm_single_feature_eval(config ConfigModHmm, feature string) {
   }
 }
 
-func modhmm_single_feature_eval_all(config ConfigModHmm) {
-  for _, feature := range singleFeatureList {
+func modhmm_single_feature_eval_loop(config ConfigModHmm, states []string) {
+  for _, feature := range states {
     modhmm_single_feature_eval(config, feature)
   }
+}
+
+func modhmm_single_feature_eval_all(config ConfigModHmm) {
+  modhmm_single_feature_eval_loop(config, singleFeatureList)
 }
 
 /* -------------------------------------------------------------------------- */
@@ -191,7 +195,7 @@ func modhmm_single_feature_eval_main(config ConfigModHmm, args []string) {
 
   options := getopt.New()
   options.SetProgram(fmt.Sprintf("%s eval-single-feature", os.Args[0]))
-  options.SetParameters("<FEATURE>\n")
+  options.SetParameters("[FEATURE]...\n")
 
   optHelp := options.   BoolLong("help",     'h',     "print help")
 
@@ -202,15 +206,9 @@ func modhmm_single_feature_eval_main(config ConfigModHmm, args []string) {
     options.PrintUsage(os.Stdout)
     os.Exit(0)
   }
-  // command arguments
-  if len(options.Args()) > 1 {
-    options.PrintUsage(os.Stderr)
-    os.Exit(1)
-  }
-
   if len(options.Args()) == 0 {
     modhmm_single_feature_eval_all(config)
   } else {
-    modhmm_single_feature_eval(config, options.Args()[0])
+    modhmm_single_feature_eval_loop(config, options.Args())
   }
 }

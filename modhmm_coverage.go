@@ -278,7 +278,7 @@ func modhmm_coverage(config ConfigModHmm, feature string) {
   }
 }
 
-func modhmm_coverage_all(config ConfigModHmm) {
+func modhmm_coverage_loop(config ConfigModHmm, states []string) {
   pool := threadpool.New(config.ThreadsCoverage, 10)
   for _, feature := range coverageList {
     if feature == "h3k4me3o1" {
@@ -295,13 +295,17 @@ func modhmm_coverage_all(config ConfigModHmm) {
   modhmm_coverage(config, "h3k4me3o1")
 }
 
+func modhmm_coverage_all(config ConfigModHmm) {
+  modhmm_coverage_loop(config, coverageList)
+}
+
 /* -------------------------------------------------------------------------- */
 
 func modhmm_coverage_main(config ConfigModHmm, args []string) {
 
   options := getopt.New()
   options.SetProgram(fmt.Sprintf("%s coverage", os.Args[0]))
-  options.SetParameters("<FEATURE>\n")
+  options.SetParameters("[FEATURE]...\n")
 
   optHelp := options.   BoolLong("help",     'h',     "print help")
 
@@ -321,6 +325,6 @@ func modhmm_coverage_main(config ConfigModHmm, args []string) {
   if len(options.Args()) == 0 {
     modhmm_coverage_all(config)
   } else {
-    modhmm_coverage(config, options.Args()[0])
+    modhmm_coverage_loop(config, options.Args())
   }
 }

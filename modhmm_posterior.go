@@ -115,11 +115,15 @@ func modhmm_posterior(config ConfigModHmm, state string, tracks []Track) []Track
   return tracks
 }
 
-func modhmm_posterior_all(config ConfigModHmm) {
+func modhmm_posterior_loop(config ConfigModHmm, states []string) {
   var tracks []Track
-  for _, state := range multiFeatureList {
+  for _, state := range states {
     tracks = modhmm_posterior(config, state, tracks)
   }
+}
+
+func modhmm_posterior_all(config ConfigModHmm) {
+  modhmm_posterior_loop(config, multiFeatureList)
 }
 
 /* -------------------------------------------------------------------------- */
@@ -128,7 +132,7 @@ func modhmm_posterior_main(config ConfigModHmm, args []string) {
 
   options := getopt.New()
   options.SetProgram(fmt.Sprintf("%s posterior-marginals", os.Args[0]))
-  options.SetParameters("<STATE>\n")
+  options.SetParameters("[STATE]...\n")
 
   optHelp  := options.BoolLong("help", 'h', "print help")
 
@@ -139,14 +143,9 @@ func modhmm_posterior_main(config ConfigModHmm, args []string) {
     options.PrintUsage(os.Stdout)
     os.Exit(0)
   }
-  // command arguments
-  if len(options.Args()) > 1 {
-    options.PrintUsage(os.Stderr)
-    os.Exit(1)
-  }
   if len(options.Args()) == 0 {
     modhmm_posterior_all(config)
   } else {
-    modhmm_posterior(config, options.Args()[0], nil)
+    modhmm_posterior_loop(config, options.Args())
   }
 }

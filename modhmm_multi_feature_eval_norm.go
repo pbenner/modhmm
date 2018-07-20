@@ -145,11 +145,15 @@ func modhmm_multi_feature_eval_norm(config ConfigModHmm, state string, tracks []
   return tracks
 }
 
-func modhmm_multi_feature_eval_norm_all(config ConfigModHmm) {
+func modhmm_multi_feature_eval_norm_loop(config ConfigModHmm, states []string) {
   var tracks []Track
-  for _, state := range multiFeatureList {
+  for _, state := range states {
     tracks = modhmm_multi_feature_eval_norm(config, state, tracks)
   }
+}
+
+func modhmm_multi_feature_eval_norm_all(config ConfigModHmm) {
+  modhmm_multi_feature_eval_norm_loop(config, multiFeatureList)
 }
 
 /* -------------------------------------------------------------------------- */
@@ -158,7 +162,7 @@ func modhmm_multi_feature_eval_norm_main(config ConfigModHmm, args []string) {
 
   options := getopt.New()
   options.SetProgram(fmt.Sprintf("%s multi-feature-eval-norm", os.Args[0]))
-  options.SetParameters("[STATE]\n")
+  options.SetParameters("[STATE]...\n")
 
   optHelp  := options.   BoolLong("help",     'h',            "print help")
 
@@ -177,6 +181,6 @@ func modhmm_multi_feature_eval_norm_main(config ConfigModHmm, args []string) {
   if len(options.Args()) == 0 {
     modhmm_multi_feature_eval_norm_all(config)
   } else {
-    modhmm_multi_feature_eval_norm(config, options.Args()[0], nil)
+    modhmm_multi_feature_eval_norm_loop(config, options.Args())
   }
 }
