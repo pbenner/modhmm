@@ -204,23 +204,23 @@ func (obj ClassifierEA) Eval(s Scalar, x ConstMatrix) error {
     r += obj.PeakAtCenter(x, jAtac)
   }
   { // h3k27ac peak at any position
-    r += obj.PeakAny(x, jH3k27ac)
+    r += obj.PeakRange(x, jH3k27ac, 1, 6)
   }
   { // h3k4me1 peak at any position
-    r += obj.PeakSym(x, jH3k4me1, 0)
+    r += obj.PeakSym(x, jH3k4me1, 2)
   }
   { // no h3k4me3o1 peak at all positions
-    r += obj.NoPeakAll(x, jH3k4me3o1)
+    r += obj.NoPeakRange(x, jH3k4me3o1, 1, 6)
   }
   { // no control peak at all positions
-    r += obj.NoPeakAll(x, jControl)
+    r += obj.NoPeakRange(x, jControl, 1, 6)
   }
   s.SetValue(r)
   return nil
 }
 
 func (ClassifierEA) Dims() (int, int) {
-  return 20, 5
+  return 20, 7
 }
 
 func (ClassifierEA) CloneMatrixBatchClassifier() MatrixBatchClassifier {
@@ -239,23 +239,23 @@ func (obj ClassifierEP) Eval(s Scalar, x ConstMatrix) error {
     //r += obj.PeakAtCenter(x, jAtac)
   }
   { // h3k27me3 peak at any position
-    r += obj.PeakAny(x, jH3k27me3)
+    r += obj.PeakRange(x, jH3k27me3, 1, 6)
   }
   { // h3k4me1 peak at any position
-    r += obj.PeakSym(x, jH3k4me1, 0)
+    r += obj.PeakSym(x, jH3k4me1, 2)
   }
   { // no h3k4me3o1 peak at all positions
-    r += obj.NoPeakAll(x, jH3k4me3o1)
+    r += obj.NoPeakRange(x, jH3k4me3o1, 1, 6)
   }
   { // no control peak at all positions
-    r += obj.NoPeakAll(x, jControl)
+    r += obj.NoPeakRange(x, jControl, 1, 6)
   }
   s.SetValue(r)
   return nil
 }
 
 func (ClassifierEP) Dims() (int, int) {
-  return 20, 5
+  return 20, 7
 }
 
 func (ClassifierEP) CloneMatrixBatchClassifier() MatrixBatchClassifier {
