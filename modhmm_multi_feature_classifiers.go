@@ -30,7 +30,7 @@ import . "github.com/pbenner/autodiff/logarithmetic"
 type BasicClassifier struct {
 }
 
-func (obj BasicClassifier) PeakSym(x ConstMatrix, m, min int) float64 {
+func (obj BasicClassifier) PeakSym_(x ConstMatrix, m, min, k0 int) float64 {
   _, n := x.Dims()
   r    := math.Inf(-1)
   // pattern:
@@ -41,9 +41,9 @@ func (obj BasicClassifier) PeakSym(x ConstMatrix, m, min int) float64 {
   // *               *
   //
   // k defines the positive region
-  for k := 0; k < divIntUp(n,2); k++ {
+  for k := k0; k < divIntUp(n,2); k++ {
     t := 0.0
-    for i := 0; i <= k; i++ {
+    for i := k0; i <= k; i++ {
       j := n-i-1
       if j - i + 1 < min {
         break
@@ -71,6 +71,10 @@ func (obj BasicClassifier) PeakSym(x ConstMatrix, m, min int) float64 {
     r = LogAdd(r, t)
   }
   return r
+}
+
+func (obj BasicClassifier) PeakSym(x ConstMatrix, m, min int) float64 {
+  return obj.PeakSym_(x, m, min, 0)
 }
 
 func (obj BasicClassifier) PeakAny(x ConstMatrix, i int) float64 {
@@ -213,23 +217,23 @@ func (obj ClassifierEA) Eval(s Scalar, x ConstMatrix) error {
     r += obj.PeakAtCenter(x, jAtac)
   }
   { // h3k27ac peak at any position
-    r += obj.PeakSym(x, jH3k27ac, 0)
+    r += obj.PeakSym_(x, jH3k27ac, 0, 1)
   }
   { // h3k4me1 peak at any position
-    r += obj.PeakSym(x, jH3k4me1, 2)
+    r += obj.PeakSym(x, jH3k4me1, 0)
   }
   { // no h3k4me3o1 peak at all positions
-    r += obj.NoPeakAll(x, jH3k4me3o1)
+    r += obj.NoPeakRange(x, jH3k4me3o1, 1, 6)
   }
   { // no control peak at all positions
-    r += obj.NoPeakAll(x, jControl)
+    r += obj.NoPeakRange(x, jControl, 1, 6)
   }
   s.SetValue(r)
   return nil
 }
 
 func (ClassifierEA) Dims() (int, int) {
-  return 20, 5
+  return 20, 7
 }
 
 func (ClassifierEA) CloneMatrixBatchClassifier() MatrixBatchClassifier {
@@ -248,23 +252,23 @@ func (obj ClassifierEP) Eval(s Scalar, x ConstMatrix) error {
     //r += obj.PeakAtCenter(x, jAtac)
   }
   { // h3k27me3 peak at any position
-    r += obj.PeakSym(x, jH3k27me3, 0)
+    r += obj.PeakSym_(x, jH3k27me3, 0, 1)
   }
   { // h3k4me1 peak at any position
-    r += obj.PeakSym(x, jH3k4me1, 2)
+    r += obj.PeakSym(x, jH3k4me1, 0)
   }
   { // no h3k4me3o1 peak at all positions
-    r += obj.NoPeakAll(x, jH3k4me3o1)
+    r += obj.NoPeakRange(x, jH3k4me3o1, 1, 6)
   }
   { // no control peak at all positions
-    r += obj.NoPeakAll(x, jControl)
+    r += obj.NoPeakRange(x, jControl, 1, 6)
   }
   s.SetValue(r)
   return nil
 }
 
 func (ClassifierEP) Dims() (int, int) {
-  return 20, 5
+  return 20, 7
 }
 
 func (ClassifierEP) CloneMatrixBatchClassifier() MatrixBatchClassifier {
