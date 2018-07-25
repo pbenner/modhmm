@@ -137,25 +137,9 @@ func modhmm_single_feature_estimate(config ConfigModHmm, feature string, n []int
 
   filenameIn  := getFieldAsString(config.SingleFeatureData, strings.ToLower(feature))
   filenameOut := getFieldAsString(config.SingleFeatureJson, strings.ToLower(feature))
-  discrete    := true
 
-  if strings.ToLower(feature) == "h3k4me3o1" {
-    discrete = false
-  }
-
-  if  discrete && len(n) != 3 {
-    log.Fatalf("feature `%s' is discrete and requires three integer arguments", feature)
-  }
-  if !discrete && len(n) != 2 {
-    log.Fatalf("feature `%s' is continuous and requires two integer arguments", feature)
-  }
-  if discrete {
-    config.BinSummaryStatistics = "discrete mean"
-    estimator = newEstimator(config, n[0], n[1], n[2])
-  } else {
-    config.BinSummaryStatistics = "mean"
-    estimator = newContinuousEstimator(config, n[0], n[1])
-  }
+  config.BinSummaryStatistics = "discrete mean"
+  estimator = newEstimator(config, n[0], n[1], n[2])
 
   single_feature_estimate(config, estimator, filenameIn, filenameOut)
 }
@@ -167,7 +151,6 @@ func modhmm_single_feature_estimate_main(config ConfigModHmm, args []string) {
   options := getopt.New()
   options.SetProgram(fmt.Sprintf("%s estimate-single-feature-mixture", os.Args[0]))
   options.SetParameters("<FEATURE> <N_DELTA> <N_POISSON> <N_GEOMETRIC>\n")
-  options.SetParameters("<FEATURE> <N_LOGNORMAL> <N_EXPONENTIAL>\n")
 
   optHelp := options.   BoolLong("help", 'h', "print help")
 
@@ -179,7 +162,7 @@ func modhmm_single_feature_estimate_main(config ConfigModHmm, args []string) {
     os.Exit(0)
   }
   // command arguments
-  if len(options.Args()) != 3 && len(options.Args()) != 4 {
+  if len(options.Args()) != 4 {
     options.PrintUsage(os.Stderr)
     os.Exit(1)
   }
@@ -197,12 +180,10 @@ func modhmm_single_feature_estimate_main(config ConfigModHmm, args []string) {
   } else {
     n = append(n, int(m))
   }
-  if len(options.Args()) == 4 {
-    if m, err := strconv.ParseInt(options.Args()[3], 10, 64); err != nil {
-      log.Fatal(err)
-    } else {
-      n = append(n, int(m))
-    }
+  if m, err := strconv.ParseInt(options.Args()[3], 10, 64); err != nil {
+    log.Fatal(err)
+  } else {
+    n = append(n, int(m))
   }
 
   modhmm_single_feature_estimate(config, feature, n)

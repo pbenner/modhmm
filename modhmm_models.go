@@ -122,7 +122,7 @@ func (obj *EmissionDistribution) ExportConfig() ConfigDistribution {
 
 func getModHmmDenseEstimator(config ConfigModHmm) (*matrixEstimator.HmmEstimator, []string) {
   stateNames := []string{
-    "PA", "PB", "EA", "EP", "TR", "TL", "R1", "R2", "CL", "NS"}
+    "PA", "EA", "BI", "TR", "TL", "R1", "R2", "CL", "NS"}
 
   n := 10
 
@@ -156,7 +156,7 @@ func getModHmmDenseEstimator(config ConfigModHmm) (*matrixEstimator.HmmEstimator
 
 func getModHmmDefaultEstimator(config ConfigModHmm) (*matrixEstimator.HmmEstimator, []string) {
   const jEA   =  0 // enhancer active
-  const jEP   =  1 // enhancer poised
+  const jPR   =  1 // enhancer active
   const jTL   =  2 // transcribed (low)
   const jR1   =  3 // repressed h3k27me3
   const jR2   =  4 // repressed h3k9me3
@@ -164,34 +164,34 @@ func getModHmmDefaultEstimator(config ConfigModHmm) (*matrixEstimator.HmmEstimat
   const jCL   =  6 // control
   const jPA1  =  7 // promoter active
   const jPA2  =  8 // promoter active
-  const jPB   =  9 // promoter bivalent
+  const jBI   =  9 // bivalent
   const jT1   = 10 // transcribed
   const jT2   = 11 // transcribed
   const jEAt1 = 12 // enhancer active
-  const jEPt1 = 13 // enhancer poised
-  const jEAt2 = 14 // enhancer active
-  const jEPt2 = 15 // enhancer poised
-  const jPBt1 = 16 // promoter bivalent
-  const jPBt2 = 17 // promoter bivalent
+  const jEAt2 = 13 // enhancer active
+  const jBIt1 = 14 // bivalent
+  const jBIt2 = 15 // bivalent
+  const jPRt1 = 16 // bivalent
+  const jPRt2 = 17 // bivalent
 
   stateNames := []string{
-    "EA", "EP", "TL", "R1", "R2", "NS", "CL", "PA", "PA", "PB", "TR", "TR", "EA:tr", "EP:tr", "EA:tr", "EP:tr", "PB:tr", "PB:tr"}
+    "EA", "PR", "TL", "R1", "R2", "NS", "CL", "PA", "PA", "BI", "TR", "TR", "EA:tr", "EA:tr", "BI:tr", "BI:tr", "PR:tr", "PR:tr"}
 
   n := 10
   m := 18
 
   stateMap := make([]int, m)
   stateMap[jEA]   = iEA
-  stateMap[jEP]   = iEP
   stateMap[jEAt1] = iEA
-  stateMap[jEPt1] = iEP
   stateMap[jEAt2] = iEA
-  stateMap[jEPt2] = iEP
+  stateMap[jPR]   = iPR
+  stateMap[jPRt1] = iPR
+  stateMap[jPRt2] = iPR
   stateMap[jPA1]  = iPA
   stateMap[jPA2]  = iPA
-  stateMap[jPB]   = iPB
-  stateMap[jPBt1] = iPB
-  stateMap[jPBt2] = iPB
+  stateMap[jBI]   = iBI
+  stateMap[jBIt1] = iBI
+  stateMap[jBIt2] = iBI
   stateMap[jT1]   = iTR
   stateMap[jT2]   = iTR
   stateMap[jTL]   = iTL
@@ -214,66 +214,66 @@ func getModHmmDefaultEstimator(config ConfigModHmm) (*matrixEstimator.HmmEstimat
   tr.At(jEA  ,jR1  ).SetValue(1.0)
   tr.At(jEA  ,jR2  ).SetValue(1.0)
   tr.At(jEA  ,jTL  ).SetValue(1.0)
-  // enhancer poised
-  tr.At(jEP  ,jCL  ).SetValue(1.0)
-  tr.At(jEP  ,jNS  ).SetValue(1.0)
-  tr.At(jEP  ,jR1  ).SetValue(1.0)
-  tr.At(jEP  ,jR2  ).SetValue(1.0)
-  tr.At(jEP  ,jTL  ).SetValue(1.0)
-  // promoter bivalent
-  tr.At(jPB  ,jCL  ).SetValue(1.0)
-  tr.At(jPB  ,jNS  ).SetValue(1.0)
-  tr.At(jPB  ,jR1  ).SetValue(1.0)
-  tr.At(jPB  ,jR2  ).SetValue(1.0)
-  tr.At(jPB  ,jTL  ).SetValue(1.0)
+  // bivalent
+  tr.At(jBI  ,jCL  ).SetValue(1.0)
+  tr.At(jBI  ,jNS  ).SetValue(1.0)
+  tr.At(jBI  ,jR1  ).SetValue(1.0)
+  tr.At(jBI  ,jR2  ).SetValue(1.0)
+  tr.At(jBI  ,jTL  ).SetValue(1.0)
+  // primed
+  tr.At(jPR  ,jCL  ).SetValue(1.0)
+  tr.At(jPR  ,jNS  ).SetValue(1.0)
+  tr.At(jPR  ,jR1  ).SetValue(1.0)
+  tr.At(jPR  ,jR2  ).SetValue(1.0)
+  tr.At(jPR  ,jTL  ).SetValue(1.0)
   // transcribed (low)
   tr.At(jTL  ,jCL  ).SetValue(1.0)
   tr.At(jTL  ,jEA  ).SetValue(1.0)
-  tr.At(jTL  ,jEP  ).SetValue(1.0)
   tr.At(jTL  ,jNS  ).SetValue(1.0)
   tr.At(jTL  ,jR1  ).SetValue(1.0)
   tr.At(jTL  ,jR2  ).SetValue(1.0)
   tr.At(jTL  ,jPA1 ).SetValue(1.0)
-  tr.At(jTL  ,jPB  ).SetValue(1.0)
+  tr.At(jTL  ,jBI  ).SetValue(1.0)
+  tr.At(jTL  ,jPR  ).SetValue(1.0)
   tr.At(jTL  ,jT1  ).SetValue(1.0)
   // no signal
   tr.At(jNS  ,jCL  ).SetValue(1.0)
   tr.At(jNS  ,jEA  ).SetValue(1.0)
-  tr.At(jNS  ,jEP  ).SetValue(1.0)
   tr.At(jNS  ,jR1  ).SetValue(1.0)
   tr.At(jNS  ,jR2  ).SetValue(1.0)
   tr.At(jNS  ,jPA1 ).SetValue(1.0)
-  tr.At(jNS  ,jPB  ).SetValue(1.0)
+  tr.At(jNS  ,jBI  ).SetValue(1.0)
+  tr.At(jNS  ,jPR  ).SetValue(1.0)
   tr.At(jNS  ,jT1  ).SetValue(1.0)
   tr.At(jNS  ,jTL  ).SetValue(1.0)
   // control
   tr.At(jCL  ,jEA  ).SetValue(1.0)
-  tr.At(jCL  ,jEP  ).SetValue(1.0)
   tr.At(jCL  ,jNS  ).SetValue(1.0)
   tr.At(jCL  ,jR1  ).SetValue(1.0)
   tr.At(jCL  ,jR2  ).SetValue(1.0)
   tr.At(jCL  ,jPA1 ).SetValue(1.0)
-  tr.At(jCL  ,jPB  ).SetValue(1.0)
+  tr.At(jCL  ,jBI  ).SetValue(1.0)
+  tr.At(jCL  ,jPR  ).SetValue(1.0)
   tr.At(jCL  ,jT1  ).SetValue(1.0)
   tr.At(jCL  ,jTL  ).SetValue(1.0)
   // repressed 1
   tr.At(jR1  ,jCL  ).SetValue(1.0)
   tr.At(jR1  ,jEA  ).SetValue(1.0)
-  tr.At(jR1  ,jEP  ).SetValue(1.0)
   tr.At(jR1  ,jNS  ).SetValue(1.0)
   tr.At(jR1  ,jR2  ).SetValue(1.0)
   tr.At(jR1  ,jPA1 ).SetValue(1.0)
-  tr.At(jR1  ,jPB  ).SetValue(1.0)
+  tr.At(jR1  ,jBI  ).SetValue(1.0)
+  tr.At(jR1  ,jPR  ).SetValue(1.0)
   tr.At(jR1  ,jT1  ).SetValue(1.0)
   tr.At(jR1  ,jTL  ).SetValue(1.0)
   // repressed 2
   tr.At(jR2  ,jCL  ).SetValue(1.0)
   tr.At(jR2  ,jEA  ).SetValue(1.0)
-  tr.At(jR2  ,jEP  ).SetValue(1.0)
   tr.At(jR2  ,jNS  ).SetValue(1.0)
   tr.At(jR2  ,jR1  ).SetValue(1.0)
   tr.At(jR2  ,jPA1 ).SetValue(1.0)
-  tr.At(jR2  ,jPB  ).SetValue(1.0)
+  tr.At(jR2  ,jBI  ).SetValue(1.0)
+  tr.At(jR2  ,jPR  ).SetValue(1.0)
   tr.At(jR2  ,jT1  ).SetValue(1.0)
   tr.At(jR2  ,jTL  ).SetValue(1.0)
   // promoter active 1
@@ -288,64 +288,68 @@ func getModHmmDefaultEstimator(config ConfigModHmm) (*matrixEstimator.HmmEstimat
   // transcribed 1
   tr.At(jT1  ,jPA2 ).SetValue(1.0)
   tr.At(jT1  ,jEAt1).SetValue(1.0)
-  tr.At(jT1  ,jEPt1).SetValue(1.0)
-  tr.At(jT1  ,jPBt1).SetValue(1.0)
+  tr.At(jT1  ,jBIt1).SetValue(1.0)
+  tr.At(jT1  ,jPRt1).SetValue(1.0)
   // transcribed 2
   tr.At(jT2  ,jPA2 ).SetValue(1.0)
   tr.At(jT2  ,jEAt2).SetValue(1.0)
-  tr.At(jT2  ,jEPt2).SetValue(1.0)
-  tr.At(jT2  ,jPBt2).SetValue(1.0)
+  tr.At(jT2  ,jBIt2).SetValue(1.0)
+  tr.At(jT2  ,jPRt2).SetValue(1.0)
   tr.At(jT2  ,jCL  ).SetValue(1.0)
   tr.At(jT2  ,jNS  ).SetValue(1.0)
   tr.At(jT2  ,jR1  ).SetValue(1.0)
   tr.At(jT2  ,jR2  ).SetValue(1.0)
   tr.At(jT2  ,jTL  ).SetValue(1.0)
-  // ea/ep/pb transcribed
+  // ea/bi/pr transcribed
   tr.At(jEAt1,jT1  ).SetValue(1.0)
-  tr.At(jEPt1,jT1  ).SetValue(1.0)
-  tr.At(jPBt1,jT1  ).SetValue(1.0)
-  // ea/ep/pb transcribed
+  tr.At(jBIt1,jT1  ).SetValue(1.0)
+  tr.At(jPRt1,jT1  ).SetValue(1.0)
+  // ea/bi/pr transcribed
   tr.At(jEAt2,jT2  ).SetValue(1.0)
-  tr.At(jEPt2,jT2  ).SetValue(1.0)
-  tr.At(jPBt2,jT2  ).SetValue(1.0)
+  tr.At(jBIt2,jT2  ).SetValue(1.0)
+  tr.At(jPRt2,jT2  ).SetValue(1.0)
 
-  constraints := make([]generic.EqualityConstraint, m)
-  switch strings.ToLower(config.Type) {
-  case "likelihood":
-    printStderr(config, 2, "Implementing constraints for modhmm:likelihood\n")
-    // constrain self-transitions
-    constraints = append(constraints, generic.EqualityConstraint{
-      [2]int{jPA1, jPA1}, [2]int{jPA2, jPA2}})
-    constraints = append(constraints, generic.EqualityConstraint{
-      [2]int{jEA, jEA}, [2]int{jEAt1, jEAt1}, [2]int{jEAt2, jEAt2}})
-    constraints = append(constraints, generic.EqualityConstraint{
-      [2]int{jEP, jEP}, [2]int{jEPt1, jEPt1}, [2]int{jEPt2, jEPt2}})
-    constraints = append(constraints, generic.EqualityConstraint{
-      [2]int{jPB, jPB}, [2]int{jPBt1, jPBt1}, [2]int{jPBt2, jPBt2}})
-    constraints = append(constraints, generic.EqualityConstraint{
-      [2]int{jT1, jT1}, [2]int{jT2, jT2}})
-    // transition into active enhancers
-    constraints = append(constraints, generic.EqualityConstraint{
-      [2]int{jR1, jEA}, [2]int{jR2, jEA}, [2]int{jTL, jEA}, [2]int{jNS, jEA}, [2]int{jCL, jEA}, [2]int{jT1, jEAt1}, [2]int{jT2, jEAt2}})
-    // transition into poised enhancers
-    constraints = append(constraints, generic.EqualityConstraint{
-      [2]int{jR1, jEP}, [2]int{jR2, jEP}, [2]int{jTL, jEP}, [2]int{jNS, jEP}, [2]int{jCL, jEP}, [2]int{jT1, jEPt1}, [2]int{jT2, jEPt2}})
-    // transition into bivalend promoter
-    constraints = append(constraints, generic.EqualityConstraint{
-      [2]int{jR1, jPB}, [2]int{jR2, jPB}, [2]int{jTL, jPB}, [2]int{jNS, jPB}, [2]int{jCL, jPB}, [2]int{jT1, jPBt1}, [2]int{jT2, jPBt2}})
-  case "posterior":
-    printStderr(config, 2, "Implementing constraints for modhmm:posterior\n")
-    for i := 0; i < m; i++ {
-      constraint := generic.EqualityConstraint{}
-      for j := 0; j < m; j++ {
-        if i == j {
-          continue
-        }
-        if tr.ConstAt(i, j).GetValue() != 0 {
+  constraints := []generic.EqualityConstraint{}
+  if config.Unconstrained {
+    printStderr(config, 2, "Implementing default model with unconstrained transition matrix\n")
+  } else {
+    switch strings.ToLower(config.Type) {
+    case "likelihood":
+      printStderr(config, 2, "Implementing constraints for modhmm:likelihood\n")
+      // constrain self-transitions
+      constraints = append(constraints, generic.EqualityConstraint{
+        [2]int{jPA1, jPA1}, [2]int{jPA2, jPA2}})
+      constraints = append(constraints, generic.EqualityConstraint{
+        [2]int{jEA, jEA}, [2]int{jEAt1, jEAt1}, [2]int{jEAt2, jEAt2}})
+      constraints = append(constraints, generic.EqualityConstraint{
+        [2]int{jBI, jBI}, [2]int{jBIt1, jBIt1}, [2]int{jBIt2, jBIt2}})
+      constraints = append(constraints, generic.EqualityConstraint{
+        [2]int{jPR, jPR}, [2]int{jPRt1, jPRt1}, [2]int{jPRt2, jPRt2}})
+      constraints = append(constraints, generic.EqualityConstraint{
+        [2]int{jT1, jT1}, [2]int{jT2, jT2}})
+      // transition into active enhancers
+      constraints = append(constraints, generic.EqualityConstraint{
+        [2]int{jR1, jEA}, [2]int{jR2, jEA}, [2]int{jTL, jEA}, [2]int{jNS, jEA}, [2]int{jCL, jEA}, [2]int{jT1, jEAt1}, [2]int{jT2, jEAt2}})
+      // transition into bivalent state
+      constraints = append(constraints, generic.EqualityConstraint{
+        [2]int{jR1, jBI}, [2]int{jR2, jBI}, [2]int{jTL, jBI}, [2]int{jNS, jBI}, [2]int{jCL, jBI}, [2]int{jT1, jBIt1}, [2]int{jT2, jBIt2}})
+      // transition into primed state
+      constraints = append(constraints, generic.EqualityConstraint{
+        [2]int{jR1, jPR}, [2]int{jR2, jPR}, [2]int{jTL, jPR}, [2]int{jNS, jPR}, [2]int{jCL, jPR}, [2]int{jT1, jPRt1}, [2]int{jT2, jPRt2}})
+    case "posterior":
+      printStderr(config, 2, "Implementing constraints for modhmm:posterior\n")
+      for i := 0; i < m; i++ {
+        constraint := generic.EqualityConstraint{}
+        for j := 0; j < m; j++ {
+          if i == j {
+            continue
+          }
+          if tr.ConstAt(i, j).GetValue() != 0 {
           constraint = append(constraint, [2]int{i,j})
+          }
         }
+        constraints = append(constraints, constraint)
       }
-      constraints = append(constraints, constraint)
     }
   }
   // emissions

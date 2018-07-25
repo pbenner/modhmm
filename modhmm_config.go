@@ -120,9 +120,9 @@ func (config *ConfigSingleFeaturePaths) CompletePaths(dir, prefix, suffix string
 
 type ConfigMultiFeaturePaths struct {
   EA       string
-  EP       string
   PA       string
-  PB       string
+  BI       string
+  PR       string
   TR       string
   TL       string
   R1       string
@@ -132,10 +132,10 @@ type ConfigMultiFeaturePaths struct {
 }
 
 func (config *ConfigMultiFeaturePaths) CompletePaths(dir, prefix, suffix string) {
-  config.EA = completePath(dir, prefix, config.EA, fmt.Sprintf("EA%s", suffix))
-  config.EP = completePath(dir, prefix, config.EP, fmt.Sprintf("EP%s", suffix))
   config.PA = completePath(dir, prefix, config.PA, fmt.Sprintf("PA%s", suffix))
-  config.PB = completePath(dir, prefix, config.PB, fmt.Sprintf("PB%s", suffix))
+  config.EA = completePath(dir, prefix, config.EA, fmt.Sprintf("EA%s", suffix))
+  config.BI = completePath(dir, prefix, config.BI, fmt.Sprintf("BI%s", suffix))
+  config.PR = completePath(dir, prefix, config.PR, fmt.Sprintf("PR%s", suffix))
   config.TR = completePath(dir, prefix, config.TR, fmt.Sprintf("TR%s", suffix))
   config.TL = completePath(dir, prefix, config.TL, fmt.Sprintf("TL%s", suffix))
   config.R1 = completePath(dir, prefix, config.R1, fmt.Sprintf("R1%s", suffix))
@@ -166,6 +166,7 @@ type ConfigModHmm struct {
   MultiFeatureProbNorm       ConfigMultiFeaturePaths  `json:"Normalized Multi-Feature Probabilities"`
   Posterior                  ConfigMultiFeaturePaths  `json:"Posterior Marginals"`
   PosteriorDir               string                   `json:"Posterior Marginals Directory"`
+  Unconstrained              bool                     `json:"Unconstrained"`
   Type                       string                   `json:"Type"`
   Directory                  string                   `json:"Directory"`
   Model                      string                   `json:"ModHmm Model File"`
@@ -314,9 +315,9 @@ func (config ConfigMultiFeaturePaths) String() string {
   var buffer bytes.Buffer
 
   fmt.Fprintf(&buffer, " -> PA                   : %v %s\n", config.PA, fileCheckMark(config.PA))
-  fmt.Fprintf(&buffer, " -> PB                   : %v %s\n", config.PB, fileCheckMark(config.PB))
   fmt.Fprintf(&buffer, " -> EA                   : %v %s\n", config.EA, fileCheckMark(config.EA))
-  fmt.Fprintf(&buffer, " -> EP                   : %v %s\n", config.EP, fileCheckMark(config.EP))
+  fmt.Fprintf(&buffer, " -> BI                   : %v %s\n", config.BI, fileCheckMark(config.BI))
+  fmt.Fprintf(&buffer, " -> PR                   : %v %s\n", config.PR, fileCheckMark(config.PR))
   fmt.Fprintf(&buffer, " -> TR                   : %v %s\n", config.TR, fileCheckMark(config.TR))
   fmt.Fprintf(&buffer, " -> TL                   : %v %s\n", config.TL, fileCheckMark(config.TL))
   fmt.Fprintf(&buffer, " -> R1                   : %v %s\n", config.R1, fileCheckMark(config.R1))

@@ -126,6 +126,11 @@ func (obj BasicClassifier) NoPeakAt(x ConstMatrix, i, k int) float64 {
   return x.ValueAt(i+1, k)
 }
 
+func (obj BasicClassifier) NoPeakAtCenter(x ConstMatrix, i int) float64 {
+  _, n := x.Dims()
+  return x.ValueAt(i+1, n/2)
+}
+
 func (obj BasicClassifier) NoPeakAll(x ConstMatrix, i int) float64 {
   _, n := x.Dims()
   r    := x.ValueAt(i+1, 0)
@@ -172,41 +177,6 @@ func (ClassifierPA) CloneMatrixBatchClassifier() MatrixBatchClassifier {
 
 /* -------------------------------------------------------------------------- */
 
-type ClassifierPB struct {
-  BasicClassifier
-}
-
-func (obj ClassifierPB) Eval(s Scalar, x ConstMatrix) error {
-  r := 0.0
-  { // atac peak at the center
-    //r += obj.PeakAtCenter(x, jAtac)
-  }
-  { // h3k27me3 peak at any position
-    r += obj.PeakSym(x, jH3k27me3, 0)
-  }
-  { // h3k4me3 peak at any position
-    r += obj.PeakAny(x, jH3k4me3)
-  }
-  { // h3k4me3o1 peak at any position
-    r += obj.PeakAny(x, jH3k4me3o1)
-  }
-  { // no control peak at all positions
-    r += obj.NoPeakAll(x, jControl)
-  }
-  s.SetValue(r)
-  return nil
-}
-
-func (ClassifierPB) Dims() (int, int) {
-  return 20, 5
-}
-
-func (ClassifierPB) CloneMatrixBatchClassifier() MatrixBatchClassifier {
-  return ClassifierPB{}
-}
-
-/* -------------------------------------------------------------------------- */
-
 type ClassifierEA struct {
   BasicClassifier
 }
@@ -242,11 +212,11 @@ func (ClassifierEA) CloneMatrixBatchClassifier() MatrixBatchClassifier {
 
 /* -------------------------------------------------------------------------- */
 
-type ClassifierEP struct {
+type ClassifierBI struct {
   BasicClassifier
 }
 
-func (obj ClassifierEP) Eval(s Scalar, x ConstMatrix) error {
+func (obj ClassifierBI) Eval(s Scalar, x ConstMatrix) error {
   r := 0.0
   { // atac peak at the center
     //r += obj.PeakAtCenter(x, jAtac)
@@ -254,11 +224,10 @@ func (obj ClassifierEP) Eval(s Scalar, x ConstMatrix) error {
   { // h3k27me3 peak at any position
     r += obj.PeakSym_(x, jH3k27me3, 0, 1)
   }
-  { // h3k4me1 peak at any position
-    r += obj.PeakSym(x, jH3k4me1, 0)
-  }
-  { // no h3k4me3o1 peak at all positions
-    r += obj.NoPeakRange(x, jH3k4me3o1, 1, 6)
+  { // symmetric jH3k4me1 peak or h3k4me3 peak at any position
+    t1 := obj.PeakSym  (x, jH3k4me1, 0)
+    t2 := obj.PeakRange(x, jH3k4me3, 1, 6)
+    r  += LogAdd(t1, LogSub(0.0, t1) + t2)
   }
   { // no control peak at all positions
     r += obj.NoPeakRange(x, jControl, 1, 6)
@@ -267,12 +236,49 @@ func (obj ClassifierEP) Eval(s Scalar, x ConstMatrix) error {
   return nil
 }
 
-func (ClassifierEP) Dims() (int, int) {
+func (ClassifierBI) Dims() (int, int) {
   return 20, 7
 }
 
-func (ClassifierEP) CloneMatrixBatchClassifier() MatrixBatchClassifier {
-  return ClassifierEP{}
+func (ClassifierBI) CloneMatrixBatchClassifier() MatrixBatchClassifier {
+  return ClassifierBI{}
+}
+
+/* -------------------------------------------------------------------------- */
+
+type ClassifierPR struct {
+  BasicClassifier
+}
+
+func (obj ClassifierPR) Eval(s Scalar, x ConstMatrix) error {
+  r := 0.0
+  { // atac peak at the center
+    r += obj.PeakAtCenter(x, jAtac)
+  }
+  { // no h3k27ac peak
+    r += obj.NoPeakRange(x, jH3k27ac, 1, 6)
+  }
+  { // no h3k27me3 peak
+    r += obj.NoPeakRange(x, jH3k27me3, 1, 6)
+  }
+  { // symmetric jH3k4me1 peak or h3k4me3 peak at any position
+    t1 := obj.PeakSym  (x, jH3k4me1, 0)
+    t2 := obj.PeakRange(x, jH3k4me3, 1, 6)
+    r  += LogAdd(t1, LogSub(0.0, t1) + t2)
+  }
+  { // no control peak at all positions
+    r += obj.NoPeakRange(x, jControl, 1, 6)
+  }
+  s.SetValue(r)
+  return nil
+}
+
+func (ClassifierPR) Dims() (int, int) {
+  return 20, 7
+}
+
+func (ClassifierPR) CloneMatrixBatchClassifier() MatrixBatchClassifier {
+  return ClassifierPR{}
 }
 
 /* -------------------------------------------------------------------------- */

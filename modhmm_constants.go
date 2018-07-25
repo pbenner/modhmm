@@ -29,14 +29,14 @@ var singleFeatureList = StringList{
 /* -------------------------------------------------------------------------- */
 
 var multiFeatureList = StringList{
-  "pa", "pb", "ea", "ep", "tr", "tl", "r1", "r2", "ns", "cl"}
+  "pa", "ea", "bi", "pr", "tr", "tl", "r1", "r2", "ns", "cl"}
 
 /* -------------------------------------------------------------------------- */
 
 var iPA int // promoter active
-var iPB int // promoter bivalent
 var iEA int // enhancer active
-var iEP int // enhancer poised
+var iBI int // bivalent state
+var iPR int // primed state
 var iTR int // transcribed
 var iTL int // transcribed (low)
 var iR1 int // repressed h3k27me3
@@ -73,9 +73,9 @@ func init() {
   jControl   = 2*singleFeatureList.Index("control")
   // track indices for modhmm
   iPA = multiFeatureList.Index("pa")
-  iPB = multiFeatureList.Index("pb")
   iEA = multiFeatureList.Index("ea")
-  iEP = multiFeatureList.Index("ep")
+  iBI = multiFeatureList.Index("bi")
+  iPR = multiFeatureList.Index("pr")
   iTR = multiFeatureList.Index("tr")
   iTL = multiFeatureList.Index("tl")
   iR1 = multiFeatureList.Index("r1")

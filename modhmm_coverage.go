@@ -21,6 +21,7 @@ package main
 import   "fmt"
 import   "bufio"
 import   "log"
+import   "math"
 import   "path/filepath"
 import   "strconv"
 import   "strings"
@@ -160,8 +161,8 @@ func importFraglen(config ConfigModHmm, feature, filename string) int {
 /* -------------------------------------------------------------------------- */
 
 func coverage_h3k4me3o1(config ConfigModHmm) {
-  config.BinOverlap = 2
   config.BinSummaryStatistics = "discrete mean"
+  config.BinOverlap = 1
   track1, err := ImportTrack(config.SessionConfig, config.SingleFeatureData.H3k4me1); if err != nil {
     log.Fatal(err)
   }
@@ -171,7 +172,7 @@ func coverage_h3k4me3o1(config ConfigModHmm) {
   if err := (GenericMutableTrack{track1}).MapList([]Track{track1, track2}, func(seqname string, position int, values ...float64) float64 {
     x1 := values[0]
     x2 := values[1]
-    return (x2+1.0)/(x1+1.0)
+    return math.Round((x2+1.0)/(x1+1.0)*10)
   }); err != nil {
     log.Fatal(err)
   }

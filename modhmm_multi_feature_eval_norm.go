@@ -82,7 +82,7 @@ func (obj expClassifier) CloneMatrixBatchClassifier() MatrixBatchClassifier {
 
 /* -------------------------------------------------------------------------- */
 
-func multi_feature_eval_norm(config ConfigModHmm, state string, trackFiles []string, tracks []Track, filenameResult string) []Track {
+func multi_feature_eval_norm(config ConfigModHmm, state string, trackFiles []string, tracks []Track, filenameResult string, integrate bool) []Track {
   if len(tracks) != len(trackFiles) {
     tracks = make([]Track, len(trackFiles))
     for i, filename := range trackFiles {
@@ -102,7 +102,11 @@ func multi_feature_eval_norm(config ConfigModHmm, state string, trackFiles []str
   case "likelihood":
     classifier = normalizationClassifier{i, n}
   case "posterior":
-    classifier = expClassifier{i, n}
+    if integrate {
+      classifier = normalizationClassifier{i, n}
+    } else {
+      classifier = expClassifier{i, n}
+    }
   default:
     log.Fatal("invalid model type `%s'", config.Type)
   }
@@ -122,7 +126,7 @@ func modhmm_multi_feature_eval_norm_dep(config ConfigModHmm) []string {
   return modhmm_segmentation_dep(config)
 }
 
-func modhmm_multi_feature_eval_norm(config ConfigModHmm, state string, tracks []Track) []Track {
+func modhmm_multi_feature_eval_norm(config ConfigModHmm, state string, tracks []Track, integrate bool) []Track {
 
   if !multiFeatureList.Contains(strings.ToLower(state)) {
     log.Fatalf("unknown state: %s", state)
@@ -140,20 +144,20 @@ func modhmm_multi_feature_eval_norm(config ConfigModHmm, state string, tracks []
     modhmm_multi_feature_eval_all(config)
 
     printStderr(config, 1, "==> Evaluating Normalized Multi-Feature Model (%s) <==\n", strings.ToUpper(state))
-    tracks = multi_feature_eval_norm(config, state, trackFiles, tracks, filenameResult)
+    tracks = multi_feature_eval_norm(config, state, trackFiles, tracks, filenameResult, integrate)
   }
   return tracks
 }
 
-func modhmm_multi_feature_eval_norm_loop(config ConfigModHmm, states []string) {
+func modhmm_multi_feature_eval_norm_loop(config ConfigModHmm, states []string, integrate bool) {
   var tracks []Track
   for _, state := range states {
-    tracks = modhmm_multi_feature_eval_norm(config, state, tracks)
+    tracks = modhmm_multi_feature_eval_norm(config, state, tracks, integrate)
   }
 }
 
-func modhmm_multi_feature_eval_norm_all(config ConfigModHmm) {
-  modhmm_multi_feature_eval_norm_loop(config, multiFeatureList)
+func modhmm_multi_feature_eval_norm_all(config ConfigModHmm, integrate bool) {
+  modhmm_multi_feature_eval_norm_loop(config, multiFeatureList, integrate)
 }
 
 /* -------------------------------------------------------------------------- */
@@ -164,7 +168,8 @@ func modhmm_multi_feature_eval_norm_main(config ConfigModHmm, args []string) {
   options.SetProgram(fmt.Sprintf("%s multi-feature-eval-norm", os.Args[0]))
   options.SetParameters("[STATE]...\n")
 
-  optHelp  := options.   BoolLong("help",     'h',            "print help")
+  optHelp := options.BoolLong("help",      'h', "print help")
+  optInt  := options.BoolLong("integrate",  0 , "integrate all classifiers")
 
   options.Parse(args)
 
@@ -173,14 +178,9 @@ func modhmm_multi_feature_eval_norm_main(config ConfigModHmm, args []string) {
     options.PrintUsage(os.Stdout)
     os.Exit(0)
   }
-  // command arguments
-  if len(options.Args()) > 1 {
-    options.PrintUsage(os.Stderr)
-    os.Exit(1)
-  }
   if len(options.Args()) == 0 {
-    modhmm_multi_feature_eval_norm_all(config)
+    modhmm_multi_feature_eval_norm_all(config, *optInt)
   } else {
-    modhmm_multi_feature_eval_norm_loop(config, options.Args())
+    modhmm_multi_feature_eval_norm_loop(config, options.Args(), *optInt)
   }
 }

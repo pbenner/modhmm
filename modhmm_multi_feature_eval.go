@@ -54,9 +54,9 @@ func get_multi_feature_model(config ConfigModHmm, state string) MatrixBatchClass
     pi := multi_feature_eval_mixture_weights(config)
     switch strings.ToLower(state) {
     case "pa": return ModelPA{BasicMultiFeatureModel{pi}}
-    case "pb": return ModelPB{BasicMultiFeatureModel{pi}}
     case "ea": return ModelEA{BasicMultiFeatureModel{pi}}
-    case "ep": return ModelEP{BasicMultiFeatureModel{pi}}
+    case "bi": panic("todo")
+    case "pr": panic("todo")
     case "tr": return ModelTR{BasicMultiFeatureModel{pi}}
     case "tl": return ModelTL{BasicMultiFeatureModel{pi}}
     case "r1": return ModelR1{BasicMultiFeatureModel{pi}}
@@ -69,9 +69,9 @@ func get_multi_feature_model(config ConfigModHmm, state string) MatrixBatchClass
   case "posterior":
     switch strings.ToLower(state) {
     case "pa": return ClassifierPA{}
-    case "pb": return ClassifierPB{}
     case "ea": return ClassifierEA{}
-    case "ep": return ClassifierEP{}
+    case "bi": return ClassifierBI{}
+    case "pr": return ClassifierPR{}
     case "tr": return ClassifierTR{}
     case "tl": return ClassifierTL{}
     case "r1": return ClassifierR1{}

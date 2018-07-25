@@ -131,8 +131,6 @@ func modhmm_single_feature_eval(config ConfigModHmm, feature string) {
     log.Fatalf("unknown feature: %s", feature)
   }
 
-  dependencies := modhmm_single_feature_eval_dep(config)
-
   localConfig := config
   localConfig.BinSummaryStatistics = "discrete mean"
   filenameModel   := ""
@@ -143,14 +141,6 @@ func modhmm_single_feature_eval(config ConfigModHmm, feature string) {
   filenameResult2 := ""
 
   switch strings.ToLower(feature) {
-  case "h3k4me3o1":
-    filenameData    = config.SingleFeatureData.H3k4me3o1
-    filenameCnts    = config.SingleFeatureCnts.H3k4me3o1
-    filenameModel   = config.SingleFeatureJson.H3k4me3o1
-    filenameComp    = config.SingleFeatureComp.H3k4me3o1
-    filenameResult1 = config.SingleFeatureFg.H3k4me3o1
-    filenameResult2 = config.SingleFeatureBg.H3k4me3o1
-    localConfig.BinSummaryStatistics = "mean"
   case "rna-low":
     filenameData    = config.SingleFeatureData.Rna
     filenameCnts    = config.SingleFeatureCnts.Rna
@@ -159,7 +149,6 @@ func modhmm_single_feature_eval(config ConfigModHmm, feature string) {
     filenameResult1 = config.SingleFeatureFg.Rna_low
     filenameResult2 = config.SingleFeatureBg.Rna_low
   default:
-    feature := strings.Replace(strings.ToLower(feature), "-", "_", -1)
     filenameData    = getFieldAsString(config.SingleFeatureData, feature)
     filenameCnts    = getFieldAsString(config.SingleFeatureCnts, feature)
     filenameModel   = getFieldAsString(config.SingleFeatureJson, feature)
@@ -167,8 +156,8 @@ func modhmm_single_feature_eval(config ConfigModHmm, feature string) {
     filenameResult1 = getFieldAsString(config.SingleFeatureFg, feature)
     filenameResult2 = getFieldAsString(config.SingleFeatureBg, feature)
   }
-  if updateRequired(config, filenameResult1, dependencies...) ||
-    (updateRequired(config, filenameResult2, dependencies...)) {
+  if updateRequired(config, filenameResult1, filenameData, filenameCnts, filenameModel, filenameComp) ||
+    (updateRequired(config, filenameResult2, filenameData, filenameCnts, filenameModel, filenameComp)) {
     checkModelFiles(config.SingleFeatureJson)
     checkModelFiles(config.SingleFeatureComp)
     checkModelFiles(config.SingleFeatureCnts)
