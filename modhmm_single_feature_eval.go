@@ -20,6 +20,7 @@ package main
 
 import   "fmt"
 import   "log"
+import   "math"
 import   "os"
 import   "strings"
 
@@ -51,7 +52,7 @@ func checkModelFiles(config interface{}) {
 
 /* -------------------------------------------------------------------------- */
 
-func single_feature_eval(config ConfigModHmm, filenameModel, filenameComp, filenameData, filenameCnts, filenameResult1, filenameResult2 string) {
+func single_feature_eval(config ConfigModHmm, filenameModel, filenameComp, filenameData, filenameCnts, filenameResult1, filenameResult2 string, logScale bool) {
   mixture := &scalarDistribution.Mixture{}
   counts  := Counts{}
 
@@ -101,12 +102,26 @@ func single_feature_eval(config ConfigModHmm, filenameModel, filenameComp, filen
     result1, err := BatchClassifySingleTrack(config.SessionConfig, vectorClassifier1, data); if err != nil {
       log.Fatal(err)
     }
+    if !logScale {
+      if err := (GenericMutableTrack{result1}).Map(result1, func(seqname string, position int, value float64) float64 {
+        return math.Exp(value)
+      }); err != nil {
+        log.Fatal(err)
+      }
+    }
     if err := ExportTrack(config.SessionConfig, result1, filenameResult1); err != nil {
       log.Fatal(err)
     }
 
     result2, err := BatchClassifySingleTrack(config.SessionConfig, vectorClassifier2, data); if err != nil {
       log.Fatal(err)
+    }
+    if !logScale {
+      if err := (GenericMutableTrack{result2}).Map(result2, func(seqname string, position int, value float64) float64 {
+        return math.Exp(value)
+      }); err != nil {
+        log.Fatal(err)
+      }
     }
     if err := ExportTrack(config.SessionConfig, result2, filenameResult2); err != nil {
       log.Fatal(err)
@@ -125,7 +140,7 @@ func modhmm_single_feature_eval_dep(config ConfigModHmm) []string {
   return r
 }
 
-func modhmm_single_feature_eval(config ConfigModHmm, feature string) {
+func modhmm_single_feature_eval(config ConfigModHmm, feature string, logScale bool) {
 
   if !singleFeatureList.Contains(strings.ToLower(feature)) {
     log.Fatalf("unknown feature: %s", feature)
@@ -146,15 +161,25 @@ func modhmm_single_feature_eval(config ConfigModHmm, feature string) {
     filenameCnts    = config.SingleFeatureCnts.Rna
     filenameModel   = config.SingleFeatureJson.Rna_low
     filenameComp    = config.SingleFeatureComp.Rna_low
-    filenameResult1 = config.SingleFeatureFg.Rna_low
-    filenameResult2 = config.SingleFeatureBg.Rna_low
+    if logScale {
+      filenameResult1 = config.SingleFeatureFg.Rna_low
+      filenameResult2 = config.SingleFeatureBg.Rna_low
+    } else {
+      filenameResult1 = config.SingleFeatureFgExp.Rna_low
+      filenameResult2 = config.SingleFeatureBgExp.Rna_low
+    }
   default:
     filenameData    = getFieldAsString(config.SingleFeatureData, feature)
     filenameCnts    = getFieldAsString(config.SingleFeatureCnts, feature)
     filenameModel   = getFieldAsString(config.SingleFeatureJson, feature)
     filenameComp    = getFieldAsString(config.SingleFeatureComp, feature)
-    filenameResult1 = getFieldAsString(config.SingleFeatureFg, feature)
-    filenameResult2 = getFieldAsString(config.SingleFeatureBg, feature)
+    if logScale {
+      filenameResult1 = getFieldAsString(config.SingleFeatureFg, feature)
+      filenameResult2 = getFieldAsString(config.SingleFeatureBg, feature)
+    } else {
+      filenameResult1 = getFieldAsString(config.SingleFeatureFgExp, feature)
+      filenameResult2 = getFieldAsString(config.SingleFeatureBgExp, feature)
+    }
   }
   if updateRequired(config, filenameResult1, filenameData, filenameCnts, filenameModel, filenameComp) ||
     (updateRequired(config, filenameResult2, filenameData, filenameCnts, filenameModel, filenameComp)) {
@@ -164,18 +189,18 @@ func modhmm_single_feature_eval(config ConfigModHmm, feature string) {
 
     modhmm_coverage_all(config)
     printStderr(config, 1, "==> Evaluating Single-Feature Model (%s) <==\n", feature)
-    single_feature_eval(localConfig, filenameModel, filenameComp, filenameData, filenameCnts, filenameResult1, filenameResult2)
+    single_feature_eval(localConfig, filenameModel, filenameComp, filenameData, filenameCnts, filenameResult1, filenameResult2, logScale)
   }
 }
 
-func modhmm_single_feature_eval_loop(config ConfigModHmm, states []string) {
+func modhmm_single_feature_eval_loop(config ConfigModHmm, states []string, logScale bool) {
   for _, feature := range states {
-    modhmm_single_feature_eval(config, feature)
+    modhmm_single_feature_eval(config, feature, logScale)
   }
 }
 
-func modhmm_single_feature_eval_all(config ConfigModHmm) {
-  modhmm_single_feature_eval_loop(config, singleFeatureList)
+func modhmm_single_feature_eval_all(config ConfigModHmm, logScale bool) {
+  modhmm_single_feature_eval_loop(config, singleFeatureList, logScale)
 }
 
 /* -------------------------------------------------------------------------- */
@@ -186,7 +211,8 @@ func modhmm_single_feature_eval_main(config ConfigModHmm, args []string) {
   options.SetProgram(fmt.Sprintf("%s eval-single-feature", os.Args[0]))
   options.SetParameters("[FEATURE]...\n")
 
-  optHelp := options.   BoolLong("help",     'h',     "print help")
+  optStdScale := options.BoolLong("std-scale",  0 ,  "single-feature output on standard scale")
+  optHelp     := options.BoolLong("help",      'h',  "print help")
 
   options.Parse(args)
 
@@ -196,8 +222,8 @@ func modhmm_single_feature_eval_main(config ConfigModHmm, args []string) {
     os.Exit(0)
   }
   if len(options.Args()) == 0 {
-    modhmm_single_feature_eval_all(config)
+    modhmm_single_feature_eval_all(config, !*optStdScale)
   } else {
-    modhmm_single_feature_eval_loop(config, options.Args())
+    modhmm_single_feature_eval_loop(config, options.Args(), !*optStdScale)
   }
 }

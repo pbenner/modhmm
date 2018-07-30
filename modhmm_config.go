@@ -161,10 +161,15 @@ type ConfigModHmm struct {
   SingleFeatureDir           string                   `json:"Single-Feature Directory"`
   SingleFeatureFg            ConfigSingleFeaturePaths `json:"Single-Feature Foreground"`
   SingleFeatureBg            ConfigSingleFeaturePaths `json:"Single-Feature Background"`
+  SingleFeatureFgExp         ConfigSingleFeaturePaths `json:"Single-Feature Foreground [exp]"`
+  SingleFeatureBgExp         ConfigSingleFeaturePaths `json:"Single-Feature Background [exp]"`
   MultiFeatureDir            string                   `json:"Multi-Feature Directory"`
   MultiFeatureProb           ConfigMultiFeaturePaths  `json:"Multi-Feature Probabilities"`
+  MultiFeatureProbExp        ConfigMultiFeaturePaths  `json:"Multi-Feature Probabilities [exp]"`
   MultiFeatureProbNorm       ConfigMultiFeaturePaths  `json:"Normalized Multi-Feature Probabilities"`
+  MultiFeatureProbNormExp    ConfigMultiFeaturePaths  `json:"Normalized Multi-Feature Probabilities [exp]"`
   Posterior                  ConfigMultiFeaturePaths  `json:"Posterior Marginals"`
+  PosteriorExp               ConfigMultiFeaturePaths  `json:"Posterior Marginals [exp]"`
   PosteriorDir               string                   `json:"Posterior Marginals Directory"`
   Unconstrained              bool                     `json:"Unconstrained"`
   Type                       string                   `json:"Type"`
@@ -242,16 +247,21 @@ func (config *ConfigModHmm) CompletePaths() {
   if config.Segmentation == "" {
     config.Segmentation = completePath(config.SegmentationDir, "", config.Segmentation, "segmentation.bed.gz")
   }
-  config.SingleFeatureBam    .CompletePaths(config.SingleFeatureBamDir, "", "")
-  config.SingleFeatureData   .CompletePaths(config.SingleFeatureDataDir, "coverage-", ".bw")
-  config.SingleFeatureJson   .CompletePaths(config.SingleFeatureJsonDir, "", ".json")
-  config.SingleFeatureComp   .CompletePaths(config.SingleFeatureJsonDir, "", ".components.json")
-  config.SingleFeatureCnts   .CompletePaths(config.SingleFeatureJsonDir, "", ".counts.json")
-  config.SingleFeatureFg     .CompletePaths(config.SingleFeatureDir, "single-feature-", ".fg.bw")
-  config.SingleFeatureBg     .CompletePaths(config.SingleFeatureDir, "single-feature-", ".bg.bw")
-  config.MultiFeatureProb    .CompletePaths(config.MultiFeatureDir, "multi-feature-", ".bw")
-  config.MultiFeatureProbNorm.CompletePaths(config.MultiFeatureDir, "multi-feature-norm-", ".bw")
-  config.Posterior           .CompletePaths(config.PosteriorDir, "posterior-marginal-", ".bw")
+  config.SingleFeatureBam       .CompletePaths(config.SingleFeatureBamDir, "", "")
+  config.SingleFeatureData      .CompletePaths(config.SingleFeatureDataDir, "coverage-", ".bw")
+  config.SingleFeatureJson      .CompletePaths(config.SingleFeatureJsonDir, "", ".json")
+  config.SingleFeatureComp      .CompletePaths(config.SingleFeatureJsonDir, "", ".components.json")
+  config.SingleFeatureCnts      .CompletePaths(config.SingleFeatureJsonDir, "", ".counts.json")
+  config.SingleFeatureFg        .CompletePaths(config.SingleFeatureDir, "single-feature-", ".fg.bw")
+  config.SingleFeatureFgExp     .CompletePaths(config.SingleFeatureDir, "single-feature-exp-", ".fg.bw")
+  config.SingleFeatureBg        .CompletePaths(config.SingleFeatureDir, "single-feature-", ".bg.bw")
+  config.SingleFeatureBgExp     .CompletePaths(config.SingleFeatureDir, "single-feature-exp-", ".bg.bw")
+  config.MultiFeatureProb       .CompletePaths(config.MultiFeatureDir, "multi-feature-", ".bw")
+  config.MultiFeatureProbExp    .CompletePaths(config.MultiFeatureDir, "multi-feature-exp-", ".bw")
+  config.MultiFeatureProbNorm   .CompletePaths(config.MultiFeatureDir, "multi-feature-norm-", ".bw")
+  config.MultiFeatureProbNormExp.CompletePaths(config.MultiFeatureDir, "multi-feature-norm-exp-", ".bw")
+  config.Posterior              .CompletePaths(config.PosteriorDir, "posterior-marginal-", ".bw")
+  config.PosteriorExp           .CompletePaths(config.PosteriorDir, "posterior-marginal-exp-", ".bw")
 }
 
 /* -------------------------------------------------------------------------- */
@@ -331,35 +341,58 @@ func (config ConfigMultiFeaturePaths) String() string {
 func (config ConfigModHmm) String() string {
   var buffer bytes.Buffer
 
-  fmt.Fprintf(&buffer, "%v", config.SessionConfig.String())
-  fmt.Fprintf(&buffer, " -> Coverage Bin Size      : %d\n\n", config.SingleFeatureBinSize)
-  fmt.Fprintf(&buffer, "Alignment files (BAM):\n")
-  fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureBam.String())
-  fmt.Fprintf(&buffer, "Coverage files (bigWig):\n")
-  fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureData.String())
-  fmt.Fprintf(&buffer, "Single-feature mixture distributions:\n")
-  fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureJson.String())
-  fmt.Fprintf(&buffer, "Single-feature count statistics:\n")
-  fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureCnts.String())
-  fmt.Fprintf(&buffer, "Single-feature foreground mixture components:\n")
-  fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureComp.String())
-  fmt.Fprintf(&buffer, "Single-feature foreground probabilities:\n")
-  fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureFg.String())
-  fmt.Fprintf(&buffer, "Single-feature background probabilities:\n")
-  fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureBg.String())
-  fmt.Fprintf(&buffer, "Multi-feature probabilities (log-scale):\n")
-  fmt.Fprintf(&buffer, "%v\n", config.MultiFeatureProb.String())
-  fmt.Fprintf(&buffer, "Normalized multi-feature probabilities:\n")
-  fmt.Fprintf(&buffer, "%v\n", config.MultiFeatureProbNorm.String())
-  fmt.Fprintf(&buffer, "Posterior marginals:\n")
-  fmt.Fprintf(&buffer, "%v\n", config.Posterior.String())
-  fmt.Fprintf(&buffer, "ModHmm options:\n")
-  fmt.Fprintf(&buffer, " ->  Description                  : %v\n"   , config.Description)
-  fmt.Fprintf(&buffer, " ->  Directory                    : %v\n"   , config.Directory)
-  fmt.Fprintf(&buffer, " ->  ModHmm Model File            : %v %s\n", config.Model, fileCheckMark(config.Model))
-  fmt.Fprintf(&buffer, " ->  ModHmm Model Directory       : %v\n"   , config.ModelDir)
-  fmt.Fprintf(&buffer, " ->  ModHmm Segmentation File     : %v %s\n", config.Segmentation, fileCheckMark(config.Segmentation))
-  fmt.Fprintf(&buffer, " ->  ModHmm Segmentation Directory: %v\n"   , config.SegmentationDir)
-
+  if config.Verbose > 0 {
+    fmt.Fprintf(&buffer, "%v", config.SessionConfig.String())
+    fmt.Fprintf(&buffer, " -> Coverage Bin Size      : %d\n\n", config.SingleFeatureBinSize)
+    fmt.Fprintf(&buffer, "Alignment files (BAM):\n")
+    fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureBam.String())
+    fmt.Fprintf(&buffer, "Coverage files (bigWig):\n")
+    fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureData.String())
+    fmt.Fprintf(&buffer, "Single-feature mixture distributions:\n")
+    fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureJson.String())
+    fmt.Fprintf(&buffer, "Single-feature count statistics:\n")
+    fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureCnts.String())
+    fmt.Fprintf(&buffer, "Single-feature foreground mixture components:\n")
+    fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureComp.String())
+    fmt.Fprintf(&buffer, "Single-feature foreground probabilities (log-scale):\n")
+    fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureFg.String())
+    fmt.Fprintf(&buffer, "Single-feature background probabilities (log-scale):\n")
+    fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureBg.String())
+  }
+  if config.Verbose > 1 {
+    fmt.Fprintf(&buffer, "Single-feature foreground probabilities:\n")
+    fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureFgExp.String())
+    fmt.Fprintf(&buffer, "Single-feature background probabilities:\n")
+    fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureBgExp.String())
+  }
+  if config.Verbose > 0 {
+    fmt.Fprintf(&buffer, "Multi-feature probabilities (log-scale):\n")
+    fmt.Fprintf(&buffer, "%v\n", config.MultiFeatureProb.String())
+  }
+  if config.Verbose > 1 {
+    fmt.Fprintf(&buffer, "Multi-feature probabilities:\n")
+    fmt.Fprintf(&buffer, "%v\n", config.MultiFeatureProbExp.String())
+    fmt.Fprintf(&buffer, "Normalized multi-feature probabilities (log-scale):\n")
+    fmt.Fprintf(&buffer, "%v\n", config.MultiFeatureProbNorm.String())
+    fmt.Fprintf(&buffer, "Normalized multi-feature probabilities:\n")
+    fmt.Fprintf(&buffer, "%v\n", config.MultiFeatureProbNormExp.String())
+  }
+  if config.Verbose > 0 {
+    fmt.Fprintf(&buffer, "Posterior marginals (log-scale):\n")
+    fmt.Fprintf(&buffer, "%v\n", config.Posterior.String())
+  }
+  if config.Verbose > 1 {
+    fmt.Fprintf(&buffer, "Posterior marginals:\n")
+    fmt.Fprintf(&buffer, "%v\n", config.PosteriorExp.String())
+  }
+  if config.Verbose > 0 {
+    fmt.Fprintf(&buffer, "ModHmm options:\n")
+    fmt.Fprintf(&buffer, " ->  Description                  : %v\n"   , config.Description)
+    fmt.Fprintf(&buffer, " ->  Directory                    : %v\n"   , config.Directory)
+    fmt.Fprintf(&buffer, " ->  ModHmm Model File            : %v %s\n", config.Model, fileCheckMark(config.Model))
+    fmt.Fprintf(&buffer, " ->  ModHmm Model Directory       : %v\n"   , config.ModelDir)
+    fmt.Fprintf(&buffer, " ->  ModHmm Segmentation File     : %v %s\n", config.Segmentation, fileCheckMark(config.Segmentation))
+    fmt.Fprintf(&buffer, " ->  ModHmm Segmentation Directory: %v\n"   , config.SegmentationDir)
+  }
   return buffer.String()
 }

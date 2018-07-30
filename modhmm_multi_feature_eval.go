@@ -20,6 +20,7 @@ package main
 
 import   "fmt"
 import   "log"
+import   "math"
 import   "os"
 import   "strings"
 
@@ -89,7 +90,7 @@ func get_multi_feature_model(config ConfigModHmm, state string) MatrixBatchClass
 
 /* -------------------------------------------------------------------------- */
 
-func multi_feature_eval(config ConfigModHmm, classifier MatrixBatchClassifier, trackFiles []string, tracks []Track, filenameResult string) []Track {
+func multi_feature_eval(config ConfigModHmm, classifier MatrixBatchClassifier, trackFiles []string, tracks []Track, filenameResult string, logScale bool) []Track {
   if len(tracks) != len(trackFiles) {
     tracks = make([]Track, len(trackFiles))
     for i, filename := range trackFiles {
@@ -102,6 +103,13 @@ func multi_feature_eval(config ConfigModHmm, classifier MatrixBatchClassifier, t
   }
   result, err := BatchClassifyMultiTrack(config.SessionConfig, classifier, tracks, false); if err != nil {
     log.Fatal(err)
+  }
+  if !logScale {
+    if err := (GenericMutableTrack{result}).Map(result, func(seqname string, position int, value float64) float64 {
+      return math.Exp(value)
+    }); err != nil {
+      log.Fatal(err)
+    }
   }
   if err := ExportTrack(config.SessionConfig, result, filenameResult); err != nil {
     log.Fatal(err)
@@ -120,7 +128,7 @@ func modhmm_multi_feature_eval_dep(config ConfigModHmm) []string {
   return files
 }
 
-func modhmm_multi_feature_eval(config ConfigModHmm, state string, tracks []Track) []Track {
+func modhmm_multi_feature_eval(config ConfigModHmm, state string, tracks []Track, logScale bool) []Track {
 
   if !multiFeatureList.Contains(strings.ToLower(state)) {
     log.Fatalf("unknown state: %s", state)
@@ -133,26 +141,31 @@ func modhmm_multi_feature_eval(config ConfigModHmm, state string, tracks []Track
   dependencies    = append(dependencies, modhmm_single_feature_eval_dep(config)...)
   dependencies    = append(dependencies, modhmm_multi_feature_eval_dep(config)...)
   trackFiles     := modhmm_multi_feature_eval_dep(config)
-  filenameResult := getFieldAsString(config.MultiFeatureProb, strings.ToUpper(state))
+  filenameResult := ""
+  if logScale {
+    filenameResult = getFieldAsString(config.MultiFeatureProb, strings.ToUpper(state))
+  } else {
+    filenameResult = getFieldAsString(config.MultiFeatureProbExp, strings.ToUpper(state))
+  }
 
   if updateRequired(config, filenameResult, dependencies...) {
-    modhmm_single_feature_eval_all(config)
+    modhmm_single_feature_eval_all(config, true)
     printStderr(config, 1, "==> Evaluating Multi-Feature Model (%s) <==\n", strings.ToUpper(state))
     classifier := get_multi_feature_model(config, state)
-    tracks = multi_feature_eval(localConfig, classifier, trackFiles, tracks, filenameResult)
+    tracks = multi_feature_eval(localConfig, classifier, trackFiles, tracks, filenameResult, logScale)
   }
   return tracks
 }
 
-func modhmm_multi_feature_eval_loop(config ConfigModHmm, states []string) {
+func modhmm_multi_feature_eval_loop(config ConfigModHmm, states []string, logScale bool) {
   var tracks []Track
   for _, feature := range states {
-    tracks = modhmm_multi_feature_eval(config, feature, tracks)
+    tracks = modhmm_multi_feature_eval(config, feature, tracks, logScale)
   }
 }
 
-func modhmm_multi_feature_eval_all(config ConfigModHmm) {
-  modhmm_multi_feature_eval_loop(config, multiFeatureList)
+func modhmm_multi_feature_eval_all(config ConfigModHmm, logScale bool) {
+  modhmm_multi_feature_eval_loop(config, multiFeatureList, logScale)
 }
 
 /* -------------------------------------------------------------------------- */
@@ -163,7 +176,9 @@ func modhmm_multi_feature_eval_main(config ConfigModHmm, args []string) {
   options.SetProgram(fmt.Sprintf("%s eval-multi-feature", os.Args[0]))
   options.SetParameters("[STATE]...\n")
 
-  optHelp := options.   BoolLong("help",     'h',     "print help")
+  optNormalize := options.BoolLong("normalize",  0 ,  "normalize multi-feature likelihoods")
+  optStdScale  := options.BoolLong("std-scale",  0 ,  "multi-feature output on standard scale")
+  optHelp      := options.BoolLong("help",      'h',  "print help")
 
   options.Parse(args)
 
@@ -172,9 +187,17 @@ func modhmm_multi_feature_eval_main(config ConfigModHmm, args []string) {
     options.PrintUsage(os.Stdout)
     os.Exit(0)
   }
-  if len(options.Args()) == 0 {
-    modhmm_multi_feature_eval_all(config)
+  if *optNormalize {
+    if len(options.Args()) == 0 {
+      modhmm_multi_feature_eval_norm_all(config, !*optStdScale)
+    } else {
+      modhmm_multi_feature_eval_norm_loop(config, options.Args(), !*optStdScale)
+    }
   } else {
-    modhmm_multi_feature_eval_loop(config, options.Args())
+    if len(options.Args()) == 0 {
+      modhmm_multi_feature_eval_all(config, !*optStdScale)
+    } else {
+      modhmm_multi_feature_eval_loop(config, options.Args(), !*optStdScale)
+    }
   }
 }

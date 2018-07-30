@@ -119,7 +119,7 @@ func modhmm_segmentation(config ConfigModHmm, model string) {
   filenameSegmentation := config.Segmentation
 
   if updateRequired(config, filenameModel, dependencies...) {
-    modhmm_multi_feature_eval_all(config)
+    modhmm_multi_feature_eval_all(config, true)
 
     printStderr(config, 1, "==> Estimating ModHmm transition parameters <==\n")
     estimate(config, trackFiles, model)
