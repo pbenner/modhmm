@@ -20,7 +20,6 @@ package main
 
 import "fmt"
 import "os"
-import "path"
 import "reflect"
 import "strings"
 
@@ -90,19 +89,19 @@ func fileExists(filename string) bool {
 
 func updateRequired(config ConfigModHmm, target string, deps ...string) bool {
   if s1, err := os.Stat(target); err != nil {
-    printStderr(config, 2, "Target `%s' does not exist...\n", path.Base(target))
+    printStderr(config, 2, "Target `%s' does not exist...\n", target)
     return true
   } else {
     for _, dep := range deps {
       if s2, err := os.Stat(dep); err == nil {
         if s1.ModTime().Before(s2.ModTime()) {
-          printStderr(config, 2, "Target `%s' requires update...\n", path.Base(target))
+          printStderr(config, 2, "Target `%s' requires update...\n", target)
           return true
         }
       }
     }
   }
-  printStderr(config, 2, "Target `%s' is up to date...\n", path.Base(target))
+  printStderr(config, 2, "Target `%s' is up to date...\n", target)
   return false
 }
 
