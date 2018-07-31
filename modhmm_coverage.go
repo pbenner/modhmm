@@ -163,10 +163,10 @@ func importFraglen(config ConfigModHmm, feature, filename string) int {
 func coverage_h3k4me3o1(config ConfigModHmm) {
   config.BinSummaryStatistics = "discrete mean"
   config.BinOverlap = 1
-  track1, err := ImportTrack(config.SessionConfig, config.SingleFeatureData.H3k4me1); if err != nil {
+  track1, err := ImportTrack(config.SessionConfig, config.Coverage.H3k4me1); if err != nil {
     log.Fatal(err)
   }
-  track2, err := ImportTrack(config.SessionConfig, config.SingleFeatureData.H3k4me3); if err != nil {
+  track2, err := ImportTrack(config.SessionConfig, config.Coverage.H3k4me3); if err != nil {
     log.Fatal(err)
   }
   if err := (GenericMutableTrack{track1}).MapList([]Track{track1, track2}, func(seqname string, position int, values ...float64) float64 {
@@ -176,7 +176,7 @@ func coverage_h3k4me3o1(config ConfigModHmm) {
   }); err != nil {
     log.Fatal(err)
   }
-  if err := ExportTrack(config.SessionConfig, track1, config.SingleFeatureData.H3k4me3o1); err != nil {
+  if err := ExportTrack(config.SessionConfig, track1, config.Coverage.H3k4me3o1); err != nil {
     log.Fatal(err)
   }
 }
@@ -244,21 +244,21 @@ func modhmm_coverage(config ConfigModHmm, feature string) {
 
   switch strings.ToLower(feature) {
   case "atac":
-    filenameBam  = config.SingleFeatureBam.Atac
-    filenameData = config.SingleFeatureData.Atac
+    filenameBam  = config.Bam.Atac
+    filenameData = config.Coverage.Atac
     optionsList = append(optionsList, OptionPairedAsSingleEnd{true})
     optionsList = append(optionsList, OptionFilterChroms{[]string{"chrM","M"}})
   case "rna":
-    filenameBam  = config.SingleFeatureBam.Rna
-    filenameData = config.SingleFeatureData.Rna
+    filenameBam  = config.Bam.Rna
+    filenameData = config.Coverage.Rna
   case "h3k4me3o1":
-    if updateRequired(config, config.SingleFeatureData.H3k4me3o1, config.SingleFeatureData.H3k4me1, config.SingleFeatureData.H3k4me3) {
+    if updateRequired(config, config.Coverage.H3k4me3o1, config.Coverage.H3k4me1, config.Coverage.H3k4me3) {
       coverage_h3k4me3o1(config)
     }
     return
   default:
-    filenameBam  = getFieldAsStringSlice(config.SingleFeatureBam,  strings.ToLower(feature))
-    filenameData = getFieldAsString     (config.SingleFeatureData, strings.ToLower(feature))
+    filenameBam  = getFieldAsStringSlice(config.Bam,      strings.ToLower(feature))
+    filenameData = getFieldAsString     (config.Coverage, strings.ToLower(feature))
     optionsList = append(optionsList, OptionEstimateFraglen{true})
     optionsList = append(optionsList, OptionFraglenRange{[2]int{150,250}})
     optionsList = append(optionsList, OptionFraglenBinSize{10})
@@ -267,7 +267,7 @@ func modhmm_coverage(config ConfigModHmm, feature string) {
     optionsList = append(optionsList, OptionLogger{log.New(os.Stderr, fmt.Sprintf("[%s] ", feature), 0)})
   }
   optionsList = append(optionsList, OptionBinningMethod{"mean overlap"})
-  optionsList = append(optionsList, OptionBinSize{config.SingleFeatureBinSize})
+  optionsList = append(optionsList, OptionBinSize{config.CoverageBinSize})
   optionsList = append(optionsList, OptionFilterMapQ{30})
   optionsList = append(optionsList, OptionFilterDuplicates{true})
 
@@ -280,7 +280,7 @@ func modhmm_coverage(config ConfigModHmm, feature string) {
 }
 
 func modhmm_coverage_loop(config ConfigModHmm, states []string) {
-  pool := threadpool.New(config.ThreadsCoverage, 10)
+  pool := threadpool.New(config.CoverageThreads, 10)
   for _, feature := range coverageList {
     if feature == "h3k4me3o1" {
       continue

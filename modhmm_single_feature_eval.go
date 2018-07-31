@@ -76,7 +76,7 @@ func single_feature_eval(config ConfigModHmm, filenameModel, filenameComp, filen
   var scalarClassifier1 ScalarBatchClassifier
   var scalarClassifier2 ScalarBatchClassifier
 
-  switch strings.ToLower(config.Type) {
+  switch strings.ToLower(config.ModelType) {
   case "likelihood":
     scalarClassifier1 = scalarClassifier.MixtureLikelihood{mixture, k}
     scalarClassifier2 = scalarClassifier.MixtureLikelihood{mixture, r}
@@ -84,7 +84,7 @@ func single_feature_eval(config ConfigModHmm, filenameModel, filenameComp, filen
     scalarClassifier1 = scalarClassifier.MixturePosterior{mixture, k}
     scalarClassifier2 = scalarClassifier.MixturePosterior{mixture, r}
   default:
-    log.Fatal("invalid model type `%s'", config.Type)
+    log.Fatal("invalid model type `%s'", config.ModelType)
   }
   vectorClassifier1 := vectorClassifier.ScalarBatchIid{scalarClassifier1, 1}
   vectorClassifier2 := vectorClassifier.ScalarBatchIid{scalarClassifier2, 1}
@@ -133,10 +133,10 @@ func single_feature_eval(config ConfigModHmm, filenameModel, filenameComp, filen
 
 func modhmm_single_feature_eval_dep(config ConfigModHmm) []string {
   r := []string{}
-  r  = append(r, collectStrings(config.SingleFeatureData)...)
-  r  = append(r, collectStrings(config.SingleFeatureJson)...)
+  r  = append(r, collectStrings(config.Coverage)...)
+  r  = append(r, collectStrings(config.SingleFeatureModel)...)
   r  = append(r, collectStrings(config.SingleFeatureComp)...)
-  r  = append(r, collectStrings(config.SingleFeatureCnts)...)
+  r  = append(r, collectStrings(config.CoverageCnts)...)
   return r
 }
 
@@ -157,9 +157,9 @@ func modhmm_single_feature_eval(config ConfigModHmm, feature string, logScale bo
 
   switch strings.ToLower(feature) {
   case "rna-low":
-    filenameData    = config.SingleFeatureData.Rna
-    filenameCnts    = config.SingleFeatureCnts.Rna
-    filenameModel   = config.SingleFeatureJson.Rna_low
+    filenameData    = config.Coverage.Rna
+    filenameCnts    = config.CoverageCnts.Rna
+    filenameModel   = config.SingleFeatureModel.Rna_low
     filenameComp    = config.SingleFeatureComp.Rna_low
     if logScale {
       filenameResult1 = config.SingleFeatureFg.Rna_low
@@ -169,9 +169,9 @@ func modhmm_single_feature_eval(config ConfigModHmm, feature string, logScale bo
       filenameResult2 = config.SingleFeatureBgExp.Rna_low
     }
   default:
-    filenameData    = getFieldAsString(config.SingleFeatureData, feature)
-    filenameCnts    = getFieldAsString(config.SingleFeatureCnts, feature)
-    filenameModel   = getFieldAsString(config.SingleFeatureJson, feature)
+    filenameData    = getFieldAsString(config.Coverage, feature)
+    filenameCnts    = getFieldAsString(config.CoverageCnts, feature)
+    filenameModel   = getFieldAsString(config.SingleFeatureModel, feature)
     filenameComp    = getFieldAsString(config.SingleFeatureComp, feature)
     if logScale {
       filenameResult1 = getFieldAsString(config.SingleFeatureFg, feature)
@@ -183,9 +183,9 @@ func modhmm_single_feature_eval(config ConfigModHmm, feature string, logScale bo
   }
   if updateRequired(config, filenameResult1, filenameData, filenameCnts, filenameModel, filenameComp) ||
     (updateRequired(config, filenameResult2, filenameData, filenameCnts, filenameModel, filenameComp)) {
-    checkModelFiles(config.SingleFeatureJson)
+    checkModelFiles(config.SingleFeatureModel)
     checkModelFiles(config.SingleFeatureComp)
-    checkModelFiles(config.SingleFeatureCnts)
+    checkModelFiles(config.CoverageCnts)
 
     modhmm_coverage_all(config)
     printStderr(config, 1, "==> Evaluating Single-Feature Model (%s) <==\n", feature)

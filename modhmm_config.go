@@ -148,15 +148,15 @@ func (config *ConfigMultiFeaturePaths) CompletePaths(dir, prefix, suffix string)
 
 type ConfigModHmm struct {
   SessionConfig
-  ThreadsCoverage            int                      `json:"Threads Coverage"`
-  SingleFeatureBamDir        string                   `json:"Bam Directory"`
-  SingleFeatureBam           ConfigBam                `json:"Bam Files"`
-  SingleFeatureBinSize       int                      `json:"Coverage Bin Size`
-  SingleFeatureDataDir       string                   `json:"Coverage Directory"`
-  SingleFeatureData          ConfigCoveragePaths      `json:"Coverage Files"`
-  SingleFeatureCnts          ConfigCoveragePaths      `json:"Coverage Counts Files"`
-  SingleFeatureJsonDir       string                   `json:"Model Directory"`
-  SingleFeatureJson          ConfigSingleFeaturePaths `json:"Model Files"`
+  BamDir                     string                   `json:"Bam Directory"`
+  Bam                        ConfigBam                `json:"Bam Files"`
+  CoverageBinSize            int                      `json:"Coverage Bin Size`
+  CoverageThreads            int                      `json:"Coverage Threads"`
+  CoverageDir                string                   `json:"Coverage Directory"`
+  Coverage                   ConfigCoveragePaths      `json:"Coverage Files"`
+  CoverageCnts               ConfigCoveragePaths      `json:"Coverage Counts Files"`
+  SingleFeatureModelDir      string                   `json:"Model Directory"`
+  SingleFeatureModel         ConfigSingleFeaturePaths `json:"Model Files"`
   SingleFeatureComp          ConfigSingleFeaturePaths `json:"Model Component Files"`
   SingleFeatureDir           string                   `json:"Single-Feature Directory"`
   SingleFeatureFg            ConfigSingleFeaturePaths `json:"Single-Feature Foreground"`
@@ -171,13 +171,13 @@ type ConfigModHmm struct {
   Posterior                  ConfigMultiFeaturePaths  `json:"Posterior Marginals"`
   PosteriorExp               ConfigMultiFeaturePaths  `json:"Posterior Marginals [exp]"`
   PosteriorDir               string                   `json:"Posterior Marginals Directory"`
-  Unconstrained              bool                     `json:"Unconstrained"`
-  Type                       string                   `json:"Type"`
-  Directory                  string                   `json:"Directory"`
-  Model                      string                   `json:"ModHmm Model File"`
-  ModelDir                   string                   `json:"ModHmm Model Directory"`
-  Segmentation               string                   `json:"ModHmm Segmentation File"`
-  SegmentationDir            string                   `json:"ModHmm Segmentation Directory"`
+  ModelType                  string                   `json:"Model Type"`
+  ModelUnconstrained         bool                     `json:"Model Unconstrained"`
+  Model                      string                   `json:"Model File"`
+  ModelDir                   string                   `json:"Model Directory"`
+  Segmentation               string                   `json:"Segmentation File"`
+  SegmentationDir            string                   `json:"Segmentation Directory"`
+  Directory                  string
   Description                string
 }
 
@@ -204,11 +204,11 @@ func DefaultModHmmConfig() ConfigModHmm {
   config := ConfigModHmm{}
   // set default values
   config.BinSize              = 200
-  config.SingleFeatureBinSize = 10
   config.BinSummaryStatistics = "mean"
+  config.CoverageThreads      = 1
+  config.CoverageBinSize      = 10
+  config.ModelType            = "posterior"
   config.Threads              = 1
-  config.ThreadsCoverage      = 1
-  config.Type                 = "posterior"
   config.Verbose              = 0
   return config
 }
@@ -224,21 +224,21 @@ func (config *ConfigModHmm) setDefaultDir(target, def string) string {
 }
 
 func (config *ConfigModHmm) CompletePaths() {
-  config.SingleFeatureBamDir    = config.setDefaultDir(config.SingleFeatureBamDir,  "")
-  config.SingleFeatureDataDir   = config.setDefaultDir(config.SingleFeatureDataDir, config.SingleFeatureBamDir)
-  config.SingleFeatureJsonDir   = config.setDefaultDir(config.SingleFeatureJsonDir, config.SingleFeatureDataDir)
-  config.SingleFeatureDir       = config.setDefaultDir(config.SingleFeatureDir,     config.SingleFeatureJsonDir)
-  config.MultiFeatureDir        = config.setDefaultDir(config.MultiFeatureDir,      config.SingleFeatureDir)
-  config.ModelDir               = config.setDefaultDir(config.ModelDir,             config.MultiFeatureDir)
-  config.SegmentationDir        = config.setDefaultDir(config.SegmentationDir,      config.ModelDir)
-  config.PosteriorDir           = config.setDefaultDir(config.PosteriorDir   ,      config.SegmentationDir)
+  config.BamDir                 = config.setDefaultDir(config.BamDir,  "")
+  config.CoverageDir            = config.setDefaultDir(config.CoverageDir, config.BamDir)
+  config.SingleFeatureModelDir  = config.setDefaultDir(config.SingleFeatureModelDir, config.CoverageDir)
+  config.SingleFeatureDir       = config.setDefaultDir(config.SingleFeatureDir, config.SingleFeatureModelDir)
+  config.MultiFeatureDir        = config.setDefaultDir(config.MultiFeatureDir, config.SingleFeatureDir)
+  config.ModelDir               = config.setDefaultDir(config.ModelDir, config.MultiFeatureDir)
+  config.SegmentationDir        = config.setDefaultDir(config.SegmentationDir, config.ModelDir)
+  config.PosteriorDir           = config.setDefaultDir(config.PosteriorDir, config.SegmentationDir)
   config.Model                  = completePath(config.ModelDir, "", config.Model, "segmentation.json")
   config.Segmentation           = completePath(config.SegmentationDir, "", config.Segmentation, "segmentation.bed.gz")
-  config.SingleFeatureBam       .CompletePaths(config.SingleFeatureBamDir, "", "")
-  config.SingleFeatureData      .CompletePaths(config.SingleFeatureDataDir, "coverage-", ".bw")
-  config.SingleFeatureJson      .CompletePaths(config.SingleFeatureJsonDir, "", ".json")
-  config.SingleFeatureComp      .CompletePaths(config.SingleFeatureJsonDir, "", ".components.json")
-  config.SingleFeatureCnts      .CompletePaths(config.SingleFeatureJsonDir, "", ".counts.json")
+  config.Bam                    .CompletePaths(config.BamDir, "", "")
+  config.Coverage               .CompletePaths(config.CoverageDir, "coverage-", ".bw")
+  config.CoverageCnts           .CompletePaths(config.SingleFeatureModelDir, "", ".counts.json")
+  config.SingleFeatureModel     .CompletePaths(config.SingleFeatureModelDir, "", ".json")
+  config.SingleFeatureComp      .CompletePaths(config.SingleFeatureModelDir, "", ".components.json")
   config.SingleFeatureFg        .CompletePaths(config.SingleFeatureDir, "single-feature-", ".fg.bw")
   config.SingleFeatureFgExp     .CompletePaths(config.SingleFeatureDir, "single-feature-exp-", ".fg.bw")
   config.SingleFeatureBg        .CompletePaths(config.SingleFeatureDir, "single-feature-", ".bg.bw")
@@ -330,15 +330,15 @@ func (config ConfigModHmm) String() string {
 
   if config.Verbose > 0 {
     fmt.Fprintf(&buffer, "%v", config.SessionConfig.String())
-    fmt.Fprintf(&buffer, " -> Coverage Bin Size      : %d\n\n", config.SingleFeatureBinSize)
+    fmt.Fprintf(&buffer, " -> Coverage Bin Size      : %d\n\n", config.CoverageBinSize)
     fmt.Fprintf(&buffer, "Alignment files (BAM):\n")
-    fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureBam.String())
+    fmt.Fprintf(&buffer, "%v\n", config.Bam.String())
     fmt.Fprintf(&buffer, "Coverage files (bigWig):\n")
-    fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureData.String())
+    fmt.Fprintf(&buffer, "%v\n", config.Coverage.String())
     fmt.Fprintf(&buffer, "Single-feature mixture distributions:\n")
-    fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureJson.String())
+    fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureModel.String())
     fmt.Fprintf(&buffer, "Single-feature count statistics:\n")
-    fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureCnts.String())
+    fmt.Fprintf(&buffer, "%v\n", config.CoverageCnts.String())
     fmt.Fprintf(&buffer, "Single-feature foreground mixture components:\n")
     fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureComp.String())
     fmt.Fprintf(&buffer, "Single-feature foreground probabilities (log-scale):\n")

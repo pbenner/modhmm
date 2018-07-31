@@ -310,10 +310,10 @@ func getModHmmDefaultEstimator(config ConfigModHmm) (*matrixEstimator.HmmEstimat
   tr.At(jPRt2,jT2  ).SetValue(1.0)
 
   constraints := []generic.EqualityConstraint{}
-  if config.Unconstrained {
+  if config.ModelUnconstrained {
     printStderr(config, 2, "Implementing default model with unconstrained transition matrix\n")
   } else {
-    switch strings.ToLower(config.Type) {
+    switch strings.ToLower(config.ModelType) {
     case "likelihood":
       printStderr(config, 2, "Implementing constraints for modhmm:likelihood\n")
       // constrain self-transitions

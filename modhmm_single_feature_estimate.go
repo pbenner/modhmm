@@ -135,8 +135,8 @@ func modhmm_single_feature_estimate(config ConfigModHmm, feature string, n []int
     log.Fatalf("unknown feature: %s", feature)
   }
 
-  filenameIn  := getFieldAsString(config.SingleFeatureData, strings.ToLower(feature))
-  filenameOut := getFieldAsString(config.SingleFeatureJson, strings.ToLower(feature))
+  filenameIn  := getFieldAsString(config.Coverage,           strings.ToLower(feature))
+  filenameOut := getFieldAsString(config.SingleFeatureModel, strings.ToLower(feature))
 
   config.BinSummaryStatistics = "discrete mean"
   estimator = newEstimator(config, n[0], n[1], n[2])

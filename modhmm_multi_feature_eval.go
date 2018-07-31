@@ -35,11 +35,11 @@ import   "github.com/pborman/getopt"
 /* -------------------------------------------------------------------------- */
 
 func multi_feature_eval_mixture_weights(config ConfigModHmm) []float64 {
-  checkModelFiles(config.SingleFeatureJson)
+  checkModelFiles(config.SingleFeatureModel)
   checkModelFiles(config.SingleFeatureComp)
   pi := []float64{}
   for _, feature := range singleFeatureList {
-    filenameModel := getFieldAsString(config.SingleFeatureJson, feature)
+    filenameModel := getFieldAsString(config.SingleFeatureModel, feature)
     filenameComp  := getFieldAsString(config.SingleFeatureComp, feature)
     p, q := ImportMixtureWeights(config, filenameModel, filenameComp)
     pi = append(pi, p, q)
@@ -50,7 +50,7 @@ func multi_feature_eval_mixture_weights(config ConfigModHmm) []float64 {
 /* -------------------------------------------------------------------------- */
 
 func get_multi_feature_model(config ConfigModHmm, state string) MatrixBatchClassifier {
-  switch config.Type {
+  switch config.ModelType {
   case "likelihood":
     pi := multi_feature_eval_mixture_weights(config)
     switch strings.ToLower(state) {
@@ -83,7 +83,7 @@ func get_multi_feature_model(config ConfigModHmm, state string) MatrixBatchClass
       log.Fatalf("unknown state: %s", state)
     }
   default:
-    log.Fatal("invalid model type `%s'", config.Type)
+    log.Fatal("invalid model type `%s'", config.ModelType)
   }
   return nil
 }

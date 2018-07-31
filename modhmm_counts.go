@@ -121,8 +121,8 @@ func modhmm_compute_counts(config ConfigModHmm, feature string) {
     log.Fatalf("unknown feature: %s", feature)
   }
 
-  filenameIn  := getFieldAsString(config.SingleFeatureData, strings.ToLower(feature))
-  filenameOut := getFieldAsString(config.SingleFeatureCnts, strings.ToLower(feature))
+  filenameIn  := getFieldAsString(config.Coverage,     strings.ToLower(feature))
+  filenameOut := getFieldAsString(config.CoverageCnts, strings.ToLower(feature))
 
   if strings.ToLower(feature) != "h3k4me3o1" {
     config.BinSummaryStatistics = "discrete mean"
