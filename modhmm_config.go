@@ -213,40 +213,27 @@ func DefaultModHmmConfig() ConfigModHmm {
   return config
 }
 
+func (config *ConfigModHmm) setDefaultDir(target, def string) string {
+  if target != "" {
+    return target
+  }
+  if config.Directory != "" {
+    return config.Directory
+  }
+  return def
+}
+
 func (config *ConfigModHmm) CompletePaths() {
-  if config.Directory == "" {
-    config.Directory = "."
-  }
-  if config.SingleFeatureBamDir == "" {
-    config.SingleFeatureBamDir = config.Directory
-  }
-  if config.SingleFeatureDataDir == "" {
-    config.SingleFeatureDataDir = config.Directory
-  }
-  if config.SingleFeatureJsonDir == "" {
-    config.SingleFeatureJsonDir = config.Directory
-  }
-  if config.SingleFeatureDir == "" {
-    config.SingleFeatureDir = config.Directory
-  }
-  if config.MultiFeatureDir == "" {
-    config.MultiFeatureDir = config.Directory
-  }
-  if config.ModelDir == "" {
-    config.ModelDir = config.Directory
-  }
-  if config.SegmentationDir == "" {
-    config.SegmentationDir = config.Directory
-  }
-  if config.PosteriorDir == "" {
-    config.PosteriorDir = config.Directory
-  }
-  if config.Model == "" {
-    config.Model = completePath(config.ModelDir, "", config.Model, "segmentation.json")
-  }
-  if config.Segmentation == "" {
-    config.Segmentation = completePath(config.SegmentationDir, "", config.Segmentation, "segmentation.bed.gz")
-  }
+  config.SingleFeatureBamDir    = config.setDefaultDir(config.SingleFeatureBamDir,  "")
+  config.SingleFeatureDataDir   = config.setDefaultDir(config.SingleFeatureDataDir, config.SingleFeatureBamDir)
+  config.SingleFeatureJsonDir   = config.setDefaultDir(config.SingleFeatureJsonDir, config.SingleFeatureDataDir)
+  config.SingleFeatureDir       = config.setDefaultDir(config.SingleFeatureDir,     config.SingleFeatureJsonDir)
+  config.MultiFeatureDir        = config.setDefaultDir(config.MultiFeatureDir,      config.SingleFeatureDir)
+  config.ModelDir               = config.setDefaultDir(config.ModelDir,             config.MultiFeatureDir)
+  config.SegmentationDir        = config.setDefaultDir(config.SegmentationDir,      config.ModelDir)
+  config.PosteriorDir           = config.setDefaultDir(config.PosteriorDir   ,      config.SegmentationDir)
+  config.Model                  = completePath(config.ModelDir, "", config.Model, "segmentation.json")
+  config.Segmentation           = completePath(config.SegmentationDir, "", config.Segmentation, "segmentation.bed.gz")
   config.SingleFeatureBam       .CompletePaths(config.SingleFeatureBamDir, "", "")
   config.SingleFeatureData      .CompletePaths(config.SingleFeatureDataDir, "coverage-", ".bw")
   config.SingleFeatureJson      .CompletePaths(config.SingleFeatureJsonDir, "", ".json")
