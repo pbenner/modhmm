@@ -155,9 +155,9 @@ type ConfigModHmm struct {
   CoverageDir                string                   `json:"Coverage Directory"`
   Coverage                   ConfigCoveragePaths      `json:"Coverage Files"`
   CoverageCnts               ConfigCoveragePaths      `json:"Coverage Counts Files"`
-  SingleFeatureModelDir      string                   `json:"Model Directory"`
-  SingleFeatureModel         ConfigSingleFeaturePaths `json:"Model Files"`
-  SingleFeatureComp          ConfigSingleFeaturePaths `json:"Model Component Files"`
+  SingleFeatureModelDir      string                   `json:"Single-Feature Model Directory"`
+  SingleFeatureModel         ConfigSingleFeaturePaths `json:"Single-Feature Model Files"`
+  SingleFeatureComp          ConfigSingleFeaturePaths `json:"Single-Feature Model Component Files"`
   SingleFeatureDir           string                   `json:"Single-Feature Directory"`
   SingleFeatureFg            ConfigSingleFeaturePaths `json:"Single-Feature Foreground"`
   SingleFeatureBg            ConfigSingleFeaturePaths `json:"Single-Feature Background"`
