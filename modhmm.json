@@ -1,4 +1,5 @@
 {
+    # bam options
     "Bam Directory" : ".bam",
     "Bam Files"     : {
 	"ATAC"      : ["ENCFF929LOH.bam", "ENCFF848NLJ.bam"],
@@ -10,10 +11,13 @@
 	"RNA"       : ["ENCFF405LEY.bam", "ENCFF627PCS.bam"],
 	"Control"   : ["ENCFF865QGZ.bam", "ENCFF438RYK.bam"]
     },
-    "Verbose"          : 1,
-    "Threads"          : 10,
-    "Threads Coverage" : 5,
-    "Model Directory"  : "models/mm10-embryo-liver-day12.5",
-    "Description"      : "mm10 embryo liver day12.5",
-    "Directory"        : "mm10-embryo-liver-day12.5"
+    # coverage options
+    "Coverage Threads" : 5,
+    # single-feature options
+    "Single-Feature Model Directory" : "models/mm10-embryo-liver-day12.5",
+    # general options
+    "Directory"   : "mm10-embryo-liver-day12.5",
+    "Description" : "mm10 embryo liver day12.5",
+    "Threads"     : 10,
+    "Verbose"     : 1
 }
