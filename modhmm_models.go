@@ -316,17 +316,6 @@ func getModHmmDefaultEstimator(config ConfigModHmm) (*matrixEstimator.HmmEstimat
     switch strings.ToLower(config.ModelType) {
     case "likelihood":
       printStderr(config, 2, "Implementing constraints for modhmm:likelihood\n")
-      // constrain self-transitions
-      constraints = append(constraints, generic.EqualityConstraint{
-        [2]int{jPA1, jPA1}, [2]int{jPA2, jPA2}})
-      constraints = append(constraints, generic.EqualityConstraint{
-        [2]int{jEA, jEA}, [2]int{jEAt1, jEAt1}, [2]int{jEAt2, jEAt2}})
-      constraints = append(constraints, generic.EqualityConstraint{
-        [2]int{jBI, jBI}, [2]int{jBIt1, jBIt1}, [2]int{jBIt2, jBIt2}})
-      constraints = append(constraints, generic.EqualityConstraint{
-        [2]int{jPR, jPR}, [2]int{jPRt1, jPRt1}, [2]int{jPRt2, jPRt2}})
-      constraints = append(constraints, generic.EqualityConstraint{
-        [2]int{jT1, jT1}, [2]int{jT2, jT2}})
       // transition into active enhancers
       constraints = append(constraints, generic.EqualityConstraint{
         [2]int{jR1, jEA}, [2]int{jR2, jEA}, [2]int{jTL, jEA}, [2]int{jNS, jEA}, [2]int{jCL, jEA}, [2]int{jT1, jEAt1}, [2]int{jT2, jEAt2}})
@@ -351,6 +340,17 @@ func getModHmmDefaultEstimator(config ConfigModHmm) (*matrixEstimator.HmmEstimat
         constraints = append(constraints, constraint)
       }
     }
+    // constrain self-transitions
+    constraints = append(constraints, generic.EqualityConstraint{
+      [2]int{jPA1, jPA1}, [2]int{jPA2, jPA2}})
+    constraints = append(constraints, generic.EqualityConstraint{
+      [2]int{jEA, jEA}, [2]int{jEAt1, jEAt1}, [2]int{jEAt2, jEAt2}})
+    constraints = append(constraints, generic.EqualityConstraint{
+      [2]int{jBI, jBI}, [2]int{jBIt1, jBIt1}, [2]int{jBIt2, jBIt2}})
+    constraints = append(constraints, generic.EqualityConstraint{
+      [2]int{jPR, jPR}, [2]int{jPRt1, jPRt1}, [2]int{jPRt2, jPRt2}})
+    constraints = append(constraints, generic.EqualityConstraint{
+      [2]int{jT1, jT1}, [2]int{jT2, jT2}})
   }
   // emissions
   estimators := make([]VectorEstimator, n)
