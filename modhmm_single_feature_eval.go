@@ -169,16 +169,16 @@ func modhmm_single_feature_eval(config ConfigModHmm, feature string, logScale bo
       filenameResult2 = config.SingleFeatureBgExp.Rna_low
     }
   default:
-    filenameData    = getFieldAsString(config.Coverage, feature)
-    filenameCnts    = getFieldAsString(config.CoverageCnts, feature)
-    filenameModel   = getFieldAsString(config.SingleFeatureModel, feature)
-    filenameComp    = getFieldAsString(config.SingleFeatureComp, feature)
+    filenameData    = getFieldAsString(config.Coverage, strings.ToLower(feature))
+    filenameCnts    = getFieldAsString(config.CoverageCnts, strings.ToLower(feature))
+    filenameModel   = getFieldAsString(config.SingleFeatureModel, strings.ToLower(feature))
+    filenameComp    = getFieldAsString(config.SingleFeatureComp, strings.ToLower(feature))
     if logScale {
-      filenameResult1 = getFieldAsString(config.SingleFeatureFg, feature)
-      filenameResult2 = getFieldAsString(config.SingleFeatureBg, feature)
+      filenameResult1 = getFieldAsString(config.SingleFeatureFg, strings.ToLower(feature))
+      filenameResult2 = getFieldAsString(config.SingleFeatureBg, strings.ToLower(feature))
     } else {
-      filenameResult1 = getFieldAsString(config.SingleFeatureFgExp, feature)
-      filenameResult2 = getFieldAsString(config.SingleFeatureBgExp, feature)
+      filenameResult1 = getFieldAsString(config.SingleFeatureFgExp, strings.ToLower(feature))
+      filenameResult2 = getFieldAsString(config.SingleFeatureBgExp, strings.ToLower(feature))
     }
   }
   if updateRequired(config, filenameResult1, filenameData, filenameCnts, filenameModel, filenameComp) ||

@@ -20,6 +20,7 @@ package main
 
 import   "fmt"
 import   "log"
+import   "math"
 import   "os"
 import   "strconv"
 import   "strings"
@@ -32,14 +33,17 @@ import   "github.com/pborman/getopt"
 /* -------------------------------------------------------------------------- */
 
 func modhmm_call_multi_feature_peaks(config ConfigModHmm, state string, threshold float64) {
-  printStderr(config, 1, "==> Calling Multi-Feature Peaks (%s) <==\n", strings.ToUpper(state))
+  printStderr(config, 1, "==> Calling Multi-Feature Peaks (%s) <==\n", state)
   filenameIn  := getFieldAsString(config.MultiFeatureProb, strings.ToUpper(state))
   filenameOut := getFieldAsString(config.MultiFeaturePeak, strings.ToUpper(state))
 
+  if !updateRequired(config, filenameOut, filenameIn) {
+    return
+  }
   if track, err := ImportTrack(config.SessionConfig, filenameIn); err != nil {
     log.Fatal(err)
   } else {
-    if peaks, err := getPeaks(track, threshold); err != nil {
+    if peaks, err := getPeaks(track, math.Log(threshold)); err != nil {
       log.Fatal(err)
     } else {
       printStderr(config, 1, "Writing table `%s'... ", filenameOut)

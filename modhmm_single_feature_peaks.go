@@ -20,6 +20,7 @@ package main
 
 import   "fmt"
 import   "log"
+import   "math"
 import   "os"
 import   "strconv"
 import   "strings"
@@ -31,15 +32,18 @@ import   "github.com/pborman/getopt"
 
 /* -------------------------------------------------------------------------- */
 
-func modhmm_call_single_feature_peaks(config ConfigModHmm, state string, threshold float64) {
-  printStderr(config, 1, "==> Calling Single-Feature Peaks (%s) <==\n", strings.ToUpper(state))
-  filenameIn  := getFieldAsString(config.SingleFeatureFg,   strings.ToUpper(state))
-  filenameOut := getFieldAsString(config.SingleFeaturePeak, strings.ToUpper(state))
+func modhmm_call_single_feature_peaks(config ConfigModHmm, feature string, threshold float64) {
+  printStderr(config, 1, "==> Calling Single-Feature Peaks (%s) <==\n", feature)
+  filenameIn  := getFieldAsString(config.SingleFeatureFg,   strings.ToLower(feature))
+  filenameOut := getFieldAsString(config.SingleFeaturePeak, strings.ToLower(feature))
 
+  if !updateRequired(config, filenameOut, filenameIn) {
+    return
+  }
   if track, err := ImportTrack(config.SessionConfig, filenameIn); err != nil {
     log.Fatal(err)
   } else {
-    if peaks, err := getPeaks(track, threshold); err != nil {
+    if peaks, err := getPeaks(track, math.Log(threshold)); err != nil {
       log.Fatal(err)
     } else {
       printStderr(config, 1, "Writing table `%s'... ", filenameOut)
@@ -55,9 +59,9 @@ func modhmm_call_single_feature_peaks(config ConfigModHmm, state string, thresho
 
 /* -------------------------------------------------------------------------- */
 
-func modhmm_call_single_feature_peaks_loop(config ConfigModHmm, states []string, threshold float64) {
-  for _, state := range states {
-    modhmm_call_single_feature_peaks(config, state, threshold)
+func modhmm_call_single_feature_peaks_loop(config ConfigModHmm, features []string, threshold float64) {
+  for _, feature := range features {
+    modhmm_call_single_feature_peaks(config, feature, threshold)
   }
 }
 
@@ -71,7 +75,7 @@ func modhmm_call_single_feature_peaks_main(config ConfigModHmm, args []string) {
 
   options := getopt.New()
   options.SetProgram(fmt.Sprintf("%s call-single-feature-peaks", os.Args[0]))
-  options.SetParameters("[STATE]...\n")
+  options.SetParameters("[FEATURE]...\n")
 
   optThreshold := options.StringLong("threshold",  0 ,  "0.9", "threshold value [default 0.9]")
   optHelp      := options.BoolLong  ("help",      'h',         "print help")
