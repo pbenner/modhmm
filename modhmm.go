@@ -42,8 +42,8 @@ func main() {
     "     compute-counts           [stage 1.1] - compute coverage counts used for quantile normalization\n" +
     "     estimate-single-feature  [stage 1.2] - estimate mixture distribution for single-feature\n" +
     "                                            enrichment analysis\n" +
-    "     eval-single-feature      [stage 2]   - call enriched regions of single feature coverages\n" +
-    "     eval-multi-feature       [stage 3]   - evaluate multi-feature models\n" +
+    "     eval-single-feature      [stage 2]   - evaluate single-feature models\n" +
+    "     eval-multi-feature       [stage 3]   - evaluate  multi-feature models\n" +
     "     eval-posterior-marginals [stage 5]   - compute posterior marginals of hidden states\n\n" +
     "     segmentation             [stage 4]   - compute genome segmentation\n\n" +
     " ModHMM commands are structured in stages. Executing a command also executes all commands with\n" +
