@@ -38,14 +38,17 @@ func main() {
 
   options.SetParameters("<COMMAND>\n\n" +
     " Commands:\n" +
-    "     coverage                   - compute single-feature coverages from bam files\n" +
-    "     compute-counts             - compute coverage counts used for quantile normalization\n" +
-    "     estimate-single-feature    - estimate mixture distribution for single-\n" +
-    "                                  feature enrichment analysis\n" +
-    "     eval-single-feature        - call enriched regions of single feature coverages\n" +
-    "     eval-multi-feature         - evaluate multi-feature models\n" +
-    "     posterior-marginals        - compute posterior marginals for the hidden states\n" +
-    "     segmentation               - compute genome segmentation\n")
+    "     coverage                 [stage 1]   - compute single-feature coverages from bam files\n" +
+    "     compute-counts           [stage 1.1] - compute coverage counts used for quantile normalization\n" +
+    "     estimate-single-feature  [stage 1.2] - estimate mixture distribution for single-feature\n" +
+    "                                            enrichment analysis\n" +
+    "     eval-single-feature      [stage 2]   - call enriched regions of single feature coverages\n" +
+    "     eval-multi-feature       [stage 3]   - evaluate multi-feature models\n" +
+    "     eval-posterior-marginals [stage 5]   - compute posterior marginals of hidden states\n\n" +
+    "     segmentation             [stage 4]   - compute genome segmentation\n\n" +
+    " ModHMM commands are structured in stages. Executing a command also executes all commands with\n" +
+    " lower stage number. An exception are stages 1.1 and 1.2 that must be executed manually or\n" +
+    " bypassed by providing single-feature models.\n\n")
   options.Parse(os.Args)
 
   config := DefaultModHmmConfig()
@@ -97,7 +100,7 @@ func main() {
     modhmm_multi_feature_eval_main(config, options.Args())
   case "segmentation":
     modhmm_segmentation_main(config, options.Args())
-  case "posterior-marginals":
+  case "eval-posterior-marginals":
     modhmm_posterior_main(config, options.Args())
   default:
     options.PrintUsage(os.Stderr)
