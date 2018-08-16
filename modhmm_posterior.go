@@ -136,7 +136,7 @@ func modhmm_posterior_all(config ConfigModHmm, logScale bool) {
 func modhmm_posterior_main(config ConfigModHmm, args []string) {
 
   options := getopt.New()
-  options.SetProgram(fmt.Sprintf("%s posterior-marginals", os.Args[0]))
+  options.SetProgram(fmt.Sprintf("%s eval-posterior-marginals", os.Args[0]))
   options.SetParameters("[STATE]...\n")
 
   optStdScale := options.BoolLong("std-scale",  0 , "posteriors on standard scale")

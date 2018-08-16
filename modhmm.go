@@ -48,7 +48,9 @@ func main() {
     "     segmentation             [stage 4]   - compute genome segmentation\n\n" +
     " ModHMM commands are structured in stages. Executing a command also executes all commands with\n" +
     " lower stage number. An exception are stages 1.1 and 1.2 that must be executed manually or\n" +
-    " bypassed by providing single-feature models.\n\n")
+    " bypassed by providing single-feature models.\n\n" +
+    " Peak calling commands:\n" +
+    "     call-single-feature-peaks, call-multi-feature-peaks, call-posterior-marginal-peaks\n")
   options.Parse(os.Args)
 
   config := DefaultModHmmConfig()
@@ -98,10 +100,16 @@ func main() {
     modhmm_single_feature_eval_main(config, options.Args())
   case "eval-multi-feature":
     modhmm_multi_feature_eval_main(config, options.Args())
-  case "segmentation":
-    modhmm_segmentation_main(config, options.Args())
   case "eval-posterior-marginals":
     modhmm_posterior_main(config, options.Args())
+  case "segmentation":
+    modhmm_segmentation_main(config, options.Args())
+  case "call-single-feature-peaks":
+    modhmm_call_single_feature_peaks_main(config, options.Args())
+  case "call-multi-feature-peaks":
+    modhmm_call_multi_feature_peaks_main(config, options.Args())
+  case "call-posterior-marginal-peaks":
+    modhmm_call_posterior_peaks_main(config, options.Args())
   default:
     options.PrintUsage(os.Stderr)
     os.Exit(1)

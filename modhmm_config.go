@@ -163,13 +163,16 @@ type ConfigModHmm struct {
   SingleFeatureBg            ConfigSingleFeaturePaths `json:"Single-Feature Background"`
   SingleFeatureFgExp         ConfigSingleFeaturePaths `json:"Single-Feature Foreground [exp]"`
   SingleFeatureBgExp         ConfigSingleFeaturePaths `json:"Single-Feature Background [exp]"`
+  SingleFeaturePeak          ConfigSingleFeaturePaths `json:"Single-Feature Peaks"`
   MultiFeatureDir            string                   `json:"Multi-Feature Directory"`
   MultiFeatureProb           ConfigMultiFeaturePaths  `json:"Multi-Feature Probabilities"`
+  MultiFeaturePeak           ConfigMultiFeaturePaths  `json:"Multi-Feature Peaks"`
   MultiFeatureProbExp        ConfigMultiFeaturePaths  `json:"Multi-Feature Probabilities [exp]"`
   MultiFeatureProbNorm       ConfigMultiFeaturePaths  `json:"Normalized Multi-Feature Probabilities"`
   MultiFeatureProbNormExp    ConfigMultiFeaturePaths  `json:"Normalized Multi-Feature Probabilities [exp]"`
   Posterior                  ConfigMultiFeaturePaths  `json:"Posterior Marginals"`
   PosteriorExp               ConfigMultiFeaturePaths  `json:"Posterior Marginals [exp]"`
+  PosteriorPeak              ConfigMultiFeaturePaths  `json:"Posterior Marginals Peaks"`
   PosteriorDir               string                   `json:"Posterior Marginals Directory"`
   ModelType                  string                   `json:"Model Type"`
   ModelUnconstrained         bool                     `json:"Model Unconstrained"`
@@ -239,16 +242,19 @@ func (config *ConfigModHmm) CompletePaths() {
   config.CoverageCnts           .CompletePaths(config.SingleFeatureModelDir, "", ".counts.json")
   config.SingleFeatureModel     .CompletePaths(config.SingleFeatureModelDir, "", ".json")
   config.SingleFeatureComp      .CompletePaths(config.SingleFeatureModelDir, "", ".components.json")
+  config.SingleFeaturePeak      .CompletePaths(config.SingleFeatureDir, "single-feature-peaks-", ".table")
   config.SingleFeatureFg        .CompletePaths(config.SingleFeatureDir, "single-feature-", ".fg.bw")
   config.SingleFeatureFgExp     .CompletePaths(config.SingleFeatureDir, "single-feature-exp-", ".fg.bw")
   config.SingleFeatureBg        .CompletePaths(config.SingleFeatureDir, "single-feature-", ".bg.bw")
   config.SingleFeatureBgExp     .CompletePaths(config.SingleFeatureDir, "single-feature-exp-", ".bg.bw")
   config.MultiFeatureProb       .CompletePaths(config.MultiFeatureDir, "multi-feature-", ".bw")
+  config.MultiFeaturePeak       .CompletePaths(config.MultiFeatureDir, "multi-feature-peaks-", ".table")
   config.MultiFeatureProbExp    .CompletePaths(config.MultiFeatureDir, "multi-feature-exp-", ".bw")
   config.MultiFeatureProbNorm   .CompletePaths(config.MultiFeatureDir, "multi-feature-norm-", ".bw")
   config.MultiFeatureProbNormExp.CompletePaths(config.MultiFeatureDir, "multi-feature-norm-exp-", ".bw")
   config.Posterior              .CompletePaths(config.PosteriorDir, "posterior-marginal-", ".bw")
   config.PosteriorExp           .CompletePaths(config.PosteriorDir, "posterior-marginal-exp-", ".bw")
+  config.PosteriorPeak          .CompletePaths(config.PosteriorDir, "posterior-marginal-peaks-", ".bw")
 }
 
 /* -------------------------------------------------------------------------- */
@@ -347,6 +353,8 @@ func (config ConfigModHmm) String() string {
     fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureBg.String())
   }
   if config.Verbose > 1 {
+    fmt.Fprintf(&buffer, "Single-feature peaks:\n")
+    fmt.Fprintf(&buffer, "%v\n", config.SingleFeaturePeak.String())
     fmt.Fprintf(&buffer, "Single-feature foreground probabilities:\n")
     fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureFgExp.String())
     fmt.Fprintf(&buffer, "Single-feature background probabilities:\n")
@@ -357,6 +365,8 @@ func (config ConfigModHmm) String() string {
     fmt.Fprintf(&buffer, "%v\n", config.MultiFeatureProb.String())
   }
   if config.Verbose > 1 {
+    fmt.Fprintf(&buffer, "Multi-feature peaks:\n")
+    fmt.Fprintf(&buffer, "%v\n", config.MultiFeaturePeak.String())
     fmt.Fprintf(&buffer, "Multi-feature probabilities:\n")
     fmt.Fprintf(&buffer, "%v\n", config.MultiFeatureProbExp.String())
     fmt.Fprintf(&buffer, "Normalized multi-feature probabilities (log-scale):\n")
@@ -369,6 +379,8 @@ func (config ConfigModHmm) String() string {
     fmt.Fprintf(&buffer, "%v\n", config.Posterior.String())
   }
   if config.Verbose > 1 {
+    fmt.Fprintf(&buffer, "Posterior marginals peaks:\n")
+    fmt.Fprintf(&buffer, "%v\n", config.PosteriorPeak.String())
     fmt.Fprintf(&buffer, "Posterior marginals:\n")
     fmt.Fprintf(&buffer, "%v\n", config.PosteriorExp.String())
   }
