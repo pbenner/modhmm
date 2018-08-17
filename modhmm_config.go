@@ -370,11 +370,17 @@ func fileCheckMark(filename string) string {
 
 /* -------------------------------------------------------------------------- */
 
-func (config ConfigBam) String() string {
+func (config ConfigBam) String(openChromatinAssay string) string {
   var buffer bytes.Buffer
 
-  fmt.Fprintf(&buffer, " -> ATAC                 : %v\n", config.Atac)
-  fmt.Fprintf(&buffer, " -> DNase                : %v\n", config.Dnase)
+  switch strings.ToLower(openChromatinAssay) {
+  case "atac":
+    fmt.Fprintf(&buffer, " -> ATAC                 : %v\n", config.Atac)
+  case "dnase":
+    fmt.Fprintf(&buffer, " -> DNase                : %v\n", config.Dnase)
+  default:
+    panic("internal error")
+  }
   fmt.Fprintf(&buffer, " -> H3K27ac              : %v\n", config.H3k27ac)
   fmt.Fprintf(&buffer, " -> H3K27me3             : %v\n", config.H3k27me3)
   fmt.Fprintf(&buffer, " -> H3K4me1              : %v\n", config.H3k4me1)
@@ -455,7 +461,7 @@ func (config ConfigModHmm) String() string {
     fmt.Fprintf(&buffer, " -> Open Chromatin Assay   : %s\n", config.OpenChromatinAssay)
     fmt.Fprintf(&buffer, " -> Coverage Bin Size      : %d\n\n", config.CoverageBinSize)
     fmt.Fprintf(&buffer, "Alignment files (BAM):\n")
-    fmt.Fprintf(&buffer, "%v\n", config.Bam.String())
+    fmt.Fprintf(&buffer, "%v\n", config.Bam.String(config.OpenChromatinAssay))
     fmt.Fprintf(&buffer, "Coverage files (bigWig):\n")
     fmt.Fprintf(&buffer, "%v\n", config.Coverage.String(config.OpenChromatinAssay))
     fmt.Fprintf(&buffer, "Single-feature mixture distributions:\n")
