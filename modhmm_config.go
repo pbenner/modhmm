@@ -155,6 +155,7 @@ type ConfigModHmm struct {
   CoverageDir                string                   `json:"Coverage Directory"`
   Coverage                   ConfigCoveragePaths      `json:"Coverage Files"`
   CoverageCnts               ConfigCoveragePaths      `json:"Coverage Counts Files"`
+  CoverageMAPQ               int                      `json:"Coverage MAPQ"`
   SingleFeatureModelDir      string                   `json:"Single-Feature Model Directory"`
   SingleFeatureModel         ConfigSingleFeaturePaths `json:"Single-Feature Model Files"`
   SingleFeatureComp          ConfigSingleFeaturePaths `json:"Single-Feature Model Component Files"`
@@ -210,6 +211,7 @@ func DefaultModHmmConfig() ConfigModHmm {
   config.BinSummaryStatistics = "mean"
   config.CoverageThreads      = 1
   config.CoverageBinSize      = 10
+  config.CoverageMAPQ         = 30
   config.ModelType            = "posterior"
   config.Threads              = 1
   config.Verbose              = 0

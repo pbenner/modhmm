@@ -268,7 +268,7 @@ func modhmm_coverage(config ConfigModHmm, feature string) {
   }
   optionsList = append(optionsList, OptionBinningMethod{"mean overlap"})
   optionsList = append(optionsList, OptionBinSize{config.CoverageBinSize})
-  optionsList = append(optionsList, OptionFilterMapQ{30})
+  optionsList = append(optionsList, OptionFilterMapQ{config.CoverageMAPQ})
   optionsList = append(optionsList, OptionFilterDuplicates{true})
 
   if updateRequired(config, filenameData, filenameBam...) {
