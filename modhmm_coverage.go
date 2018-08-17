@@ -243,11 +243,20 @@ func modhmm_coverage(config ConfigModHmm, feature string) {
   optionsList  := []interface{}{}
 
   switch strings.ToLower(feature) {
-  case "atac":
-    filenameBam  = config.Bam.Atac
-    filenameData = config.Coverage.Atac
-    optionsList = append(optionsList, OptionPairedAsSingleEnd{true})
-    optionsList = append(optionsList, OptionFilterChroms{[]string{"chrM","M"}})
+  case "open":
+    switch strings.ToLower(config.OpenChromatinAssay) {
+    case "atac":
+      filenameBam  = config.Bam.Atac
+      filenameData = config.Coverage.Atac
+      optionsList = append(optionsList, OptionPairedAsSingleEnd{true})
+      optionsList = append(optionsList, OptionFilterChroms{[]string{"chrM","M"}})
+    case "dnase":
+      filenameBam  = config.Bam.Dnase
+      filenameData = config.Coverage.Dnase
+      // assume single-end sequencing, but no fragment length estimation
+    default:
+      panic("internal error")
+    }
   case "rna":
     filenameBam  = config.Bam.Rna
     filenameData = config.Coverage.Rna

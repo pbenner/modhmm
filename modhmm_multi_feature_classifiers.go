@@ -149,7 +149,7 @@ type ClassifierPA struct {
 func (obj ClassifierPA) Eval(s Scalar, x ConstMatrix) error {
   r := 0.0
   { // atac peak at the center
-    r += obj.PeakAtCenter(x, jAtac)
+    r += obj.PeakAtCenter(x, jOpen)
   }
   { // h3k27ac peak at any position
     r += obj.PeakSym(x, jH3k27ac, 0)
@@ -184,7 +184,7 @@ type ClassifierEA struct {
 func (obj ClassifierEA) Eval(s Scalar, x ConstMatrix) error {
   r := 0.0
   { // atac peak at the center
-    r += obj.PeakAtCenter(x, jAtac)
+    r += obj.PeakAtCenter(x, jOpen)
   }
   { // h3k27ac peak at any position
     r += obj.PeakSym_(x, jH3k27ac, 0, 1)
@@ -219,7 +219,7 @@ type ClassifierBI struct {
 func (obj ClassifierBI) Eval(s Scalar, x ConstMatrix) error {
   r := 0.0
   { // atac peak at the center
-    //r += obj.PeakAtCenter(x, jAtac)
+    //r += obj.PeakAtCenter(x, jOpen)
   }
   { // h3k27me3 peak at any position
     r += obj.PeakSym_(x, jH3k27me3, 0, 1)
@@ -253,7 +253,7 @@ type ClassifierPR struct {
 func (obj ClassifierPR) Eval(s Scalar, x ConstMatrix) error {
   r := 0.0
   { // atac peak at the center
-    r += obj.PeakAtCenter(x, jAtac)
+    r += obj.PeakAtCenter(x, jOpen)
   }
   { // no h3k27ac peak
     r += obj.NoPeakRange(x, jH3k27ac, 1, 6)
@@ -290,7 +290,7 @@ type ClassifierTR struct {
 func (obj ClassifierTR) Eval(s Scalar, x ConstMatrix) error {
   r := 0.0
   { // no atac peak at center
-    r += obj.NoPeakAll(x, jAtac)
+    r += obj.NoPeakAll(x, jOpen)
   }
   { // no h3k4me1 peak at center
     r += obj.NoPeakAll(x, jH3k4me1)
@@ -322,7 +322,7 @@ type ClassifierTL struct {
 func (obj ClassifierTL) Eval(s Scalar, x ConstMatrix) error {
   r := 0.0
   { // no atac peak at center
-    r += obj.NoPeakAll(x, jAtac)
+    r += obj.NoPeakAll(x, jOpen)
   }
   { // no h3k4me1 peak at center
     r += obj.NoPeakAll(x, jH3k4me1)
@@ -418,7 +418,7 @@ type ClassifierNS struct {
 func (obj ClassifierNS) Eval(s Scalar, x ConstMatrix) error {
   r := 0.0
   { // no atac peak at any position
-    r += obj.NoPeakAll(x, jAtac)
+    r += obj.NoPeakAll(x, jOpen)
   }
   { // no h3k27ac peak at any position
     r += obj.NoPeakAll(x, jH3k27ac)

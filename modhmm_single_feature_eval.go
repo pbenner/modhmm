@@ -84,7 +84,7 @@ func single_feature_eval(config ConfigModHmm, filenameModel, filenameComp, filen
     scalarClassifier1 = scalarClassifier.MixturePosterior{mixture, k}
     scalarClassifier2 = scalarClassifier.MixturePosterior{mixture, r}
   default:
-    log.Fatal("invalid model type `%s'", config.ModelType)
+    log.Fatalf("invalid model type `%s'", config.ModelType)
   }
   vectorClassifier1 := vectorClassifier.ScalarBatchIid{scalarClassifier1, 1}
   vectorClassifier2 := vectorClassifier.ScalarBatchIid{scalarClassifier2, 1}

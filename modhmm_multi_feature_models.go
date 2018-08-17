@@ -231,7 +231,7 @@ type ModelPA struct {
 
 func (obj ModelPA) Eval(s Scalar, x ConstMatrix) error {
   r := 0.0
-  r += obj.PeakAtCenter(x, jAtac)
+  r += obj.PeakAtCenter(x, jOpen)
   r += obj.PeakAny     (x, jH3k27ac)
   r += obj.Nil         (x, jH3k27me3)
   r += obj.Nil         (x, jH3k9me3)
@@ -261,8 +261,8 @@ type ModelPB struct {
 
 func (obj ModelPB) Eval(s Scalar, x ConstMatrix) error {
   r := 0.0
-  r += LogAdd(obj.  PeakAtCenter(x, jAtac) + math.Log(0.5),
-              obj.NoPeakAtCenter(x, jAtac) + math.Log(0.5))
+  r += LogAdd(obj.  PeakAtCenter(x, jOpen) + math.Log(0.5),
+              obj.NoPeakAtCenter(x, jOpen) + math.Log(0.5))
   r += obj.Nil      (x, jH3k27ac)
   r += obj.PeakAny  (x, jH3k27me3)
   r += obj.Nil      (x, jH3k9me3)
@@ -292,7 +292,7 @@ type ModelEA struct {
 
 func (obj ModelEA) Eval(s Scalar, x ConstMatrix) error {
   r := 0.0
-  r += obj.PeakAtCenter(x, jAtac)
+  r += obj.PeakAtCenter(x, jOpen)
   r += obj.PeakAny     (x, jH3k27ac)
   r += obj.Nil         (x, jH3k27me3)
   r += obj.Nil         (x, jH3k9me3)
@@ -322,8 +322,8 @@ type ModelEP struct {
 
 func (obj ModelEP) Eval(s Scalar, x ConstMatrix) error {
   r := 0.0
-  r += LogAdd(obj.  PeakAtCenter(x, jAtac) + math.Log(0.5),
-              obj.NoPeakAtCenter(x, jAtac) + math.Log(0.5))
+  r += LogAdd(obj.  PeakAtCenter(x, jOpen) + math.Log(0.5),
+              obj.NoPeakAtCenter(x, jOpen) + math.Log(0.5))
   r += obj.Nil      (x, jH3k27ac)
   r += obj.PeakAny  (x, jH3k27me3)
   r += obj.Nil      (x, jH3k9me3)
@@ -353,7 +353,7 @@ type ModelTR struct {
 
 func (obj ModelTR) Eval(s Scalar, x ConstMatrix) error {
   r := 0.0
-  r += obj.NoPeakAtCenter(x, jAtac)
+  r += obj.NoPeakAtCenter(x, jOpen)
   r += obj.Nil           (x, jH3k27ac)
   r += obj.Nil           (x, jH3k27me3)
   r += obj.Nil           (x, jH3k9me3)
@@ -383,7 +383,7 @@ type ModelTL struct {
 
 func (obj ModelTL) Eval(s Scalar, x ConstMatrix) error {
   r := 0.0
-  r += obj.NoPeakAtCenter(x, jAtac)
+  r += obj.NoPeakAtCenter(x, jOpen)
   r += obj.Nil           (x, jH3k27ac)
   r += obj.Nil           (x, jH3k27me3)
   r += obj.Nil           (x, jH3k9me3)
@@ -413,7 +413,7 @@ type ModelR1 struct {
 
 func (obj ModelR1) Eval(s Scalar, x ConstMatrix) error {
   r := 0.0
-  r += obj.Nil           (x, jAtac)
+  r += obj.Nil           (x, jOpen)
   r += obj.Nil           (x, jH3k27ac)
   r += obj.PeakAtCenter  (x, jH3k27me3)
   r += obj.Nil           (x, jH3k9me3)
@@ -442,7 +442,7 @@ type ModelR2 struct {
 
 func (obj ModelR2) Eval(s Scalar, x ConstMatrix) error {
   r := 0.0
-  r += obj.Nil           (x, jAtac)
+  r += obj.Nil           (x, jOpen)
   r += obj.Nil           (x, jH3k27ac)
   r += obj.Nil           (x, jH3k27me3)
   r += obj.PeakAtCenter  (x, jH3k9me3)
@@ -472,7 +472,7 @@ type ModelNS struct {
 
 func (obj ModelNS) Eval(s Scalar, x ConstMatrix) error {
   r := 0.0
-  r += obj.NoPeakAtCenter(x, jAtac)
+  r += obj.NoPeakAtCenter(x, jOpen)
   r += obj.NoPeakAtCenter(x, jH3k27ac)
   r += obj.NoPeakAtCenter(x, jH3k27me3)
   r += obj.NoPeakAtCenter(x, jH3k9me3)
@@ -502,7 +502,7 @@ type ModelCL struct {
 
 func (obj ModelCL) Eval(s Scalar, x ConstMatrix) error {
   r := 0.0
-  r += obj.Nil      (x, jAtac)
+  r += obj.Nil      (x, jOpen)
   r += obj.Nil      (x, jH3k27ac)
   r += obj.Nil      (x, jH3k27me3)
   r += obj.Nil      (x, jH3k9me3)

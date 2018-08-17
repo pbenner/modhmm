@@ -19,12 +19,12 @@ package main
 /* -------------------------------------------------------------------------- */
 
 var coverageList = StringList{
-  "atac", "h3k27ac", "h3k27me3", "h3k9me3", "h3k4me1", "h3k4me3", "h3k4me3o1", "rna", "control"}
+  "open", "h3k27ac", "h3k27me3", "h3k9me3", "h3k4me1", "h3k4me3", "h3k4me3o1", "rna", "control"}
 
 /* -------------------------------------------------------------------------- */
 
 var singleFeatureList = StringList{
-  "atac", "h3k27ac", "h3k27me3", "h3k9me3", "h3k4me1", "h3k4me3", "h3k4me3o1", "rna", "rna-low", "control"}
+  "open", "h3k27ac", "h3k27me3", "h3k9me3", "h3k4me1", "h3k4me3", "h3k4me3o1", "rna", "rna-low", "control"}
 
 /* -------------------------------------------------------------------------- */
 
@@ -46,7 +46,7 @@ var iNS int // no signal
 
 /* -------------------------------------------------------------------------- */
 
-var jAtac      int
+var jOpen      int
 var jH3k27ac   int
 var jH3k27me3  int
 var jH3k9me3   int
@@ -61,7 +61,7 @@ var jControl   int
 
 func init() {
   // track indices for multi-feature classifiers
-  jAtac      = 2*singleFeatureList.Index("atac")
+  jOpen      = 2*singleFeatureList.Index("open")
   jH3k27ac   = 2*singleFeatureList.Index("h3k27ac")
   jH3k27me3  = 2*singleFeatureList.Index("h3k27me3")
   jH3k9me3   = 2*singleFeatureList.Index("h3k9me3")

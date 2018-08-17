@@ -83,7 +83,7 @@ func get_multi_feature_model(config ConfigModHmm, state string) MatrixBatchClass
       log.Fatalf("unknown state: %s", state)
     }
   default:
-    log.Fatal("invalid model type `%s'", config.ModelType)
+    log.Fatalf("invalid model type `%s'", config.ModelType)
   }
   return nil
 }

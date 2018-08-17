@@ -20,16 +20,18 @@ package main
 
 import   "fmt"
 import   "bytes"
+import   "log"
 import   "io"
 import   "path"
 import   "path/filepath"
+import   "strings"
 
 import . "github.com/pbenner/ngstat/config"
 
 /* -------------------------------------------------------------------------- */
 
 func completePath(dir, prefix, mypath, def string) string {
-  if mypath == "" {
+  if mypath == "" && def != "" {
     mypath = fmt.Sprintf("%s%s", prefix, def)
   }
   if d, f := path.Split(mypath); d == "" {
@@ -42,6 +44,7 @@ func completePath(dir, prefix, mypath, def string) string {
 
 type ConfigBam struct {
   Atac       []string `json:"ATAC"`
+  Dnase      []string `json:"DNase"`
   H3k27ac    []string `json:"H3K27ac"`
   H3k27me3   []string `json:"H3K27me3"`
   H3k9me3    []string `json:"H3K9me3"`
@@ -54,6 +57,9 @@ type ConfigBam struct {
 func (config *ConfigBam) CompletePaths(dir, prefix, suffix string) {
   for i, _ := range config.Atac {
     config.Atac[i]      = completePath(dir, prefix, config.Atac[i],     "")
+  }
+  for i, _ := range config.Dnase {
+    config.Dnase[i]     = completePath(dir, prefix, config.Dnase[i],    "")
   }
   for i, _ := range config.H3k27ac {
     config.H3k27ac[i]   = completePath(dir, prefix, config.H3k27ac[i],  "")
@@ -81,7 +87,9 @@ func (config *ConfigBam) CompletePaths(dir, prefix, suffix string) {
 /* -------------------------------------------------------------------------- */
 
 type ConfigCoveragePaths struct {
+  Open       string `json:"-"`
   Atac       string `json:"ATAC"`
+  Dnase      string `json:"DNase"`
   H3k27ac    string `json:"H3K27ac"`
   H3k27me3   string `json:"H3K27me3"`
   H3k9me3    string `json:"H3K27me3"`
@@ -93,7 +101,24 @@ type ConfigCoveragePaths struct {
 }
 
 func (config *ConfigCoveragePaths) CompletePaths(dir, prefix, suffix string) {
+  atac  := completePath(dir, prefix, config.Atac,      fmt.Sprintf("atac%s", suffix))
+  dnase := completePath(dir, prefix, config.Dnase,     fmt.Sprintf("dnase%s", suffix))
+  if config.Atac == "" && config.Dnase == "" {
+    config.Atac  = atac
+    config.Dnase = dnase
+  }
+  if config.Atac == "" {
+    config.Open  = atac
+    config.Atac  = atac
+    config.Dnase = ""
+  }
+  if config.Dnase == "" {
+    config.Open  = dnase
+    config.Atac  = ""
+    config.Dnase = dnase
+  }
   config.Atac      = completePath(dir, prefix, config.Atac,      fmt.Sprintf("atac%s", suffix))
+  config.Dnase     = completePath(dir, prefix, config.Dnase,     fmt.Sprintf("dnase%s", suffix))
   config.H3k27ac   = completePath(dir, prefix, config.H3k27ac,   fmt.Sprintf("h3k27ac%s", suffix))
   config.H3k27me3  = completePath(dir, prefix, config.H3k27me3,  fmt.Sprintf("h3k27me3%s", suffix))
   config.H3k9me3   = completePath(dir, prefix, config.H3k9me3,   fmt.Sprintf("h3k9me3%s", suffix))
@@ -113,7 +138,7 @@ type ConfigSingleFeaturePaths struct {
 
 func (config *ConfigSingleFeaturePaths) CompletePaths(dir, prefix, suffix string) {
   config.ConfigCoveragePaths.CompletePaths(dir, prefix, suffix)
-  config.Rna_low    = completePath(dir, prefix, config.Rna_low,    fmt.Sprintf("rna-low%s", suffix))
+  config.Rna_low = completePath(dir, prefix, config.Rna_low, fmt.Sprintf("rna-low%s", suffix))
 }
 
 /* -------------------------------------------------------------------------- */
@@ -148,6 +173,7 @@ func (config *ConfigMultiFeaturePaths) CompletePaths(dir, prefix, suffix string)
 
 type ConfigModHmm struct {
   SessionConfig
+  OpenChromatinAssay         string                   `json:"Open Chromatin Assay"`
   BamDir                     string                   `json:"Bam Directory"`
   Bam                        ConfigBam                `json:"Bam Files"`
   CoverageBinSize            int                      `json:"Coverage Bin Size`
@@ -212,6 +238,7 @@ func DefaultModHmmConfig() ConfigModHmm {
   config.CoverageThreads      = 1
   config.CoverageBinSize      = 10
   config.CoverageMAPQ         = 30
+  config.OpenChromatinAssay   = ""
   config.ModelType            = "posterior"
   config.Threads              = 1
   config.Verbose              = 0
@@ -226,6 +253,90 @@ func (config *ConfigModHmm) setDefaultDir(target, def string) string {
     return config.Directory
   }
   return def
+}
+
+func (config *ConfigModHmm) DetectOpenChromatinAssay() string {
+  switch strings.ToLower(config.OpenChromatinAssay) {
+  case "atac" : return "atac"
+  case "dnase": return "dnase"
+  case "":
+  default:
+    log.Fatalf("invalid open chromatin assay `%s'", config.OpenChromatinAssay)
+  }
+  if len(config.Bam.Atac) != 0 && len(config.Bam.Dnase) != 0 {
+    log.Fatal("Config file specifies BAM files for ATAC and DNase-seq! Please select a single open chromatin assay.")
+  }
+  if len(config.Bam.Atac) != 0 {
+    return "atac"
+  }
+  if len(config.Bam.Dnase) != 0 {
+    return "dnase"
+  }
+  if config.Coverage.Atac != "" && config.Coverage.Dnase != "" {
+    if fileExists(config.Coverage.Atac) && fileExists(config.Coverage.Dnase) {
+      log.Fatal("Coverage bigWig files exist for both ATAC- and DNase-seq. Please select a single open chromatin assay.")
+    }
+    if fileExists(config.Coverage.Atac) {
+      return "atac"
+    }
+    if fileExists(config.Coverage.Dnase) {
+      return "dnase"
+    }
+  }
+  if config.Coverage.Atac != "" {
+    return "atac"
+  }
+  if config.Coverage.Dnase != "" {
+    return "dnase"
+  }
+  if config.SingleFeatureFg.Atac != "" && config.SingleFeatureFg.Dnase != "" {
+    if fileExists(config.SingleFeatureFg.Atac) && fileExists(config.SingleFeatureFg.Dnase) {
+      log.Fatal("SingleFeatureFg bigWig files exist for both ATAC- and DNase-seq. Please select a single open chromatin assay.")
+    }
+    if fileExists(config.SingleFeatureFg.Atac) {
+      return "atac"
+    }
+    if fileExists(config.SingleFeatureFg.Dnase) {
+      return "dnase"
+    }
+  }
+  if config.SingleFeatureFg.Atac != "" {
+    return "atac"
+  }
+  if config.SingleFeatureFg.Dnase != "" {
+    return "dnase"
+  }
+  // return default assay
+  return "atac"
+}
+
+func (config *ConfigModHmm) SetOpenChromatinAssay(assay string) {
+  fmt.Println("SETTING ASSAY:", assay)
+  switch strings.ToLower(assay) {
+  case "atac":
+    config.Coverage          .Open = config.Coverage          .Atac
+    config.CoverageCnts      .Open = config.CoverageCnts      .Atac
+    config.SingleFeatureModel.Open = config.SingleFeatureModel.Atac
+    config.SingleFeatureComp .Open = config.SingleFeatureComp .Atac
+    config.SingleFeaturePeak .Open = config.SingleFeaturePeak .Atac
+    config.SingleFeatureFg   .Open = config.SingleFeatureFg   .Atac
+    config.SingleFeatureFgExp.Open = config.SingleFeatureFgExp.Atac
+    config.SingleFeatureBg   .Open = config.SingleFeatureBg   .Atac
+    config.SingleFeatureBgExp.Open = config.SingleFeatureBgExp.Atac
+  case "dnase":
+    config.Coverage          .Open = config.Coverage          .Dnase
+    config.CoverageCnts      .Open = config.CoverageCnts      .Dnase
+    config.SingleFeatureModel.Open = config.SingleFeatureModel.Dnase
+    config.SingleFeatureComp .Open = config.SingleFeatureComp .Dnase
+    config.SingleFeaturePeak .Open = config.SingleFeaturePeak .Dnase
+    config.SingleFeatureFg   .Open = config.SingleFeatureFg   .Dnase
+    config.SingleFeatureFgExp.Open = config.SingleFeatureFgExp.Dnase
+    config.SingleFeatureBg   .Open = config.SingleFeatureBg   .Dnase
+    config.SingleFeatureBgExp.Open = config.SingleFeatureBgExp.Dnase
+  default:
+    log.Fatalf("invalid open chromatin assay `%s'", assay)
+  }
+  config.OpenChromatinAssay = assay
 }
 
 func (config *ConfigModHmm) CompletePaths() {
@@ -257,6 +368,7 @@ func (config *ConfigModHmm) CompletePaths() {
   config.Posterior              .CompletePaths(config.PosteriorDir, "posterior-marginal-", ".bw")
   config.PosteriorExp           .CompletePaths(config.PosteriorDir, "posterior-marginal-exp-", ".bw")
   config.PosteriorPeak          .CompletePaths(config.PosteriorDir, "posterior-marginal-peaks-", ".bw")
+  config.SetOpenChromatinAssay(config.DetectOpenChromatinAssay())
 }
 
 /* -------------------------------------------------------------------------- */
@@ -275,6 +387,7 @@ func (config ConfigBam) String() string {
   var buffer bytes.Buffer
 
   fmt.Fprintf(&buffer, " -> ATAC                 : %v\n", config.Atac)
+  fmt.Fprintf(&buffer, " -> DNase                : %v\n", config.Dnase)
   fmt.Fprintf(&buffer, " -> H3K27ac              : %v\n", config.H3k27ac)
   fmt.Fprintf(&buffer, " -> H3K27me3             : %v\n", config.H3k27me3)
   fmt.Fprintf(&buffer, " -> H3K4me1              : %v\n", config.H3k4me1)
@@ -285,10 +398,17 @@ func (config ConfigBam) String() string {
   return buffer.String()
 }
 
-func (config ConfigCoveragePaths) String() string {
+func (config ConfigCoveragePaths) String(openChromatinAssay string) string {
   var buffer bytes.Buffer
 
-  fmt.Fprintf(&buffer, " -> ATAC                 : %v %s\n", config.Atac,      fileCheckMark(config.Atac))
+  switch strings.ToLower(openChromatinAssay) {
+  case "atac":
+    fmt.Fprintf(&buffer, " -> ATAC                 : %v %s\n", config.Atac,      fileCheckMark(config.Atac))
+  case "dnase":
+    fmt.Fprintf(&buffer, " -> DNase                : %v %s\n", config.Dnase,     fileCheckMark(config.Dnase))
+  default:
+    panic("internal error")
+  }
   fmt.Fprintf(&buffer, " -> H3K27ac              : %v %s\n", config.H3k27ac,   fileCheckMark(config.H3k27ac))
   fmt.Fprintf(&buffer, " -> H3K27me3             : %v %s\n", config.H3k27me3,  fileCheckMark(config.H3k27me3))
   fmt.Fprintf(&buffer, " -> H3K4me1              : %v %s\n", config.H3k4me1,   fileCheckMark(config.H3k4me1))
@@ -300,10 +420,17 @@ func (config ConfigCoveragePaths) String() string {
   return buffer.String()
 }
 
-func (config ConfigSingleFeaturePaths) String() string {
+func (config ConfigSingleFeaturePaths) String(openChromatinAssay string) string {
   var buffer bytes.Buffer
 
-  fmt.Fprintf(&buffer, " -> ATAC                 : %v %s\n", config.Atac,      fileCheckMark(config.Atac))
+  switch strings.ToLower(openChromatinAssay) {
+  case "atac":
+    fmt.Fprintf(&buffer, " -> ATAC                 : %v %s\n", config.Atac,      fileCheckMark(config.Atac))
+  case "dnase":
+    fmt.Fprintf(&buffer, " -> DNase                : %v %s\n", config.Dnase,     fileCheckMark(config.Dnase))
+  default:
+    panic("internal error")
+  }
   fmt.Fprintf(&buffer, " -> H3K27ac              : %v %s\n", config.H3k27ac,   fileCheckMark(config.H3k27ac))
   fmt.Fprintf(&buffer, " -> H3K27me3             : %v %s\n", config.H3k27me3,  fileCheckMark(config.H3k27me3))
   fmt.Fprintf(&buffer, " -> H3K4me1              : %v %s\n", config.H3k4me1,   fileCheckMark(config.H3k4me1))
@@ -338,29 +465,30 @@ func (config ConfigModHmm) String() string {
 
   if config.Verbose > 0 {
     fmt.Fprintf(&buffer, "%v", config.SessionConfig.String())
+    fmt.Fprintf(&buffer, " -> Open Chromatin Assay   : %s\n", config.OpenChromatinAssay)
     fmt.Fprintf(&buffer, " -> Coverage Bin Size      : %d\n\n", config.CoverageBinSize)
     fmt.Fprintf(&buffer, "Alignment files (BAM):\n")
     fmt.Fprintf(&buffer, "%v\n", config.Bam.String())
     fmt.Fprintf(&buffer, "Coverage files (bigWig):\n")
-    fmt.Fprintf(&buffer, "%v\n", config.Coverage.String())
+    fmt.Fprintf(&buffer, "%v\n", config.Coverage.String(config.OpenChromatinAssay))
     fmt.Fprintf(&buffer, "Single-feature mixture distributions:\n")
-    fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureModel.String())
+    fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureModel.String(config.OpenChromatinAssay))
     fmt.Fprintf(&buffer, "Single-feature count statistics:\n")
-    fmt.Fprintf(&buffer, "%v\n", config.CoverageCnts.String())
+    fmt.Fprintf(&buffer, "%v\n", config.CoverageCnts.String(config.OpenChromatinAssay))
     fmt.Fprintf(&buffer, "Single-feature foreground mixture components:\n")
-    fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureComp.String())
+    fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureComp.String(config.OpenChromatinAssay))
     fmt.Fprintf(&buffer, "Single-feature foreground probabilities (log-scale):\n")
-    fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureFg.String())
+    fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureFg.String(config.OpenChromatinAssay))
     fmt.Fprintf(&buffer, "Single-feature background probabilities (log-scale):\n")
-    fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureBg.String())
+    fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureBg.String(config.OpenChromatinAssay))
   }
   if config.Verbose > 1 {
     fmt.Fprintf(&buffer, "Single-feature peaks:\n")
-    fmt.Fprintf(&buffer, "%v\n", config.SingleFeaturePeak.String())
+    fmt.Fprintf(&buffer, "%v\n", config.SingleFeaturePeak.String(config.OpenChromatinAssay))
     fmt.Fprintf(&buffer, "Single-feature foreground probabilities:\n")
-    fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureFgExp.String())
+    fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureFgExp.String(config.OpenChromatinAssay))
     fmt.Fprintf(&buffer, "Single-feature background probabilities:\n")
-    fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureBgExp.String())
+    fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureBgExp.String(config.OpenChromatinAssay))
   }
   if config.Verbose > 0 {
     fmt.Fprintf(&buffer, "Multi-feature probabilities (log-scale):\n")
