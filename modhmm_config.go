@@ -276,34 +276,22 @@ func (config *ConfigModHmm) DetectOpenChromatinAssay() string {
     if fileExists(config.Coverage.Atac) && fileExists(config.Coverage.Dnase) {
       log.Fatal("Coverage bigWig files exist for both ATAC- and DNase-seq. Please select a single open chromatin assay.")
     }
-    if fileExists(config.Coverage.Atac) {
-      return "atac"
-    }
-    if fileExists(config.Coverage.Dnase) {
-      return "dnase"
-    }
   }
-  if config.Coverage.Atac != "" {
+  if config.Coverage.Atac != "" && fileExists(config.Coverage.Atac) {
     return "atac"
   }
-  if config.Coverage.Dnase != "" {
+  if config.Coverage.Dnase != "" && fileExists(config.Coverage.Dnase) {
     return "dnase"
   }
   if config.SingleFeatureFg.Atac != "" && config.SingleFeatureFg.Dnase != "" {
     if fileExists(config.SingleFeatureFg.Atac) && fileExists(config.SingleFeatureFg.Dnase) {
       log.Fatal("SingleFeatureFg bigWig files exist for both ATAC- and DNase-seq. Please select a single open chromatin assay.")
     }
-    if fileExists(config.SingleFeatureFg.Atac) {
-      return "atac"
-    }
-    if fileExists(config.SingleFeatureFg.Dnase) {
-      return "dnase"
-    }
   }
-  if config.SingleFeatureFg.Atac != "" {
+  if config.SingleFeatureFg.Atac != "" && fileExists(config.SingleFeatureFg.Atac) {
     return "atac"
   }
-  if config.SingleFeatureFg.Dnase != "" {
+  if config.SingleFeatureFg.Dnase != "" && fileExists(config.SingleFeatureFg.Dnase) {
     return "dnase"
   }
   // return default assay
@@ -311,7 +299,6 @@ func (config *ConfigModHmm) DetectOpenChromatinAssay() string {
 }
 
 func (config *ConfigModHmm) SetOpenChromatinAssay(assay string) {
-  fmt.Println("SETTING ASSAY:", assay)
   switch strings.ToLower(assay) {
   case "atac":
     config.Coverage          .Open = config.Coverage          .Atac
