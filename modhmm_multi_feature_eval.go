@@ -35,8 +35,8 @@ import   "github.com/pborman/getopt"
 /* -------------------------------------------------------------------------- */
 
 func multi_feature_eval_mixture_weights(config ConfigModHmm) []float64 {
-  checkModelFiles(config.SingleFeatureModel)
-  checkModelFiles(config.SingleFeatureComp)
+  checkModelFiles(config.SingleFeatureModel.GetFilenames())
+  checkModelFiles(config.SingleFeatureComp.GetFilenames())
   pi := []float64{}
   for _, feature := range singleFeatureList {
     filenameModel := getFieldAsString(config.SingleFeatureModel, feature)

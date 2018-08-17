@@ -39,8 +39,8 @@ import   "github.com/pborman/getopt"
 
 /* -------------------------------------------------------------------------- */
 
-func checkModelFiles(config interface{}) {
-  for _, filename := range collectStrings(config) {
+func checkModelFiles(filenames []string) {
+  for _, filename := range filenames {
     if !fileExists(filename) {
       log.Fatalf(
           "ERROR: Model file `%s' required for enrichment analysis does not exist.\n" +
@@ -133,10 +133,10 @@ func single_feature_eval(config ConfigModHmm, filenameModel, filenameComp, filen
 
 func modhmm_single_feature_eval_dep(config ConfigModHmm) []string {
   r := []string{}
-  r  = append(r, collectStrings(config.Coverage)...)
-  r  = append(r, collectStrings(config.SingleFeatureModel)...)
-  r  = append(r, collectStrings(config.SingleFeatureComp)...)
-  r  = append(r, collectStrings(config.CoverageCnts)...)
+  r  = append(r, config.Coverage.GetFilenames()...)
+  r  = append(r, config.SingleFeatureModel.GetFilenames()...)
+  r  = append(r, config.SingleFeatureComp.GetFilenames()...)
+  r  = append(r, config.CoverageCnts.GetFilenames()...)
   return r
 }
 
@@ -183,9 +183,9 @@ func modhmm_single_feature_eval(config ConfigModHmm, feature string, logScale bo
   }
   if updateRequired(config, filenameResult1, filenameData, filenameCnts, filenameModel, filenameComp) ||
     (updateRequired(config, filenameResult2, filenameData, filenameCnts, filenameModel, filenameComp)) {
-    checkModelFiles(config.SingleFeatureModel)
-    checkModelFiles(config.SingleFeatureComp)
-    checkModelFiles(config.CoverageCnts)
+    checkModelFiles(config.SingleFeatureModel.GetFilenames())
+    checkModelFiles(config.SingleFeatureComp.GetFilenames())
+    checkModelFiles(config.CoverageCnts.GetFilenames())
 
     modhmm_coverage_all(config)
     printStderr(config, 1, "==> Evaluating Single-Feature Model (%s) <==\n", feature)

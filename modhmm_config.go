@@ -129,6 +129,14 @@ func (config *ConfigCoveragePaths) CompletePaths(dir, prefix, suffix string) {
   config.Control   = completePath(dir, prefix, config.Control,   fmt.Sprintf("control%s", suffix))
 }
 
+func (config *ConfigCoveragePaths) GetFilenames() []string {
+  filenames := []string{}
+  for _, feature := range coverageList {
+    filenames = append(filenames, getFieldAsString(*config, feature))
+  }
+  return filenames
+}
+
 /* -------------------------------------------------------------------------- */
 
 type ConfigSingleFeaturePaths struct {
@@ -139,6 +147,14 @@ type ConfigSingleFeaturePaths struct {
 func (config *ConfigSingleFeaturePaths) CompletePaths(dir, prefix, suffix string) {
   config.ConfigCoveragePaths.CompletePaths(dir, prefix, suffix)
   config.Rna_low = completePath(dir, prefix, config.Rna_low, fmt.Sprintf("rna-low%s", suffix))
+}
+
+func (config *ConfigSingleFeaturePaths) GetFilenames() []string {
+  filenames := []string{}
+  for _, feature := range singleFeatureList {
+    filenames = append(filenames, getFieldAsString(*config, feature))
+  }
+  return filenames
 }
 
 /* -------------------------------------------------------------------------- */

@@ -26,23 +26,6 @@ import "strings"
 /* struct operations
  * -------------------------------------------------------------------------- */
 
-func collectStrings(config interface{}) []string {
-  r := []string{}
-  v := reflect.ValueOf(config)
-
-  for i := 0; i < v.NumField(); i++ {
-    switch v.Field(i).Kind() {
-    case reflect.Struct:
-      r = append(r, collectStrings(v.Field(i).Interface())...)
-    case reflect.String:
-      r = append(r, v.Field(i).String())
-    default:
-      panic("internal error")
-    }
-  }
-  return r
-}
-
 func getField(config interface{}, field string) reflect.Value {
   field = strings.Replace(field, "-", "_", -1)
   v := reflect.ValueOf(config)
