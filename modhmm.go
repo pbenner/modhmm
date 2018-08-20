@@ -18,11 +18,25 @@ package main
 
 /* -------------------------------------------------------------------------- */
 
-//import   "fmt"
+import   "fmt"
 import   "log"
+import   "io"
 import   "os"
 
 import   "github.com/pborman/getopt"
+
+/* -------------------------------------------------------------------------- */
+
+var Version   string
+var BuildTime string
+var GitHash   string
+
+func printVersion(writer io.Writer) {
+  fmt.Fprintf(writer, "ModHMM (https://github.com/pbenner/autodiff)\n")
+  fmt.Fprintf(writer, " - Version   : %s\n", Version)
+  fmt.Fprintf(writer, " - Build time: %s\n", BuildTime)
+  fmt.Fprintf(writer, " - Git Hash  : %s\n", GitHash)
+}
 
 /* -------------------------------------------------------------------------- */
 
@@ -35,6 +49,7 @@ func main() {
   optThreads := options.    IntLong("threads", 't',  1, "number of threads")
   optHelp    := options.   BoolLong("help",    'h',     "print help")
   optVerbose := options.CounterLong("verbose", 'v',     "verbose level [-v or -vv]")
+  optVersion := options.   BoolLong("version",  0 ,     "print ModHMM version")
 
   options.SetParameters("<COMMAND>\n\n" +
     " Commands:\n" +
@@ -58,6 +73,10 @@ func main() {
   // command options
   if *optHelp {
     options.PrintUsage(os.Stdout)
+    os.Exit(0)
+  }
+  if *optVersion {
+    printVersion(os.Stdout)
     os.Exit(0)
   }
   if *optVerbose != 0 {
