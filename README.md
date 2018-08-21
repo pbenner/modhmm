@@ -4,7 +4,7 @@ ModHMM is a highly modular genome segmentation method that incorporates genome-w
 
 ### Example 1: ENCODE mouse embyonic liver at day 12.5
 
-Download BAM files from ENCODE and store them in a directory called *.bam*:
+Download BAM files from ENCODE and store them in a directory called `.bam`:
 ```sh
   # ATAC-seq
   wget --directory-prefix=.bam http://www.encodeproject.org/files/ENCFF929LOH/@@download/ENCFF929LOH.bam
