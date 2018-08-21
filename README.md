@@ -57,5 +57,6 @@ Create a configuration file named `mm10-liver-embryo-day12.5.conf`:
 
 Execute ModHMM:
 ```sh
+  mkdir mm10-liver-embryo-day12.5
   modhmm -c mm10-liver-embryo-day12.5.conf segmentation
 ```
