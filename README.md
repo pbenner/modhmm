@@ -2,6 +2,10 @@
 
 ModHMM is a highly modular genome segmentation method that incorporates genome-wide predictions from a set of classifiers. It implements a basic set of classifiers, but also allows to use predictions from third party classifiers.
 
+### Installation
+
+
+
 ### Example 1: ENCODE mouse embyonic liver at day 12.5
 
 Download BAM files from ENCODE and store them in a directory called `.bam`:
