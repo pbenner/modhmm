@@ -45,7 +45,7 @@ func checkModelFiles(filenames []string) {
       log.Fatalf(
           "ERROR: Model file `%s' required for enrichment analysis does not exist.\n" +
           "       Please download the respective file or estimate a model with the\n" +
-          "       `estimate-single-feature-mixture` subcommand", filename)
+          "       `estimate-single-feature` subcommand", filename)
     }
   }
 }
