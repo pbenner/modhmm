@@ -152,15 +152,15 @@ func modhmm_single_feature_eval(config ConfigModHmm, feature string, logScale bo
   filenameComp    := ""
   filenameData    := ""
   filenameCnts    := ""
-  filenameResult1 := ""
-  filenameResult2 := ""
+  filenameResult1 := TargetFile{}
+  filenameResult2 := TargetFile{}
 
   switch strings.ToLower(feature) {
   case "rna-low":
-    filenameData    = config.Coverage.Rna
-    filenameCnts    = config.CoverageCnts.Rna
-    filenameModel   = config.SingleFeatureModel.Rna_low
-    filenameComp    = config.SingleFeatureComp.Rna_low
+    filenameData    = config.Coverage.Rna.Filename
+    filenameCnts    = config.CoverageCnts.Rna.Filename
+    filenameModel   = config.SingleFeatureModel.Rna_low.Filename
+    filenameComp    = config.SingleFeatureComp.Rna_low.Filename
     if logScale {
       filenameResult1 = config.SingleFeatureFg.Rna_low
       filenameResult2 = config.SingleFeatureBg.Rna_low
@@ -169,27 +169,27 @@ func modhmm_single_feature_eval(config ConfigModHmm, feature string, logScale bo
       filenameResult2 = config.SingleFeatureBgExp.Rna_low
     }
   default:
-    filenameData    = getFieldAsString(config.Coverage, strings.ToLower(feature))
-    filenameCnts    = getFieldAsString(config.CoverageCnts, strings.ToLower(feature))
-    filenameModel   = getFieldAsString(config.SingleFeatureModel, strings.ToLower(feature))
-    filenameComp    = getFieldAsString(config.SingleFeatureComp, strings.ToLower(feature))
+    filenameData    = config.Coverage          .GetTargetFile(feature).Filename
+    filenameCnts    = config.CoverageCnts      .GetTargetFile(feature).Filename
+    filenameModel   = config.SingleFeatureModel.GetTargetFile(feature).Filename
+    filenameComp    = config.SingleFeatureComp .GetTargetFile(feature).Filename
     if logScale {
-      filenameResult1 = getFieldAsString(config.SingleFeatureFg, strings.ToLower(feature))
-      filenameResult2 = getFieldAsString(config.SingleFeatureBg, strings.ToLower(feature))
+      filenameResult1 = config.SingleFeatureFg.GetTargetFile(feature)
+      filenameResult2 = config.SingleFeatureBg.GetTargetFile(feature)
     } else {
-      filenameResult1 = getFieldAsString(config.SingleFeatureFgExp, strings.ToLower(feature))
-      filenameResult2 = getFieldAsString(config.SingleFeatureBgExp, strings.ToLower(feature))
+      filenameResult1 = config.SingleFeatureFgExp.GetTargetFile(feature)
+      filenameResult2 = config.SingleFeatureBgExp.GetTargetFile(feature)
     }
   }
   if updateRequired(config, filenameResult1, filenameData, filenameCnts, filenameModel, filenameComp) ||
     (updateRequired(config, filenameResult2, filenameData, filenameCnts, filenameModel, filenameComp)) {
     checkModelFiles(config.SingleFeatureModel.GetFilenames())
-    checkModelFiles(config.SingleFeatureComp.GetFilenames())
-    checkModelFiles(config.CoverageCnts.GetFilenames())
+    checkModelFiles(config.SingleFeatureComp .GetFilenames())
+    checkModelFiles(config.CoverageCnts      .GetFilenames())
 
     modhmm_coverage_all(config)
     printStderr(config, 1, "==> Evaluating Single-Feature Model (%s) <==\n", feature)
-    single_feature_eval(localConfig, filenameModel, filenameComp, filenameData, filenameCnts, filenameResult1, filenameResult2, logScale)
+    single_feature_eval(localConfig, filenameModel, filenameComp, filenameData, filenameCnts, filenameResult1.Filename, filenameResult2.Filename, logScale)
   }
 }
 

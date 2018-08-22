@@ -23,7 +23,6 @@ import   "log"
 import   "math"
 import   "os"
 import   "strconv"
-import   "strings"
 
 import . "github.com/pbenner/ngstat/track"
 import . "github.com/pbenner/gonetics"
@@ -34,8 +33,8 @@ import   "github.com/pborman/getopt"
 
 func modhmm_call_posterior_peaks(config ConfigModHmm, state string, threshold float64) {
   printStderr(config, 1, "==> Calling Multi-Feature Peaks (%s) <==\n", state)
-  filenameIn  := getFieldAsString(config.MultiFeatureProb, strings.ToUpper(state))
-  filenameOut := getFieldAsString(config.MultiFeaturePeak, strings.ToUpper(state))
+  filenameIn  := config.MultiFeatureProb.GetTargetFile(state).Filename
+  filenameOut := config.MultiFeaturePeak.GetTargetFile(state)
 
   if !updateRequired(config, filenameOut, filenameIn) {
     return
@@ -46,8 +45,8 @@ func modhmm_call_posterior_peaks(config ConfigModHmm, state string, threshold fl
     if peaks, err := getPeaks(track, math.Log(threshold)); err != nil {
       log.Fatal(err)
     } else {
-      printStderr(config, 1, "Writing table `%s'... ", filenameOut)
-      if err := peaks.ExportTable(filenameOut, true, false, false, OptionPrintScientific{true}); err != nil {
+      printStderr(config, 1, "Writing table `%s'... ", filenameOut.Filename)
+      if err := peaks.ExportTable(filenameOut.Filename, true, false, false, OptionPrintScientific{true}); err != nil {
         printStderr(config, 1, "failed\n")
         log.Fatal(err)
       } else {

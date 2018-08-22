@@ -62,7 +62,7 @@ func posterior(config ConfigModHmm, state string, trackFiles []string, tracks []
   }
   modhmm := ModHmm{}
   printStderr(config, 1, "Importing model from `%s'... ", config.Model)
-  if err := ImportDistribution(config.Model, &modhmm, BareRealType); err != nil {
+  if err := ImportDistribution(config.Model.Filename, &modhmm, BareRealType); err != nil {
     log.Fatal(err)
     printStderr(config, 1, "failed\n")
   }
@@ -85,7 +85,7 @@ func posterior(config ConfigModHmm, state string, trackFiles []string, tracks []
 func modhmm_posterior_tracks(config ConfigModHmm) []string {
   files := make([]string, len(multiFeatureList))
   for i, state := range multiFeatureList {
-    files[i] = getFieldAsString(config.MultiFeatureProb, strings.ToUpper(state))
+    files[i] = config.MultiFeatureProb.GetTargetFile(state).Filename
   }
   return files
 }
@@ -100,14 +100,14 @@ func modhmm_posterior(config ConfigModHmm, state string, tracks []Track, logScal
   dependencies  = append(dependencies, modhmm_single_feature_eval_dep(config)...)
   dependencies  = append(dependencies, modhmm_multi_feature_eval_dep(config)...)
   dependencies  = append(dependencies, modhmm_segmentation_dep(config)...)
-  dependencies  = append(dependencies, config.Model)
+  dependencies  = append(dependencies, config.Model.Filename)
 
   trackFiles     := modhmm_posterior_tracks(config)
-  filenameResult := ""
+  filenameResult := TargetFile{}
   if logScale {
-    filenameResult = getFieldAsString(config.Posterior, strings.ToUpper(state))
+    filenameResult = config.Posterior.GetTargetFile(state)
   } else {
-    filenameResult = getFieldAsString(config.PosteriorExp, strings.ToUpper(state))
+    filenameResult = config.PosteriorExp.GetTargetFile(state)
   }
 
   if updateRequired(config, filenameResult, dependencies...) {
@@ -115,7 +115,7 @@ func modhmm_posterior(config ConfigModHmm, state string, tracks []Track, logScal
     modhmm_segmentation(config, "default")
 
     printStderr(config, 1, "==> Evaluating Posterior Marginals (%s) <==\n", strings.ToUpper(state))
-    tracks = posterior(config, state, trackFiles, tracks, filenameResult, logScale)
+    tracks = posterior(config, state, trackFiles, tracks, filenameResult.Filename, logScale)
   }
   return tracks
 }

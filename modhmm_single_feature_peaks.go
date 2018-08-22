@@ -23,7 +23,6 @@ import   "log"
 import   "math"
 import   "os"
 import   "strconv"
-import   "strings"
 
 import . "github.com/pbenner/ngstat/track"
 import . "github.com/pbenner/gonetics"
@@ -34,8 +33,8 @@ import   "github.com/pborman/getopt"
 
 func modhmm_call_single_feature_peaks(config ConfigModHmm, feature string, threshold float64) {
   printStderr(config, 1, "==> Calling Single-Feature Peaks (%s) <==\n", feature)
-  filenameIn  := getFieldAsString(config.SingleFeatureFg,   strings.ToLower(feature))
-  filenameOut := getFieldAsString(config.SingleFeaturePeak, strings.ToLower(feature))
+  filenameIn  := config.SingleFeatureFg  .GetTargetFile(feature).Filename
+  filenameOut := config.SingleFeaturePeak.GetTargetFile(feature)
 
   if !updateRequired(config, filenameOut, filenameIn) {
     return
@@ -46,8 +45,8 @@ func modhmm_call_single_feature_peaks(config ConfigModHmm, feature string, thres
     if peaks, err := getPeaks(track, math.Log(threshold)); err != nil {
       log.Fatal(err)
     } else {
-      printStderr(config, 1, "Writing table `%s'... ", filenameOut)
-      if err := peaks.ExportTable(filenameOut, true, false, false, OptionPrintScientific{true}); err != nil {
+      printStderr(config, 1, "Writing table `%s'... ", filenameOut.Filename)
+      if err := peaks.ExportTable(filenameOut.Filename, true, false, false, OptionPrintScientific{true}); err != nil {
         printStderr(config, 1, "failed\n")
         log.Fatal(err)
       } else {

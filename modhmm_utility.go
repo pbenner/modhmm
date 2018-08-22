@@ -18,46 +18,8 @@ package main
 
 /* -------------------------------------------------------------------------- */
 
-import "fmt"
+import "log"
 import "os"
-import "reflect"
-import "strings"
-
-/* struct operations
- * -------------------------------------------------------------------------- */
-
-func getField(config interface{}, field string) reflect.Value {
-  field = strings.Replace(field, "-", "_", -1)
-  v := reflect.ValueOf(config)
-  switch v.Kind() {
-  case reflect.Struct:
-    if r := reflect.Indirect(v).FieldByName(field); r.IsValid() {
-      return r
-    } else {
-      if s := reflect.Indirect(v).FieldByName(strings.Title(field)); s.IsValid() {
-        return s
-      }
-    }
-  }
-  panic(fmt.Sprintf("internal error: `%s' not found in struct", field))
-}
-
-func getFieldAsString(config interface{}, field string) string {
-  return getField(config, field).String()
-}
-
-func getFieldAsStringSlice(config interface{}, field string) []string {
-  v := getField(config, field)
-  switch v.Kind() {
-  case reflect.Slice:
-    r := make([]string, v.Len())
-    for i := 0; i < v.Len(); i++ {
-      r[i] = v.Index(i).String()
-    }
-    return r
-  }
-  panic("internal error")
-}
 
 /* file utilities
  * -------------------------------------------------------------------------- */
@@ -70,11 +32,18 @@ func fileExists(filename string) bool {
   }
 }
 
-func updateRequired(config ConfigModHmm, target string, deps ...string) bool {
-  if s1, err := os.Stat(target); err != nil {
+func updateRequired(config ConfigModHmm, target TargetFile, deps ...string) bool {
+  if s1, err := os.Stat(target.Filename); err != nil {
+    if target.Static {
+      log.Fatalf("Target `%s' is marked static but does not exist\n", target)
+    }
     printStderr(config, 2, "Target `%s' does not exist...\n", target)
     return true
   } else {
+    if target.Static {
+      printStderr(config, 2, "Target `%s' is static and requires no update...\n", target)
+      return false
+    }
     for _, dep := range deps {
       if s2, err := os.Stat(dep); err == nil {
         if s1.ModTime().Before(s2.ModTime()) {

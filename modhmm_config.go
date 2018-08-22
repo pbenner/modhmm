@@ -30,6 +30,21 @@ import . "github.com/pbenner/ngstat/config"
 
 /* -------------------------------------------------------------------------- */
 
+type TargetFile struct {
+  Filename string
+  Static   bool
+}
+
+func (obj TargetFile) String() string {
+  if obj.Static {
+    return fmt.Sprintf("%s %s [static]", obj.Filename, fileCheckMark(obj.Filename))
+  } else {
+    return fmt.Sprintf("%s %s", obj.Filename, fileCheckMark(obj.Filename))
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+
 func completePath(dir, prefix, mypath, def string) string {
   if mypath == "" && def != "" {
     mypath = fmt.Sprintf("%s%s", prefix, def)
@@ -52,6 +67,22 @@ type ConfigBam struct {
   H3k4me3    []string `json:"H3K4me3"`
   Rna        []string `json:"RNA"`
   Control    []string `json:"Control"`
+}
+
+func (config *ConfigBam) GetFilenames(feature string) []string {
+  switch strings.ToLower(feature) {
+  case "atac"     : return config.Atac
+  case "dnase"    : return config.Dnase
+  case "h3k27ac"  : return config.H3k27ac
+  case "h3k27me3" : return config.H3k27me3
+  case "h3k9me3"  : return config.H3k9me3
+  case "h3k4me1"  : return config.H3k4me1
+  case "h3k4me3"  : return config.H3k4me3
+  case "rna"      : return config.Rna
+  case "control"  : return config.Control
+  default:
+    panic("internal error")
+  }
 }
 
 func (config *ConfigBam) CompletePaths(dir, prefix, suffix string) {
@@ -87,52 +118,70 @@ func (config *ConfigBam) CompletePaths(dir, prefix, suffix string) {
 /* -------------------------------------------------------------------------- */
 
 type ConfigCoveragePaths struct {
-  Open       string `json:"-"`
-  Atac       string `json:"ATAC"`
-  Dnase      string `json:"DNase"`
-  H3k27ac    string `json:"H3K27ac"`
-  H3k27me3   string `json:"H3K27me3"`
-  H3k9me3    string `json:"H3K27me3"`
-  H3k4me1    string `json:"H3K4me1"`
-  H3k4me3    string `json:"H3K4me3"`
-  H3k4me3o1  string `json:"H3K4me3o1"`
-  Rna        string `json:"RNA"`
-  Control    string `json:"Control"`
+  Open       TargetFile `json:"-"`
+  Atac       TargetFile `json:"ATAC"`
+  Dnase      TargetFile `json:"DNase"`
+  H3k27ac    TargetFile `json:"H3K27ac"`
+  H3k27me3   TargetFile `json:"H3K27me3"`
+  H3k9me3    TargetFile `json:"H3K27me3"`
+  H3k4me1    TargetFile `json:"H3K4me1"`
+  H3k4me3    TargetFile `json:"H3K4me3"`
+  H3k4me3o1  TargetFile `json:"H3K4me3o1"`
+  Rna        TargetFile `json:"RNA"`
+  Control    TargetFile `json:"Control"`
+}
+
+func (config *ConfigCoveragePaths) GetTargetFile(feature string) TargetFile {
+  switch strings.ToLower(feature) {
+  case "open"     : return config.Open
+  case "atac"     : return config.Atac
+  case "dnase"    : return config.Dnase
+  case "h3k27ac"  : return config.H3k27ac
+  case "h3k27me3" : return config.H3k27me3
+  case "h3k9me3"  : return config.H3k9me3
+  case "h3k4me1"  : return config.H3k4me1
+  case "h3k4me3"  : return config.H3k4me3
+  case "h3k4me3o1": return config.H3k4me3o1
+  case "rna"      : return config.Rna
+  case "control"  : return config.Control
+  default:
+    panic("internal error")
+  }
 }
 
 func (config *ConfigCoveragePaths) CompletePaths(dir, prefix, suffix string) {
-  atac  := completePath(dir, prefix, config.Atac,      fmt.Sprintf("atac%s", suffix))
-  dnase := completePath(dir, prefix, config.Dnase,     fmt.Sprintf("dnase%s", suffix))
-  if config.Atac == "" && config.Dnase == "" {
-    config.Atac  = atac
-    config.Dnase = dnase
+  atac  := completePath(dir, prefix, config.Atac .Filename, fmt.Sprintf("atac%s", suffix))
+  dnase := completePath(dir, prefix, config.Dnase.Filename, fmt.Sprintf("dnase%s", suffix))
+  if config.Atac.Filename == "" && config.Dnase.Filename == "" {
+    config.Atac .Filename = atac
+    config.Dnase.Filename = dnase
   }
-  if config.Atac == "" {
-    config.Open  = atac
-    config.Atac  = atac
-    config.Dnase = ""
+  if config.Atac.Filename == "" {
+    config.Open .Filename = atac
+    config.Atac .Filename = atac
+    config.Dnase.Filename = ""
   }
-  if config.Dnase == "" {
-    config.Open  = dnase
-    config.Atac  = ""
-    config.Dnase = dnase
+  if config.Dnase.Filename == "" {
+    config.Open .Filename = dnase
+    config.Atac .Filename = ""
+    config.Dnase.Filename = dnase
   }
-  config.Atac      = completePath(dir, prefix, config.Atac,      fmt.Sprintf("atac%s", suffix))
-  config.Dnase     = completePath(dir, prefix, config.Dnase,     fmt.Sprintf("dnase%s", suffix))
-  config.H3k27ac   = completePath(dir, prefix, config.H3k27ac,   fmt.Sprintf("h3k27ac%s", suffix))
-  config.H3k27me3  = completePath(dir, prefix, config.H3k27me3,  fmt.Sprintf("h3k27me3%s", suffix))
-  config.H3k9me3   = completePath(dir, prefix, config.H3k9me3,   fmt.Sprintf("h3k9me3%s", suffix))
-  config.H3k4me1   = completePath(dir, prefix, config.H3k4me1,   fmt.Sprintf("h3k4me1%s", suffix))
-  config.H3k4me3   = completePath(dir, prefix, config.H3k4me3,   fmt.Sprintf("h3k4me3%s", suffix))
-  config.H3k4me3o1 = completePath(dir, prefix, config.H3k4me3o1, fmt.Sprintf("h3k4me3o1%s", suffix))
-  config.Rna       = completePath(dir, prefix, config.Rna,       fmt.Sprintf("rna%s", suffix))
-  config.Control   = completePath(dir, prefix, config.Control,   fmt.Sprintf("control%s", suffix))
+  config.Atac     .Filename = completePath(dir, prefix, config.Atac     .Filename, fmt.Sprintf("atac%s", suffix))
+  config.Dnase    .Filename = completePath(dir, prefix, config.Dnase    .Filename, fmt.Sprintf("dnase%s", suffix))
+  config.H3k27ac  .Filename = completePath(dir, prefix, config.H3k27ac  .Filename, fmt.Sprintf("h3k27ac%s", suffix))
+  config.H3k27me3 .Filename = completePath(dir, prefix, config.H3k27me3 .Filename, fmt.Sprintf("h3k27me3%s", suffix))
+  config.H3k9me3  .Filename = completePath(dir, prefix, config.H3k9me3  .Filename, fmt.Sprintf("h3k9me3%s", suffix))
+  config.H3k4me1  .Filename = completePath(dir, prefix, config.H3k4me1  .Filename, fmt.Sprintf("h3k4me1%s", suffix))
+  config.H3k4me3  .Filename = completePath(dir, prefix, config.H3k4me3  .Filename, fmt.Sprintf("h3k4me3%s", suffix))
+  config.H3k4me3o1.Filename = completePath(dir, prefix, config.H3k4me3o1.Filename, fmt.Sprintf("h3k4me3o1%s", suffix))
+  config.Rna      .Filename = completePath(dir, prefix, config.Rna      .Filename, fmt.Sprintf("rna%s", suffix))
+  config.Control  .Filename = completePath(dir, prefix, config.Control  .Filename, fmt.Sprintf("control%s", suffix))
 }
 
 func (config *ConfigCoveragePaths) GetFilenames() []string {
   filenames := []string{}
   for _, feature := range coverageList {
-    filenames = append(filenames, getFieldAsString(*config, feature))
+    filenames = append(filenames, config.GetTargetFile(feature).Filename)
   }
   return filenames
 }
@@ -141,18 +190,26 @@ func (config *ConfigCoveragePaths) GetFilenames() []string {
 
 type ConfigSingleFeaturePaths struct {
   ConfigCoveragePaths
-  Rna_low     string `json:"RNA low"`
+  Rna_low     TargetFile `json:"RNA low"`
+}
+
+func (config *ConfigSingleFeaturePaths) GetTargetFile(feature string) TargetFile {
+  switch strings.ToLower(feature) {
+  case "rna_low": return config.Rna_low
+  case "rna-low": return config.Rna_low
+  default: return config.ConfigCoveragePaths.GetTargetFile(feature)
+  }
 }
 
 func (config *ConfigSingleFeaturePaths) CompletePaths(dir, prefix, suffix string) {
   config.ConfigCoveragePaths.CompletePaths(dir, prefix, suffix)
-  config.Rna_low = completePath(dir, prefix, config.Rna_low, fmt.Sprintf("rna-low%s", suffix))
+  config.Rna_low.Filename = completePath(dir, prefix, config.Rna_low.Filename, fmt.Sprintf("rna-low%s", suffix))
 }
 
 func (config *ConfigSingleFeaturePaths) GetFilenames() []string {
   filenames := []string{}
   for _, feature := range singleFeatureList {
-    filenames = append(filenames, getFieldAsString(*config, feature))
+    filenames = append(filenames, config.GetTargetFile(feature).Filename)
   }
   return filenames
 }
@@ -160,29 +217,46 @@ func (config *ConfigSingleFeaturePaths) GetFilenames() []string {
 /* -------------------------------------------------------------------------- */
 
 type ConfigMultiFeaturePaths struct {
-  EA       string
-  PA       string
-  BI       string
-  PR       string
-  TR       string
-  TL       string
-  R1       string
-  R2       string
-  CL       string
-  NS       string
+  EA       TargetFile
+  PA       TargetFile
+  BI       TargetFile
+  PR       TargetFile
+  TR       TargetFile
+  TL       TargetFile
+  R1       TargetFile
+  R2       TargetFile
+  CL       TargetFile
+  NS       TargetFile
+}
+
+func (config *ConfigMultiFeaturePaths) GetTargetFile(state string) TargetFile {
+  switch strings.ToUpper(state) {
+  case "EA": return config.EA
+  case "PA": return config.PA
+  case "BI": return config.BI
+  case "PR": return config.PR
+  case "TR": return config.TR
+  case "TL": return config.TL
+  case "R1": return config.R1
+  case "R2": return config.R2
+  case "CL": return config.CL
+  case "NS": return config.NS
+  default:
+    panic("internal error")
+  }
 }
 
 func (config *ConfigMultiFeaturePaths) CompletePaths(dir, prefix, suffix string) {
-  config.PA = completePath(dir, prefix, config.PA, fmt.Sprintf("PA%s", suffix))
-  config.EA = completePath(dir, prefix, config.EA, fmt.Sprintf("EA%s", suffix))
-  config.BI = completePath(dir, prefix, config.BI, fmt.Sprintf("BI%s", suffix))
-  config.PR = completePath(dir, prefix, config.PR, fmt.Sprintf("PR%s", suffix))
-  config.TR = completePath(dir, prefix, config.TR, fmt.Sprintf("TR%s", suffix))
-  config.TL = completePath(dir, prefix, config.TL, fmt.Sprintf("TL%s", suffix))
-  config.R1 = completePath(dir, prefix, config.R1, fmt.Sprintf("R1%s", suffix))
-  config.R2 = completePath(dir, prefix, config.R2, fmt.Sprintf("R2%s", suffix))
-  config.CL = completePath(dir, prefix, config.CL, fmt.Sprintf("CL%s", suffix))
-  config.NS = completePath(dir, prefix, config.NS, fmt.Sprintf("NS%s", suffix))
+  config.PA.Filename = completePath(dir, prefix, config.PA.Filename, fmt.Sprintf("PA%s", suffix))
+  config.EA.Filename = completePath(dir, prefix, config.EA.Filename, fmt.Sprintf("EA%s", suffix))
+  config.BI.Filename = completePath(dir, prefix, config.BI.Filename, fmt.Sprintf("BI%s", suffix))
+  config.PR.Filename = completePath(dir, prefix, config.PR.Filename, fmt.Sprintf("PR%s", suffix))
+  config.TR.Filename = completePath(dir, prefix, config.TR.Filename, fmt.Sprintf("TR%s", suffix))
+  config.TL.Filename = completePath(dir, prefix, config.TL.Filename, fmt.Sprintf("TL%s", suffix))
+  config.R1.Filename = completePath(dir, prefix, config.R1.Filename, fmt.Sprintf("R1%s", suffix))
+  config.R2.Filename = completePath(dir, prefix, config.R2.Filename, fmt.Sprintf("R2%s", suffix))
+  config.CL.Filename = completePath(dir, prefix, config.CL.Filename, fmt.Sprintf("CL%s", suffix))
+  config.NS.Filename = completePath(dir, prefix, config.NS.Filename, fmt.Sprintf("NS%s", suffix))
 }
 
 /* -------------------------------------------------------------------------- */
@@ -219,9 +293,9 @@ type ConfigModHmm struct {
   PosteriorDir               string                   `json:"Posterior Marginals Directory"`
   ModelType                  string                   `json:"Model Type"`
   ModelUnconstrained         bool                     `json:"Model Unconstrained"`
-  Model                      string                   `json:"Model File"`
+  Model                      TargetFile               `json:"Model File"`
   ModelDir                   string                   `json:"Model Directory"`
-  Segmentation               string                   `json:"Segmentation File"`
+  Segmentation               TargetFile               `json:"Segmentation File"`
   SegmentationDir            string                   `json:"Segmentation Directory"`
   Directory                  string
   Description                string
@@ -288,26 +362,26 @@ func (config *ConfigModHmm) DetectOpenChromatinAssay() string {
   if len(config.Bam.Dnase) != 0 {
     return "dnase"
   }
-  if config.Coverage.Atac != "" && config.Coverage.Dnase != "" {
-    if fileExists(config.Coverage.Atac) && fileExists(config.Coverage.Dnase) {
+  if config.Coverage.Atac.Filename != "" && config.Coverage.Dnase.Filename != "" {
+    if fileExists(config.Coverage.Atac.Filename) && fileExists(config.Coverage.Dnase.Filename) {
       log.Fatal("Coverage bigWig files exist for both ATAC- and DNase-seq. Please select a single open chromatin assay.")
     }
   }
-  if config.Coverage.Atac != "" && fileExists(config.Coverage.Atac) {
+  if config.Coverage.Atac.Filename != "" && fileExists(config.Coverage.Atac.Filename) {
     return "atac"
   }
-  if config.Coverage.Dnase != "" && fileExists(config.Coverage.Dnase) {
+  if config.Coverage.Dnase.Filename != "" && fileExists(config.Coverage.Dnase.Filename) {
     return "dnase"
   }
-  if config.SingleFeatureFg.Atac != "" && config.SingleFeatureFg.Dnase != "" {
-    if fileExists(config.SingleFeatureFg.Atac) && fileExists(config.SingleFeatureFg.Dnase) {
+  if config.SingleFeatureFg.Atac.Filename != "" && config.SingleFeatureFg.Dnase.Filename != "" {
+    if fileExists(config.SingleFeatureFg.Atac.Filename) && fileExists(config.SingleFeatureFg.Dnase.Filename) {
       log.Fatal("SingleFeatureFg bigWig files exist for both ATAC- and DNase-seq. Please select a single open chromatin assay.")
     }
   }
-  if config.SingleFeatureFg.Atac != "" && fileExists(config.SingleFeatureFg.Atac) {
+  if config.SingleFeatureFg.Atac.Filename != "" && fileExists(config.SingleFeatureFg.Atac.Filename) {
     return "atac"
   }
-  if config.SingleFeatureFg.Dnase != "" && fileExists(config.SingleFeatureFg.Dnase) {
+  if config.SingleFeatureFg.Dnase.Filename != "" && fileExists(config.SingleFeatureFg.Dnase.Filename) {
     return "dnase"
   }
   // return default assay
@@ -351,8 +425,8 @@ func (config *ConfigModHmm) CompletePaths() {
   config.ModelDir               = config.setDefaultDir(config.ModelDir, config.MultiFeatureDir)
   config.SegmentationDir        = config.setDefaultDir(config.SegmentationDir, config.ModelDir)
   config.PosteriorDir           = config.setDefaultDir(config.PosteriorDir, config.SegmentationDir)
-  config.Model                  = completePath(config.ModelDir, "", config.Model, "segmentation.json")
-  config.Segmentation           = completePath(config.SegmentationDir, "", config.Segmentation, "segmentation.bed.gz")
+  config.Model.Filename         = completePath(config.ModelDir, "", config.Model.Filename, "segmentation.json")
+  config.Segmentation.Filename  = completePath(config.SegmentationDir, "", config.Segmentation.Filename, "segmentation.bed.gz")
   config.Bam                    .CompletePaths(config.BamDir, "", "")
   config.Coverage               .CompletePaths(config.CoverageDir, "coverage-", ".bw")
   config.CoverageCnts           .CompletePaths(config.SingleFeatureModelDir, "", ".counts.json")
@@ -412,19 +486,19 @@ func (config ConfigCoveragePaths) String(openChromatinAssay string) string {
 
   switch strings.ToLower(openChromatinAssay) {
   case "atac":
-    fmt.Fprintf(&buffer, " -> ATAC                 : %v %s\n", config.Atac,      fileCheckMark(config.Atac))
+    fmt.Fprintf(&buffer, " -> ATAC                 : %v\n", config.Atac)
   case "dnase":
-    fmt.Fprintf(&buffer, " -> DNase                : %v %s\n", config.Dnase,     fileCheckMark(config.Dnase))
+    fmt.Fprintf(&buffer, " -> DNase                : %v\n", config.Dnase)
   default:
     panic("internal error")
   }
-  fmt.Fprintf(&buffer, " -> H3K27ac              : %v %s\n", config.H3k27ac,   fileCheckMark(config.H3k27ac))
-  fmt.Fprintf(&buffer, " -> H3K27me3             : %v %s\n", config.H3k27me3,  fileCheckMark(config.H3k27me3))
-  fmt.Fprintf(&buffer, " -> H3K4me1              : %v %s\n", config.H3k4me1,   fileCheckMark(config.H3k4me1))
-  fmt.Fprintf(&buffer, " -> H3K4me3              : %v %s\n", config.H3k4me3,   fileCheckMark(config.H3k4me3))
-  fmt.Fprintf(&buffer, " -> H3K4me3o1            : %v %s\n", config.H3k4me3o1, fileCheckMark(config.H3k4me3o1))
-  fmt.Fprintf(&buffer, " -> RNA                  : %v %s\n", config.Rna,       fileCheckMark(config.Rna))
-  fmt.Fprintf(&buffer, " -> Control              : %v %s\n", config.Control,   fileCheckMark(config.Control))
+  fmt.Fprintf(&buffer, " -> H3K27ac              : %v\n", config.H3k27ac)
+  fmt.Fprintf(&buffer, " -> H3K27me3             : %v\n", config.H3k27me3)
+  fmt.Fprintf(&buffer, " -> H3K4me1              : %v\n", config.H3k4me1)
+  fmt.Fprintf(&buffer, " -> H3K4me3              : %v\n", config.H3k4me3)
+  fmt.Fprintf(&buffer, " -> H3K4me3o1            : %v\n", config.H3k4me3o1)
+  fmt.Fprintf(&buffer, " -> RNA                  : %v\n", config.Rna)
+  fmt.Fprintf(&buffer, " -> Control              : %v\n", config.Control)
 
   return buffer.String()
 }
@@ -434,20 +508,20 @@ func (config ConfigSingleFeaturePaths) String(openChromatinAssay string) string 
 
   switch strings.ToLower(openChromatinAssay) {
   case "atac":
-    fmt.Fprintf(&buffer, " -> ATAC                 : %v %s\n", config.Atac,      fileCheckMark(config.Atac))
+    fmt.Fprintf(&buffer, " -> ATAC                 : %v\n", config.Atac)
   case "dnase":
-    fmt.Fprintf(&buffer, " -> DNase                : %v %s\n", config.Dnase,     fileCheckMark(config.Dnase))
+    fmt.Fprintf(&buffer, " -> DNase                : %v\n", config.Dnase)
   default:
     panic("internal error")
   }
-  fmt.Fprintf(&buffer, " -> H3K27ac              : %v %s\n", config.H3k27ac,   fileCheckMark(config.H3k27ac))
-  fmt.Fprintf(&buffer, " -> H3K27me3             : %v %s\n", config.H3k27me3,  fileCheckMark(config.H3k27me3))
-  fmt.Fprintf(&buffer, " -> H3K4me1              : %v %s\n", config.H3k4me1,   fileCheckMark(config.H3k4me1))
-  fmt.Fprintf(&buffer, " -> H3K4me3              : %v %s\n", config.H3k4me3,   fileCheckMark(config.H3k4me3))
-  fmt.Fprintf(&buffer, " -> H3K4me3o1            : %v %s\n", config.H3k4me3o1, fileCheckMark(config.H3k4me3o1))
-  fmt.Fprintf(&buffer, " -> RNA                  : %v %s\n", config.Rna,       fileCheckMark(config.Rna))
-  fmt.Fprintf(&buffer, " -> RNA (low)            : %v %s\n", config.Rna_low,   fileCheckMark(config.Rna_low))
-  fmt.Fprintf(&buffer, " -> Control              : %v %s\n", config.Control,   fileCheckMark(config.Control))
+  fmt.Fprintf(&buffer, " -> H3K27ac              : %v\n", config.H3k27ac)
+  fmt.Fprintf(&buffer, " -> H3K27me3             : %v\n", config.H3k27me3)
+  fmt.Fprintf(&buffer, " -> H3K4me1              : %v\n", config.H3k4me1)
+  fmt.Fprintf(&buffer, " -> H3K4me3              : %v\n", config.H3k4me3)
+  fmt.Fprintf(&buffer, " -> H3K4me3o1            : %v\n", config.H3k4me3o1)
+  fmt.Fprintf(&buffer, " -> RNA                  : %v\n", config.Rna)
+  fmt.Fprintf(&buffer, " -> RNA (low)            : %v\n", config.Rna_low)
+  fmt.Fprintf(&buffer, " -> Control              : %v\n", config.Control)
 
   return buffer.String()
 }
@@ -455,16 +529,16 @@ func (config ConfigSingleFeaturePaths) String(openChromatinAssay string) string 
 func (config ConfigMultiFeaturePaths) String() string {
   var buffer bytes.Buffer
 
-  fmt.Fprintf(&buffer, " -> PA                   : %v %s\n", config.PA, fileCheckMark(config.PA))
-  fmt.Fprintf(&buffer, " -> EA                   : %v %s\n", config.EA, fileCheckMark(config.EA))
-  fmt.Fprintf(&buffer, " -> BI                   : %v %s\n", config.BI, fileCheckMark(config.BI))
-  fmt.Fprintf(&buffer, " -> PR                   : %v %s\n", config.PR, fileCheckMark(config.PR))
-  fmt.Fprintf(&buffer, " -> TR                   : %v %s\n", config.TR, fileCheckMark(config.TR))
-  fmt.Fprintf(&buffer, " -> TL                   : %v %s\n", config.TL, fileCheckMark(config.TL))
-  fmt.Fprintf(&buffer, " -> R1                   : %v %s\n", config.R1, fileCheckMark(config.R1))
-  fmt.Fprintf(&buffer, " -> R2                   : %v %s\n", config.R2, fileCheckMark(config.R2))
-  fmt.Fprintf(&buffer, " -> CL                   : %v %s\n", config.CL, fileCheckMark(config.CL))
-  fmt.Fprintf(&buffer, " -> NS                   : %v %s\n", config.NS, fileCheckMark(config.NS))
+  fmt.Fprintf(&buffer, " -> PA                   : %v\n", config.PA)
+  fmt.Fprintf(&buffer, " -> EA                   : %v\n", config.EA)
+  fmt.Fprintf(&buffer, " -> BI                   : %v\n", config.BI)
+  fmt.Fprintf(&buffer, " -> PR                   : %v\n", config.PR)
+  fmt.Fprintf(&buffer, " -> TR                   : %v\n", config.TR)
+  fmt.Fprintf(&buffer, " -> TL                   : %v\n", config.TL)
+  fmt.Fprintf(&buffer, " -> R1                   : %v\n", config.R1)
+  fmt.Fprintf(&buffer, " -> R2                   : %v\n", config.R2)
+  fmt.Fprintf(&buffer, " -> CL                   : %v\n", config.CL)
+  fmt.Fprintf(&buffer, " -> NS                   : %v\n", config.NS)
 
   return buffer.String()
 }
@@ -525,12 +599,12 @@ func (config ConfigModHmm) String() string {
   }
   if config.Verbose > 0 {
     fmt.Fprintf(&buffer, "ModHmm options:\n")
-    fmt.Fprintf(&buffer, " ->  Description                  : %v\n"   , config.Description)
-    fmt.Fprintf(&buffer, " ->  Directory                    : %v\n"   , config.Directory)
-    fmt.Fprintf(&buffer, " ->  ModHmm Model File            : %v %s\n", config.Model, fileCheckMark(config.Model))
-    fmt.Fprintf(&buffer, " ->  ModHmm Model Directory       : %v\n"   , config.ModelDir)
-    fmt.Fprintf(&buffer, " ->  ModHmm Segmentation File     : %v %s\n", config.Segmentation, fileCheckMark(config.Segmentation))
-    fmt.Fprintf(&buffer, " ->  ModHmm Segmentation Directory: %v\n"   , config.SegmentationDir)
+    fmt.Fprintf(&buffer, " ->  Description                  : %v\n", config.Description)
+    fmt.Fprintf(&buffer, " ->  Directory                    : %v\n", config.Directory)
+    fmt.Fprintf(&buffer, " ->  ModHmm Model File            : %v\n", config.Model)
+    fmt.Fprintf(&buffer, " ->  ModHmm Model Directory       : %v\n", config.ModelDir)
+    fmt.Fprintf(&buffer, " ->  ModHmm Segmentation File     : %v\n", config.Segmentation)
+    fmt.Fprintf(&buffer, " ->  ModHmm Segmentation Directory: %v\n", config.SegmentationDir)
   }
   return buffer.String()
 }

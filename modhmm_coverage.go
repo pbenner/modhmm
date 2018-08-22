@@ -163,10 +163,10 @@ func importFraglen(config ConfigModHmm, feature, filename string) int {
 func coverage_h3k4me3o1(config ConfigModHmm) {
   config.BinSummaryStatistics = "discrete mean"
   config.BinOverlap = 1
-  track1, err := ImportTrack(config.SessionConfig, config.Coverage.H3k4me1); if err != nil {
+  track1, err := ImportTrack(config.SessionConfig, config.Coverage.H3k4me1.Filename); if err != nil {
     log.Fatal(err)
   }
-  track2, err := ImportTrack(config.SessionConfig, config.Coverage.H3k4me3); if err != nil {
+  track2, err := ImportTrack(config.SessionConfig, config.Coverage.H3k4me3.Filename); if err != nil {
     log.Fatal(err)
   }
   if err := (GenericMutableTrack{track1}).MapList([]Track{track1, track2}, func(seqname string, position int, values ...float64) float64 {
@@ -176,7 +176,7 @@ func coverage_h3k4me3o1(config ConfigModHmm) {
   }); err != nil {
     log.Fatal(err)
   }
-  if err := ExportTrack(config.SessionConfig, track1, config.Coverage.H3k4me3o1); err != nil {
+  if err := ExportTrack(config.SessionConfig, track1, config.Coverage.H3k4me3o1.Filename); err != nil {
     log.Fatal(err)
   }
 }
@@ -239,7 +239,7 @@ func modhmm_coverage(config ConfigModHmm, feature string) {
   }
 
   filenameBam  := []string{}
-  filenameData := ""
+  filenameData := TargetFile{}
   optionsList  := []interface{}{}
 
   switch strings.ToLower(feature) {
@@ -261,13 +261,13 @@ func modhmm_coverage(config ConfigModHmm, feature string) {
     filenameBam  = config.Bam.Rna
     filenameData = config.Coverage.Rna
   case "h3k4me3o1":
-    if updateRequired(config, config.Coverage.H3k4me3o1, config.Coverage.H3k4me1, config.Coverage.H3k4me3) {
+    if updateRequired(config, config.Coverage.H3k4me3o1, config.Coverage.H3k4me1.Filename, config.Coverage.H3k4me3.Filename) {
       coverage_h3k4me3o1(config)
     }
     return
   default:
-    filenameBam  = getFieldAsStringSlice(config.Bam,      strings.ToLower(feature))
-    filenameData = getFieldAsString     (config.Coverage, strings.ToLower(feature))
+    filenameBam  = config.Bam     .GetFilenames (feature)
+    filenameData = config.Coverage.GetTargetFile(feature)
     optionsList = append(optionsList, OptionEstimateFraglen{true})
     optionsList = append(optionsList, OptionFraglenRange{[2]int{150,250}})
     optionsList = append(optionsList, OptionFraglenBinSize{10})
@@ -284,7 +284,7 @@ func modhmm_coverage(config ConfigModHmm, feature string) {
     if len(filenameBam) == 0 {
       log.Fatalf("ERROR: no bam files specified for feature `%s'", feature)
     }
-    coverage(config, feature, filenameBam, filenameData, optionsList)
+    coverage(config, feature, filenameBam, filenameData.Filename, optionsList)
   }
 }
 

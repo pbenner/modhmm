@@ -39,8 +39,8 @@ func multi_feature_eval_mixture_weights(config ConfigModHmm) []float64 {
   checkModelFiles(config.SingleFeatureComp.GetFilenames())
   pi := []float64{}
   for _, feature := range singleFeatureList {
-    filenameModel := getFieldAsString(config.SingleFeatureModel, feature)
-    filenameComp  := getFieldAsString(config.SingleFeatureComp, feature)
+    filenameModel := config.SingleFeatureModel.GetTargetFile(feature).Filename
+    filenameComp  := config.SingleFeatureComp .GetTargetFile(feature).Filename
     p, q := ImportMixtureWeights(config, filenameModel, filenameComp)
     pi = append(pi, p, q)
   }
@@ -122,8 +122,8 @@ func multi_feature_eval(config ConfigModHmm, classifier MatrixBatchClassifier, t
 func modhmm_multi_feature_eval_dep(config ConfigModHmm) []string {
   files := []string{}
   for _, feature := range singleFeatureList {
-    files = append(files, getFieldAsString(config.SingleFeatureFg, feature))
-    files = append(files, getFieldAsString(config.SingleFeatureBg, feature))
+    files = append(files, config.SingleFeatureFg.GetTargetFile(feature).Filename)
+    files = append(files, config.SingleFeatureBg.GetTargetFile(feature).Filename)
   }
   return files
 }
@@ -141,18 +141,18 @@ func modhmm_multi_feature_eval(config ConfigModHmm, state string, tracks []Track
   dependencies    = append(dependencies, modhmm_single_feature_eval_dep(config)...)
   dependencies    = append(dependencies, modhmm_multi_feature_eval_dep(config)...)
   trackFiles     := modhmm_multi_feature_eval_dep(config)
-  filenameResult := ""
+  filenameResult := TargetFile{}
   if logScale {
-    filenameResult = getFieldAsString(config.MultiFeatureProb, strings.ToUpper(state))
+    filenameResult = config.MultiFeatureProb.GetTargetFile(state)
   } else {
-    filenameResult = getFieldAsString(config.MultiFeatureProbExp, strings.ToUpper(state))
+    filenameResult = config.MultiFeatureProbExp.GetTargetFile(state)
   }
 
   if updateRequired(config, filenameResult, dependencies...) {
     modhmm_single_feature_eval_all(config, true)
     printStderr(config, 1, "==> Evaluating Multi-Feature Model (%s) <==\n", strings.ToUpper(state))
     classifier := get_multi_feature_model(config, state)
-    tracks = multi_feature_eval(localConfig, classifier, trackFiles, tracks, filenameResult, logScale)
+    tracks = multi_feature_eval(localConfig, classifier, trackFiles, tracks, filenameResult.Filename, logScale)
   }
   return tracks
 }

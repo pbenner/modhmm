@@ -21,7 +21,6 @@ package main
 import   "fmt"
 import   "log"
 import   "os"
-import   "strings"
 
 import . "github.com/pbenner/ngstat/classification"
 import . "github.com/pbenner/ngstat/estimation"
@@ -57,8 +56,8 @@ func estimate(config ConfigModHmm, trackFiles []string, model string) {
   modhmm.Hmm        = *estimator.GetEstimate().(*matrixDistribution.Hmm)
   modhmm.StateNames = stateNames
 
-  printStderr(config, 1, "Exporting model to `%s'... ", config.Model)
-  if err := ExportDistribution(config.Model, &modhmm); err != nil {
+  printStderr(config, 1, "Exporting model to `%s'... ", config.Model.Filename)
+  if err := ExportDistribution(config.Model.Filename, &modhmm); err != nil {
     printStderr(config, 1, "failed\n")
     log.Fatalf("ERROR: %s", err)
   }
@@ -69,8 +68,8 @@ func estimate(config ConfigModHmm, trackFiles []string, model string) {
 
 func segment(config ConfigModHmm, trackFiles []string) {
   modhmm := ModHmm{}
-  printStderr(config, 1, "Importing model from `%s'... ", config.Model)
-  if err := ImportDistribution(config.Model, &modhmm, BareRealType); err != nil {
+  printStderr(config, 1, "Importing model from `%s'... ", config.Model.Filename)
+  if err := ImportDistribution(config.Model.Filename, &modhmm, BareRealType); err != nil {
     log.Fatal(err)
     printStderr(config, 1, "failed\n")
   }
@@ -88,7 +87,7 @@ func segment(config ConfigModHmm, trackFiles []string) {
       desc = fmt.Sprintf("Segmentation ModHMM [%s]", config.Description)
     }
     printStderr(config, 1, "Writing genome segmentation to `%s'... ", config.Segmentation)
-    if err := ExportTrackSegmentation(config.SessionConfig, result, config.Segmentation, name, desc, true, modhmm.StateNames, nil); err != nil {
+    if err := ExportTrackSegmentation(config.SessionConfig, result, config.Segmentation.Filename, name, desc, true, modhmm.StateNames, nil); err != nil {
       printStderr(config, 1, "failed\n")
       log.Fatal(err)
     }
@@ -101,7 +100,7 @@ func segment(config ConfigModHmm, trackFiles []string) {
 func modhmm_segmentation_dep(config ConfigModHmm) []string {
   files := make([]string, len(multiFeatureList))
   for i, state := range multiFeatureList {
-    files[i] = getFieldAsString(config.MultiFeatureProb, strings.ToUpper(state))
+    files[i] = config.MultiFeatureProb.GetTargetFile(state).Filename
   }
   return files
 }
@@ -124,7 +123,7 @@ func modhmm_segmentation(config ConfigModHmm, model string) {
     printStderr(config, 1, "==> Estimating ModHmm transition parameters <==\n")
     estimate(config, trackFiles, model)
   }
-  if updateRequired(config, filenameSegmentation, append(dependencies, filenameModel)...) {
+  if updateRequired(config, filenameSegmentation, append(dependencies, filenameModel.Filename)...) {
     printStderr(config, 1, "==> Computing Segmentation <==\n")
     segment(config, trackFiles)
   }

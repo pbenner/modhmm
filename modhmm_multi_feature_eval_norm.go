@@ -106,18 +106,18 @@ func modhmm_multi_feature_eval_norm(config ConfigModHmm, state string, tracks []
   dependencies  = append(dependencies, modhmm_multi_feature_eval_norm_dep(config)...)
 
   trackFiles := modhmm_multi_feature_eval_norm_dep(config)
-  filenameResult := ""
+  filenameResult := TargetFile{}
   if logScale {
-    filenameResult = getFieldAsString(config.MultiFeatureProbNorm, strings.ToUpper(state))
+    filenameResult = config.MultiFeatureProbNorm.GetTargetFile(state)
   } else {
-    filenameResult = getFieldAsString(config.MultiFeatureProbNormExp, strings.ToUpper(state))
+    filenameResult = config.MultiFeatureProbNormExp.GetTargetFile(state)
   }
 
   if updateRequired(config, filenameResult, dependencies...) {
     modhmm_multi_feature_eval_all(config, true)
 
     printStderr(config, 1, "==> Evaluating Normalized Multi-Feature Model (%s) <==\n", strings.ToUpper(state))
-    tracks = multi_feature_eval_norm(config, state, trackFiles, tracks, filenameResult, logScale)
+    tracks = multi_feature_eval_norm(config, state, trackFiles, tracks, filenameResult.Filename, logScale)
   }
   return tracks
 }
