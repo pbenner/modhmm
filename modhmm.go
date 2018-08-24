@@ -48,6 +48,7 @@ func main() {
   optConfig  := options. StringLong("config",  'c', "", "configuration file")
   optThreads := options.    IntLong("threads", 't',  1, "number of threads")
   optHelp    := options.   BoolLong("help",    'h',     "print help")
+  optGenConf := options.   BoolLong("genconf",  0 ,     "print default config file")
   optVerbose := options.CounterLong("verbose", 'v',     "verbose level [-v or -vv]")
   optVersion := options.   BoolLong("version",  0 ,     "print ModHMM version")
 
@@ -81,6 +82,10 @@ func main() {
   }
   if *optVerbose != 0 {
     config.Verbose = *optVerbose
+  }
+  if *optGenConf  {
+    config.Export(os.Stdout)
+    os.Exit(0)
   }
   if *optConfig != "" {
     current_config := config
