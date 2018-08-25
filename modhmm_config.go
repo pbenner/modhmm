@@ -291,7 +291,6 @@ type ConfigModHmm struct {
   PosteriorExp               ConfigMultiFeaturePaths  `json:"Posterior Marginals [exp]"`
   PosteriorPeak              ConfigMultiFeaturePaths  `json:"Posterior Marginals Peaks"`
   PosteriorDir               string                   `json:"Posterior Marginals Directory"`
-  ModelType                  string                   `json:"Model Type"`
   ModelUnconstrained         bool                     `json:"Model Unconstrained"`
   Model                      TargetFile               `json:"Model File"`
   ModelDir                   string                   `json:"Model Directory"`
@@ -329,7 +328,6 @@ func DefaultModHmmConfig() ConfigModHmm {
   config.CoverageBinSize      = 10
   config.CoverageMAPQ         = 30
   config.OpenChromatinAssay   = ""
-  config.ModelType            = "posterior"
   config.Threads              = 1
   config.Verbose              = 0
   return config

@@ -19,7 +19,6 @@ package main
 /* -------------------------------------------------------------------------- */
 
 import   "fmt"
-import   "strings"
 
 import . "github.com/pbenner/autodiff/statistics"
 import   "github.com/pbenner/autodiff/statistics/generic"
@@ -313,32 +312,18 @@ func getModHmmDefaultEstimator(config ConfigModHmm) (*matrixEstimator.HmmEstimat
   if config.ModelUnconstrained {
     printStderr(config, 2, "Implementing default model with unconstrained transition matrix\n")
   } else {
-    switch strings.ToLower(config.ModelType) {
-    case "likelihood":
-      printStderr(config, 2, "Implementing constraints for modhmm:likelihood\n")
-      // transition into active enhancers
-      constraints = append(constraints, generic.EqualityConstraint{
-        [2]int{jR1, jEA}, [2]int{jR2, jEA}, [2]int{jTL, jEA}, [2]int{jNS, jEA}, [2]int{jCL, jEA}, [2]int{jT1, jEAt1}, [2]int{jT2, jEAt2}})
-      // transition into bivalent state
-      constraints = append(constraints, generic.EqualityConstraint{
-        [2]int{jR1, jBI}, [2]int{jR2, jBI}, [2]int{jTL, jBI}, [2]int{jNS, jBI}, [2]int{jCL, jBI}, [2]int{jT1, jBIt1}, [2]int{jT2, jBIt2}})
-      // transition into primed state
-      constraints = append(constraints, generic.EqualityConstraint{
-        [2]int{jR1, jPR}, [2]int{jR2, jPR}, [2]int{jTL, jPR}, [2]int{jNS, jPR}, [2]int{jCL, jPR}, [2]int{jT1, jPRt1}, [2]int{jT2, jPRt2}})
-    case "posterior":
-      printStderr(config, 2, "Implementing constraints for modhmm:posterior\n")
-      for i := 0; i < m; i++ {
-        constraint := generic.EqualityConstraint{}
-        for j := 0; j < m; j++ {
-          if i == j {
-            continue
-          }
-          if tr.ConstAt(i, j).GetValue() != 0 {
-          constraint = append(constraint, [2]int{i,j})
-          }
+    printStderr(config, 2, "Implementing default model with constrainted transition matrix\n")
+    for i := 0; i < m; i++ {
+      constraint := generic.EqualityConstraint{}
+      for j := 0; j < m; j++ {
+        if i == j {
+          continue
         }
-        constraints = append(constraints, constraint)
+        if tr.ConstAt(i, j).GetValue() != 0 {
+          constraint = append(constraint, [2]int{i,j})
+        }
       }
+      constraints = append(constraints, constraint)
     }
     // constrain self-transitions
     constraints = append(constraints, generic.EqualityConstraint{

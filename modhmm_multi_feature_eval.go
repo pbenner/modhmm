@@ -50,40 +50,19 @@ func multi_feature_eval_mixture_weights(config ConfigModHmm) []float64 {
 /* -------------------------------------------------------------------------- */
 
 func get_multi_feature_model(config ConfigModHmm, state string) MatrixBatchClassifier {
-  switch config.ModelType {
-  case "likelihood":
-    pi := multi_feature_eval_mixture_weights(config)
-    switch strings.ToLower(state) {
-    case "pa": return ModelPA{BasicMultiFeatureModel{pi}}
-    case "ea": return ModelEA{BasicMultiFeatureModel{pi}}
-    case "bi": panic("todo")
-    case "pr": panic("todo")
-    case "tr": return ModelTR{BasicMultiFeatureModel{pi}}
-    case "tl": return ModelTL{BasicMultiFeatureModel{pi}}
-    case "r1": return ModelR1{BasicMultiFeatureModel{pi}}
-    case "r2": return ModelR2{BasicMultiFeatureModel{pi}}
-    case "ns": return ModelNS{BasicMultiFeatureModel{pi}}
-    case "cl": return ModelCL{BasicMultiFeatureModel{pi}}
-    default:
-      log.Fatalf("unknown state: %s", state)
-    }
-  case "posterior":
-    switch strings.ToLower(state) {
-    case "pa": return ClassifierPA{}
-    case "ea": return ClassifierEA{}
-    case "bi": return ClassifierBI{}
-    case "pr": return ClassifierPR{}
-    case "tr": return ClassifierTR{}
-    case "tl": return ClassifierTL{}
-    case "r1": return ClassifierR1{}
-    case "r2": return ClassifierR2{}
-    case "ns": return ClassifierNS{}
-    case "cl": return ClassifierCL{}
-    default:
-      log.Fatalf("unknown state: %s", state)
-    }
+  switch strings.ToLower(state) {
+  case "pa": return ClassifierPA{}
+  case "ea": return ClassifierEA{}
+  case "bi": return ClassifierBI{}
+  case "pr": return ClassifierPR{}
+  case "tr": return ClassifierTR{}
+  case "tl": return ClassifierTL{}
+  case "r1": return ClassifierR1{}
+  case "r2": return ClassifierR2{}
+  case "ns": return ClassifierNS{}
+  case "cl": return ClassifierCL{}
   default:
-    log.Fatalf("invalid model type `%s'", config.ModelType)
+    log.Fatalf("unknown state: %s", state)
   }
   return nil
 }

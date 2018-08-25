@@ -73,19 +73,8 @@ func single_feature_eval(config ConfigModHmm, filenameModel, filenameComp, filen
   }
   printStderr(config, 1, "done\n")
 
-  var scalarClassifier1 ScalarBatchClassifier
-  var scalarClassifier2 ScalarBatchClassifier
-
-  switch strings.ToLower(config.ModelType) {
-  case "likelihood":
-    scalarClassifier1 = scalarClassifier.MixtureLikelihood{mixture, k}
-    scalarClassifier2 = scalarClassifier.MixtureLikelihood{mixture, r}
-  case "posterior":
-    scalarClassifier1 = scalarClassifier.MixturePosterior{mixture, k}
-    scalarClassifier2 = scalarClassifier.MixturePosterior{mixture, r}
-  default:
-    log.Fatalf("invalid model type `%s'", config.ModelType)
-  }
+  scalarClassifier1 := scalarClassifier.MixturePosterior{mixture, k}
+  scalarClassifier2 := scalarClassifier.MixturePosterior{mixture, r}
   vectorClassifier1 := vectorClassifier.ScalarBatchIid{scalarClassifier1, 1}
   vectorClassifier2 := vectorClassifier.ScalarBatchIid{scalarClassifier2, 1}
 
