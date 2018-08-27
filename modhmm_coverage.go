@@ -241,6 +241,7 @@ func modhmm_coverage(config ConfigModHmm, feature string) {
   filenameBam  := []string{}
   filenameData := TargetFile{}
   optionsList  := []interface{}{}
+  logPrefix    := feature
 
   switch strings.ToLower(feature) {
   case "open":
@@ -250,9 +251,11 @@ func modhmm_coverage(config ConfigModHmm, feature string) {
       filenameData = config.Coverage.Atac
       optionsList = append(optionsList, OptionPairedAsSingleEnd{true})
       optionsList = append(optionsList, OptionFilterChroms{[]string{"chrM","M"}})
+      logPrefix   = "atac"
     case "dnase":
       filenameBam  = config.Bam.Dnase
       filenameData = config.Coverage.Dnase
+      logPrefix    = "dnase"
       // assume single-end sequencing, but no fragment length estimation
     default:
       panic("internal error")
@@ -273,7 +276,7 @@ func modhmm_coverage(config ConfigModHmm, feature string) {
     optionsList = append(optionsList, OptionFraglenBinSize{10})
   }
   if config.Verbose > 0 {
-    optionsList = append(optionsList, OptionLogger{log.New(os.Stderr, fmt.Sprintf("[%s] ", feature), 0)})
+    optionsList = append(optionsList, OptionLogger{log.New(os.Stderr, fmt.Sprintf("[%s] ", logPrefix), 0)})
   }
   optionsList = append(optionsList, OptionBinningMethod{"mean overlap"})
   optionsList = append(optionsList, OptionBinSize{config.CoverageBinSize})
