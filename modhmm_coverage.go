@@ -249,14 +249,18 @@ func modhmm_coverage(config ConfigModHmm, feature string) {
     case "atac":
       filenameBam  = config.Bam.Atac
       filenameData = config.Coverage.Atac
-      optionsList = append(optionsList, OptionPairedAsSingleEnd{true})
-      optionsList = append(optionsList, OptionFilterChroms{[]string{"chrM","M"}})
-      logPrefix   = "atac"
+      // ATAC-seq typically uses paired-end sequencing;
+      // for obtain only open-chromatin information we drop paired-end information
+      optionsList  = append(optionsList, OptionPairedAsSingleEnd{true})
+      optionsList  = append(optionsList, OptionFilterChroms{[]string{"chrM","M"}})
+      logPrefix    = "atac"
     case "dnase":
       filenameBam  = config.Bam.Dnase
       filenameData = config.Coverage.Dnase
+      // DNase-seq can be single- or paired-end;
+      // for single-end sequencing no fragment-length estimation is performed
+      optionsList  = append(optionsList, OptionFilterChroms{[]string{"chrM","M"}})
       logPrefix    = "dnase"
-      // assume single-end sequencing, but no fragment length estimation
     default:
       panic("internal error")
     }
