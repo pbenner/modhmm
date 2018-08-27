@@ -121,6 +121,7 @@ Create a configuration file named `mm10-forebrain-embryo-day11.5.conf`:
 
 Compute coverages:
 ```json
+  mkdir mm10-forebrain-embryo-day11.5
   modhmm -c mm10-forebrain-embryo-day11.5.conf coverage
 ```
 
