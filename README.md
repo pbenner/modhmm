@@ -6,7 +6,7 @@ ModHMM is a highly modular genome segmentation method that incorporates genome-w
 
 
 
-### Example 1: Compute segmentation for ENCODE mouse embyonic liver at day 12.5
+### Example 1: Compute segmentation of ENCODE data from mouse embyonic liver at day 12.5
 
 Download BAM files from ENCODE and store them in a directory called `.bam`:
 ```sh
@@ -65,7 +65,7 @@ Execute ModHMM:
   modhmm -c mm10-liver-embryo-day12.5.conf segmentation
 ```
 
-### Example 2: Estimate single-feature models and compute segmentation of ENCODE mouse embyonic forebrain at day 11.5
+### Example 2: Estimate single-feature models and compute segmentation of ENCODE data from mouse embyonic forebrain at day 11.5
 
 Download BAM files from ENCODE and store them in a directory called `.bam`:
 ```sh
