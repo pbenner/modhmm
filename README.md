@@ -36,7 +36,7 @@ Download BAM files from ENCODE and store them in a directory called `.bam`:
   wget --directory-prefix=.bam http://www.encodeproject.org/files/ENCFF438RYK/@@download/ENCFF438RYK.bam
 ```
 
-Create a configuration file named `mm10-liver-embryo-day12.5.conf`:
+Create a configuration file named `mm10-liver-embryo-day12.5.json`:
 ```json
 {
     "Bam Directory" : ".bam",
@@ -62,7 +62,7 @@ Create a configuration file named `mm10-liver-embryo-day12.5.conf`:
 Execute ModHMM:
 ```sh
   mkdir mm10-liver-embryo-day12.5
-  modhmm -c mm10-liver-embryo-day12.5.conf segmentation
+  modhmm -c mm10-liver-embryo-day12.5.json segmentation
 ```
 
 ### Example 2: Estimate single-feature models and compute segmentation of ENCODE data from mouse embyonic forebrain at day 11.5
@@ -95,7 +95,7 @@ Download BAM files from ENCODE and store them in a directory called `.bam`:
   wget --directory-prefix=.bam http://www.encodeproject.org/files/ENCFF658BBR/@@download/ENCFF658BBR.bam
 ```
 
-Create a configuration file named `mm10-forebrain-embryo-day11.5.conf`:
+Create a configuration file named `mm10-forebrain-embryo-day11.5.json`:
 ```json
 {
     "Bam Directory" : ".bam",
@@ -123,7 +123,7 @@ Compute coverages and count files:
 ```json
   mkdir mm10-forebrain-embryo-day11.5
   mkdir mm10-forebrain-embryo-day11.5:models
-  modhmm -c mm10-forebrain-embryo-day11.5.conf compute-counts
+  modhmm -c mm10-forebrain-embryo-day11.5.json compute-counts
 ```
 
 ```sh
