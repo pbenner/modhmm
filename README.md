@@ -122,6 +122,18 @@ Create a configuration file named `mm10-forebrain-embryo-day11.5.conf`:
 Compute coverages and count files:
 ```json
   mkdir mm10-forebrain-embryo-day11.5
+  mkdir mm10-forebrain-embryo-day11.5:models
   modhmm -c mm10-forebrain-embryo-day11.5.conf compute-counts
 ```
 
+```sh
+  modhmm -c mm10-forebrain-embryo-day11.5.json  estimate-single-feature h3k27ac 1 2 2
+```
+
+```R
+  source("path/to/modhmm_single_feature.R")
+
+  plot.distribution.and.counts("mm10-forebrain-embryo-day11.5:models/h3k27ac.json",
+                               "mm10-forebrain-embryo-day11.5:models/h3k27ac.counts.json",
+                               ylim=c(1,100))
+```
