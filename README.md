@@ -127,7 +127,7 @@ Compute coverages and count files:
 ```
 
 ```sh
-  modhmm -c mm10-forebrain-embryo-day11.5.json  estimate-single-feature h3k27ac 1 2 2
+  modhmm -c mm10-forebrain-embryo-day11.5.json estimate-single-feature h3k27ac 1 2 2
 ```
 
 ```R
