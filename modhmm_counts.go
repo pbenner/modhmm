@@ -82,6 +82,7 @@ func (config *Counts) ExportFile(filename string) error {
 /* -------------------------------------------------------------------------- */
 
 func compute_counts(config ConfigModHmm, filenameIn, filenameOut string) {
+  config.BinSummaryStatistics = "discrete mean"
   if track, err := ImportTrack(config.SessionConfig, filenameIn); err != nil {
     log.Fatal(err)
   } else {
@@ -124,9 +125,6 @@ func modhmm_compute_counts(config ConfigModHmm, feature string) {
   filenameIn  := config.Coverage    .GetTargetFile(feature)
   filenameOut := config.CoverageCnts.GetTargetFile(feature)
 
-  if strings.ToLower(feature) != "h3k4me3o1" {
-    config.BinSummaryStatistics = "discrete mean"
-  }
   if updateRequired(config, filenameOut, filenameIn.Filename) {
     modhmm_coverage_all(config)
     compute_counts(config, filenameIn.Filename, filenameOut.Filename)
