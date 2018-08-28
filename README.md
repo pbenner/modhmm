@@ -115,13 +115,13 @@ Create a configuration file named `mm10-forebrain-embryo-day11.5.conf`:
     "Directory"                       : "mm10-forebrain-embryo-day11.5",
     "Description"                     : "forebrain embryo day11.5",
     "Threads"                         : 20,
-    "Verbose"                         : 2
+    "Verbose"                         : 1
 }
 ```
 
-Compute coverages:
+Compute coverages and count files:
 ```json
   mkdir mm10-forebrain-embryo-day11.5
-  modhmm -c mm10-forebrain-embryo-day11.5.conf coverage
+  modhmm -c mm10-forebrain-embryo-day11.5.conf compute-counts
 ```
 
