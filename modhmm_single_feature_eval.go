@@ -184,6 +184,7 @@ func modhmm_single_feature_eval(config ConfigModHmm, feature string, logScale bo
 
 func modhmm_single_feature_eval_loop(config ConfigModHmm, features []string, logScale bool) {
   for _, feature := range features {
+    feature = config.coerceOpenChromatinAssay(feature)
     modhmm_single_feature_eval(config, feature, logScale)
   }
 }

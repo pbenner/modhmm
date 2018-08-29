@@ -343,6 +343,22 @@ func (config *ConfigModHmm) setDefaultDir(target, def string) string {
   return def
 }
 
+func (config *ConfigModHmm) coerceOpenChromatinAssay(feature string) string {
+  switch strings.ToLower(feature) {
+  case "atac" :
+    if config.OpenChromatinAssay == "dnase" {
+      log.Fatalf("unknown feature: %s", feature)
+    }
+    feature = "open"
+  case "dnase":
+    if config.OpenChromatinAssay == "atac" {
+      log.Fatalf("unknown feature: %s", feature)
+    }
+    feature = "open"
+  }
+  return feature
+}
+
 func (config *ConfigModHmm) DetectOpenChromatinAssay() string {
   switch strings.ToLower(config.OpenChromatinAssay) {
   case "atac" : return "atac"

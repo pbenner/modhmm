@@ -60,6 +60,7 @@ func modhmm_call_single_feature_peaks(config ConfigModHmm, feature string, thres
 
 func modhmm_call_single_feature_peaks_loop(config ConfigModHmm, features []string, threshold float64) {
   for _, feature := range features {
+    feature = config.coerceOpenChromatinAssay(feature)
     modhmm_call_single_feature_peaks(config, feature, threshold)
   }
 }

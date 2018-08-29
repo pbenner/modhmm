@@ -289,19 +289,19 @@ func modhmm_coverage(config ConfigModHmm, feature string) {
 
   if updateRequired(config, filenameData, filenameBam...) {
     if len(filenameBam) == 0 {
-      log.Fatalf("ERROR: no bam files specified for feature `%s'", feature)
+      log.Fatalf("ERROR: no bam files specified for feature `%s'", logPrefix)
     }
     coverage(config, feature, filenameBam, filenameData.Filename, optionsList)
   }
 }
 
-func modhmm_coverage_loop(config ConfigModHmm, states []string) {
+func modhmm_coverage_loop(config ConfigModHmm, features []string) {
   pool := threadpool.New(config.CoverageThreads, 10)
-  for _, feature := range coverageList {
-    if feature == "h3k4me3o1" {
+  for _, feature := range features {
+    if strings.ToLower(feature) == "h3k4me3o1" {
       continue
     }
-    f := feature
+    f := config.coerceOpenChromatinAssay(feature)
     pool.AddJob(0, func(pool threadpool.ThreadPool, erf func() error) error {
       modhmm_coverage(config, f)
       return nil
