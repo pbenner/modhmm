@@ -131,10 +131,14 @@ func modhmm_compute_counts(config ConfigModHmm, feature string) {
   }
 }
 
-func modhmm_compute_counts_all(config ConfigModHmm) {
-  for _, feature := range coverageList {
+func modhmm_compute_counts_loop(config ConfigModHmm, features []string) {
+  for _, feature := range features {
     modhmm_compute_counts(config, feature)
   }
+}
+
+func modhmm_compute_counts_all(config ConfigModHmm) {
+  modhmm_compute_counts_loop(config, coverageList)
 }
 
 /* -------------------------------------------------------------------------- */
@@ -143,8 +147,9 @@ func modhmm_compute_counts_main(config ConfigModHmm, args []string) {
 
   options := getopt.New()
   options.SetProgram(fmt.Sprintf("%s compute-counts", os.Args[0]))
+  options.SetParameters("[FEATURE]...\n")
 
-  optHelp := options.   BoolLong("help",        'h',     "print help")
+  optHelp := options.BoolLong("help", 'h', "print help")
 
   options.Parse(args)
 
@@ -153,14 +158,9 @@ func modhmm_compute_counts_main(config ConfigModHmm, args []string) {
     options.PrintUsage(os.Stdout)
     os.Exit(0)
   }
-  // command arguments
-  if len(options.Args()) > 1 {
-    options.PrintUsage(os.Stderr)
-    os.Exit(1)
-  }
   if len(options.Args()) == 0 {
     modhmm_compute_counts_all(config)
   } else {
-    modhmm_compute_counts(config, options.Args()[0])
+    modhmm_compute_counts_loop(config, options.Args())
   }
 }

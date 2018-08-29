@@ -333,12 +333,6 @@ func modhmm_coverage_main(config ConfigModHmm, args []string) {
     options.PrintUsage(os.Stdout)
     os.Exit(0)
   }
-  // command arguments
-  if len(options.Args()) > 1 {
-    options.PrintUsage(os.Stderr)
-    os.Exit(1)
-  }
-
   if len(options.Args()) == 0 {
     modhmm_coverage_all(config)
   } else {
