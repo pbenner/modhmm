@@ -111,8 +111,9 @@ func main() {
 
   // print config
   config.CompletePaths()
-  printStderr(config, 0, "%v\n", config)
-
+  if str := config.String(); str != "" {
+    printStderr(config, 0, "%s\n", str)
+  }
   switch command {
   case "coverage":
     modhmm_coverage_main(config, options.Args())
