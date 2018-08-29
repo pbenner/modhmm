@@ -135,7 +135,7 @@ Compute coverages and count files:
 
   plot.distribution.and.counts("mm10-forebrain-embryo-day11.5:models/h3k27ac.json",
                                "mm10-forebrain-embryo-day11.5:models/h3k27ac.counts.json",
-                               ylim=c(1,100))
+                               xlim=c(1,100))
 ```
 
 ```sh
