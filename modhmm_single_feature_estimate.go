@@ -185,6 +185,7 @@ func modhmm_single_feature_estimate_main(config ConfigModHmm, args []string) {
   } else {
     n = append(n, int(m))
   }
+  feature = config.coerceOpenChromatinAssay(feature)
 
   modhmm_single_feature_estimate(config, feature, n)
 }
