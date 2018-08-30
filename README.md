@@ -141,7 +141,7 @@ Compute coverages and count files:
 ```sh
   modhmm -c mm10-forebrain-embryo-day11.5.json estimate-single-feature dnase     1 1 3
   modhmm -c mm10-forebrain-embryo-day11.5.json estimate-single-feature h3k27me3  4 4 1
-  modhmm -c mm10-forebrain-embryo-day11.5.json estimate-single-feature h3k4me1   3 2 2
+  modhmm -c mm10-forebrain-embryo-day11.5.json estimate-single-feature h3k4me1   1 8 0
   modhmm -c mm10-forebrain-embryo-day11.5.json estimate-single-feature h3k4me3   1 1 3
   modhmm -c mm10-forebrain-embryo-day11.5.json estimate-single-feature h3k4me3o1 0 1 3
   modhmm -c mm10-forebrain-embryo-day11.5.json estimate-single-feature h3k9me3   2 4 1
