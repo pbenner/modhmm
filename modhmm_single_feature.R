@@ -93,7 +93,10 @@ plot.model.and.counts <- function(modelFilename, countsFilename, componentsFilen
     if (is.null(componentsFilename)) {
         plot.mixture(counts$X, model, lty=lty, col=col, ...)
     } else {
-        components <- fromJSON(file=componentsFilename)+1
+        components <- fromJSON(file=componentsFilename)
+        if (length(components) > 0) {
+            components <- components + 1
+        }
         plot.mixture.joined(counts$X, model, components, lty=lty, col=col, ...)
     }
 }
