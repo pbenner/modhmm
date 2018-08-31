@@ -133,9 +133,18 @@ Compute coverages and count files:
 ```R
   source("path/to/modhmm_single_feature.R")
 
-  plot.distribution.and.counts("mm10-forebrain-embryo-day11.5:models/h3k27ac.json",
-                               "mm10-forebrain-embryo-day11.5:models/h3k27ac.counts.json",
-                               xlim=c(1,100))
+  plot.model.and.counts("mm10-forebrain-embryo-day11.5:models/h3k27ac.json",
+                        "mm10-forebrain-embryo-day11.5:models/h3k27ac.counts.json",
+                         xlim=c(0,100))
+  legend("topright", legend=0:4, pch=c(1,rep(NA,4)), lty=c(NA,2:5))
+```
+
+```R
+  plot.model.and.counts("mm10-forebrain-embryo-day11.5:models/h3k27ac.json",
+                        "mm10-forebrain-embryo-day11.5:models/h3k27ac.counts.json",
+                        "mm10-forebrain-embryo-day11.5:models/h3k27ac.components.json",
+                        xlim=c(0,100))
+  legend("topright", legend=c("foreground", "background"), lty=2:3)
 ```
 
 ```sh
@@ -143,7 +152,7 @@ Compute coverages and count files:
   modhmm -c mm10-forebrain-embryo-day11.5.json estimate-single-feature h3k27me3  4 4 1
   modhmm -c mm10-forebrain-embryo-day11.5.json estimate-single-feature h3k4me1   1 8 0
   modhmm -c mm10-forebrain-embryo-day11.5.json estimate-single-feature h3k4me3   1 1 3
-  modhmm -c mm10-forebrain-embryo-day11.5.json estimate-single-feature h3k4me3o1 0 1 3
+  modhmm -c mm10-forebrain-embryo-day11.5.json estimate-single-feature h3k4me3o1 0 1 2
   modhmm -c mm10-forebrain-embryo-day11.5.json estimate-single-feature h3k9me3   2 4 1
   modhmm -c mm10-forebrain-embryo-day11.5.json estimate-single-feature rna       1 0 4
   modhmm -c mm10-forebrain-embryo-day11.5.json estimate-single-feature rna-low   1 0 4
