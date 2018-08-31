@@ -131,10 +131,9 @@ func single_feature_estimate(config ConfigModHmm, estimator VectorEstimator, fil
 func modhmm_single_feature_estimate(config ConfigModHmm, feature string, n []int) {
   var estimator VectorEstimator
 
-  if !singleFeatureList.Contains(strings.ToLower(feature)) {
+  if !coverageList.Contains(strings.ToLower(feature)) {
     log.Fatalf("unknown feature: %s", feature)
   }
-
   filenameIn  := config.Coverage          .GetTargetFile(feature).Filename
   filenameOut := config.SingleFeatureModel.GetTargetFile(feature).Filename
 

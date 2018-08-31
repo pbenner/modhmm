@@ -146,10 +146,10 @@ func modhmm_single_feature_eval(config ConfigModHmm, feature string, logScale bo
 
   switch strings.ToLower(feature) {
   case "rna-low":
-    filenameData    = config.Coverage.Rna.Filename
-    filenameCnts    = config.CoverageCnts.Rna.Filename
-    filenameModel   = config.SingleFeatureModel.Rna_low.Filename
-    filenameComp    = config.SingleFeatureComp.Rna_low.Filename
+    filenameData    = config.Coverage          .Rna    .Filename
+    filenameCnts    = config.CoverageCnts      .Rna    .Filename
+    filenameModel   = config.SingleFeatureModel.Rna    .Filename
+    filenameComp    = config.SingleFeatureComp .Rna_low.Filename
     if logScale {
       filenameResult1 = config.SingleFeatureFg.Rna_low
       filenameResult2 = config.SingleFeatureBg.Rna_low
