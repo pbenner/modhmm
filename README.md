@@ -36,10 +36,12 @@ Download BAM files from ENCODE and store them in a directory called `.bam`:
   wget --directory-prefix=.bam http://www.encodeproject.org/files/ENCFF438RYK/@@download/ENCFF438RYK.bam
 ```
 
-Create a configuration file named `mm10-liver-embryo-day12.5.json`:
+Create a configuration file named `mm10-liver-embryo-day12.5.json` (ModHMM accepts an extended JSON format that allows comments):
 ```json
 {
+    # Directory containing feature alignment files
     "Bam Directory" : ".bam",
+    # Names of alignment files
     "Bam Files"     : {
         "ATAC"      : ["ENCFF929LOH.bam", "ENCFF848NLJ.bam"],
         "H3K27ac"   : ["ENCFF524ZFV.bam", "ENCFF322QGS.bam"],
@@ -50,11 +52,17 @@ Create a configuration file named `mm10-liver-embryo-day12.5.json`:
         "RNA"       : ["ENCFF405LEY.bam", "ENCFF627PCS.bam"],
         "Control"   : ["ENCFF865QGZ.bam", "ENCFF438RYK.bam"]
     },
+    # Number of threads used for computing coverage bigWigs (memory intense!)
     "Coverage Threads"                : 5,
+    # Directory containing the single-feature models that must either be
+    # estimated by hand or downloaded from the ModHMM repository
     "Single-Feature Model Directory"  : "mm10-liver-embryo-day12.5:models",
+    # Directory containing all auxiliary files and the final segmentation
     "Directory"                       : "mm10-liver-embryo-day12.5",
     "Description"                     : "liver embryo day12.5",
+    # Number of threads used for evaluating classifiers and computing the segmentation
     "Threads"                         : 20,
+    # Verbose level (0: no output, 1: low, 2: high)
     "Verbose"                         : 1
 }
 ```
