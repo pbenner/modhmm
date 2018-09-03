@@ -4,7 +4,11 @@ ModHMM is a highly modular genome segmentation method that incorporates genome-w
 
 ### Installation
 
-
+ModHMM can be installed by either downloading a binary from the [binary repository](https://github.com/pbenner/modhmm-binary) or by compiling the program from source. To compile ModHMM you must first install the [Go compiler](https://golang.org/dl/). Afterwards, you may simple use
+```sh
+  go get github.com/pbenner/modhmm
+```
+to install ModHMM.
 
 ### Example 1: Compute segmentation on ENCODE data from mouse embyonic liver at day 12.5
 
