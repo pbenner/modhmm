@@ -1,6 +1,6 @@
 ## ModHMM
 
-ModHMM is a highly modular genome segmentation method that incorporates genome-wide predictions from a set of classifiers. In order to simplify usage, ModHMM implements a default set of classifiers, but also allows to use predictions from third party classifiers.
+ModHMM is a highly modular genome segmentation method that incorporates genome-wide predictions from a set of classifiers. In order to simplify usage, ModHMM implements a default set of classifiers, but also allows to use predictions from third party methods.
 
 ### Installation
 
