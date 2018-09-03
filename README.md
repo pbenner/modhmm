@@ -108,7 +108,7 @@ Download BAM files from ENCODE and store them in a directory called `.bam`:
 ```
 
 Create a configuration file named `mm10-forebrain-embryo-day11.5.json`:
-```json
+```R
 {
     "Bam Directory" : ".bam",
     "Bam Files"     : {
@@ -134,7 +134,7 @@ Create a configuration file named `mm10-forebrain-embryo-day11.5.json`:
 ### Example 3: Estimate single-feature models on ENCODE data from mouse embyonic forebrain at day 11.5
 
 Create a configuration file named `mm10-forebrain-embryo-day11.5.json`:
-```json
+```R
 {
     "Bam Directory" : ".bam",
     "Bam Files"     : {
