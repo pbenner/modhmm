@@ -37,7 +37,7 @@ Download BAM files from ENCODE and store them in a directory called `.bam`:
 ```
 
 Create a configuration file named `mm10-liver-embryo-day12.5.json` (ModHMM accepts an extended JSON format that allows comments):
-```json
+```R
 {
     # Directory containing feature alignment files
     "Bam Directory" : ".bam",
