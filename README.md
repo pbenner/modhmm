@@ -10,6 +10,14 @@ ModHMM can be installed by either downloading a binary from the [binary reposito
 ```
 to install ModHMM.
 
+### Available segmentations and single-feature models
+
+Tissue                         | Single-feature model | Segmentation
+-------------------------------|----------------------|---------------
+mm10 forebrain embryo day 11.5 | [Download](https://github.com/pbenner/modhmm-segmentations/raw/master/mm10-forebrain-embryo-day11.5-models.tar.bz2) | [Download](https://github.com/pbenner/modhmm-segmentations/raw/master/mm10-forebrain-embryo-day11.5/segmentation.bed.gz) |
+mm10 liver embryo day 12.5     | [Download](https://github.com/pbenner/modhmm-segmentations/raw/master/mm10-liver-embryo-day12.5-models.tar.bz2)     | [Download](https://github.com/pbenner/modhmm-segmentations/raw/master/mm10-liver-embryo-day12.5/segmentation.bed.gz)     |
+mm10 lung embryo day 16.5      |                                                                                                                     | [Download](https://github.com/pbenner/modhmm-segmentations/raw/master/mm10-lung-embryo-day16.5/segmentation.bed.gz)
+
 ### Example 1: Compute segmentation on ENCODE data from mouse embyonic liver at day 12.5
 
 Download BAM files from ENCODE and store them in a directory called `.bam`:
