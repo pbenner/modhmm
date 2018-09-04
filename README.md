@@ -149,6 +149,22 @@ Create a configuration file named `mm10-forebrain-embryo-day11.5.json`:
 }
 ```
 
+Create output directory
+```sh
+  mkdir mm10-forebrain-embryo-day11.5
+```
+
+Download and unpack the single-feature model:
+```sh
+  wget https://github.com/pbenner/modhmm-segmentations/raw/master/mm10-liver-embryo-day12.5-models.tar.bz2
+  tar -xvf mm10-liver-embryo-day12.5-models.tar.bz
+```
+
+Execute ModHMM:
+```sh
+  modhmm -c mm10-forebrain-embryo-day11.5.json segmentation
+```
+
 ### Example 3: Estimate single-feature models on ENCODE data from mouse embyonic forebrain at day 11.5
 
 Create a configuration file named `mm10-forebrain-embryo-day11.5.json`:
