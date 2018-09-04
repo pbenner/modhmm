@@ -84,6 +84,12 @@ Create output directory
   mkdir mm10-liver-embryo-day12.5
 ```
 
+Download and unpack the single-feature model:
+```sh
+  wget https://github.com/pbenner/modhmm-segmentations/raw/master/mm10-liver-embryo-day12.5-models.tar.bz2
+  tar -xvf mm10-liver-embryo-day12.5-models.tar.bz
+```
+
 Execute ModHMM:
 ```sh
   modhmm -c mm10-liver-embryo-day12.5.json segmentation
