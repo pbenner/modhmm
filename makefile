@@ -16,9 +16,10 @@ modhmm: $(wildcard *.go)
 
 install: modhmm | $(GOBIN)
 ifeq ($(GOBIN),/bin)
-	$(error environment variable GOPATH not set)
-endif
+	install modhmm $HOME/go/bin
+else
 	install modhmm $(GOBIN)
+endif
 
 $(GOBIN):
 	mkdir -p $(GOBIN)
