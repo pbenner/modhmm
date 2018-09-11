@@ -16,7 +16,7 @@ modhmm: $(wildcard *.go)
 
 install: modhmm | $(GOBIN)
 ifeq ($(GOBIN),/bin)
-	install modhmm $HOME/go/bin
+	install modhmm $$HOME/go/bin
 else
 	install modhmm $(GOBIN)
 endif
