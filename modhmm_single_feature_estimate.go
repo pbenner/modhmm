@@ -116,14 +116,18 @@ func single_feature_estimate(config ConfigModHmm, estimator VectorEstimator, fil
   if err := ImportAndEstimateOnSingleTrack(config.SessionConfig, estimator, filenameIn); err != nil {
     log.Fatal(err)
   }
-  result := estimator.GetEstimate().(*vectorDistribution.ScalarIid).Distribution.(*scalarDistribution.Mixture)
-
-  printStderr(config, 1, "Exporting distribution to `%s'... ", filenameOut)
-  if err := ExportDistribution(filenameOut, result); err != nil {
-    printStderr(config, 1, "failed\n")
+  if d, err := estimator.GetEstimate(); err != nil {
     log.Fatal(err)
+  } else {
+    result := d.(*vectorDistribution.ScalarIid).Distribution.(*scalarDistribution.Mixture)
+
+    printStderr(config, 1, "Exporting distribution to `%s'... ", filenameOut)
+    if err := ExportDistribution(filenameOut, result); err != nil {
+      printStderr(config, 1, "failed\n")
+      log.Fatal(err)
+    }
+    printStderr(config, 1, "done\n")
   }
-  printStderr(config, 1, "done\n")
 }
 
 /* -------------------------------------------------------------------------- */

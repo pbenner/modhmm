@@ -53,7 +53,11 @@ func estimate(config ConfigModHmm, trackFiles []string, model string) {
     log.Fatalf("ERROR: %s", err)
   }
   modhmm := ModHmm{}
-  modhmm.Hmm        = *estimator.GetEstimate().(*matrixDistribution.Hmm)
+  if d, err := estimator.GetEstimate(); err != nil {
+    log.Fatalf("ERROR: %s", err)
+  } else {
+    modhmm.Hmm = *d.(*matrixDistribution.Hmm)
+  }
   modhmm.StateNames = stateNames
 
   printStderr(config, 1, "Exporting model to `%s'... ", config.Model.Filename)
