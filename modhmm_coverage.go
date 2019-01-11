@@ -160,30 +160,31 @@ func importFraglen(config ConfigModHmm, feature, filename string) int {
 
 /* -------------------------------------------------------------------------- */
 
-func coverage_h3k4me3o1(config ConfigModHmm) {
+func coverage_h3k4me3o1(config ConfigModHmm) error {
   config.BinSummaryStatistics = "discrete mean"
   config.BinOverlap = 1
   track1, err := ImportTrack(config.SessionConfig, config.Coverage.H3k4me1.Filename); if err != nil {
-    log.Fatal(err)
+    return err
   }
   track2, err := ImportTrack(config.SessionConfig, config.Coverage.H3k4me3.Filename); if err != nil {
-    log.Fatal(err)
+    return err
   }
   if err := (GenericMutableTrack{track1}).MapList([]Track{track1, track2}, func(seqname string, position int, values ...float64) float64 {
     x1 := values[0]
     x2 := values[1]
     return math.Round((x2+1.0)/(x1+1.0)*10)
   }); err != nil {
-    log.Fatal(err)
+    return err
   }
   if err := ExportTrack(config.SessionConfig, track1, config.Coverage.H3k4me3o1.Filename); err != nil {
-    log.Fatal(err)
+    return err
   }
+  return err
 }
 
 /* -------------------------------------------------------------------------- */
 
-func coverage(config ConfigModHmm, feature string, filenameBam []string, filenameData string, optionsList []interface{}) {
+func coverage(config ConfigModHmm, feature string, filenameBam []string, filenameData string, optionsList []interface{}) error {
   fraglen := make([]int, len(filenameBam))
 
   // split filename:fraglen
@@ -218,24 +219,25 @@ func coverage(config ConfigModHmm, feature string, filenameBam []string, filenam
   // process result
   //////////////////////////////////////////////////////////////////////////////
   if err != nil {
-    log.Fatal(err)
+    return err
   } else {
     configLocal := config
     configLocal.Verbose = 0
     printStderr(config, 1, "Attempting to write track `%s'\n", filenameData)
     if err := ExportTrack(configLocal.SessionConfig, result, filenameData); err != nil {
-      log.Fatalf("Writing track `%s' failed: %v", filenameData, err)
+      return fmt.Errorf("Writing track `%s' failed: %v", filenameData, err)
     }
     printStderr(config, 1, "Wrote track `%s'\n", filenameData)
   }
+  return nil
 }
 
 /* -------------------------------------------------------------------------- */
 
-func modhmm_coverage(config ConfigModHmm, feature string) {
+func modhmm_coverage(config ConfigModHmm, feature string) error {
 
   if !coverageList.Contains(strings.ToLower(feature)) {
-    log.Fatalf("unknown feature: %s", feature)
+    return fmt.Errorf("unknown feature: %s", feature)
   }
 
   filenameBam  := []string{}
@@ -269,9 +271,10 @@ func modhmm_coverage(config ConfigModHmm, feature string) {
     filenameData = config.Coverage.Rna
   case "h3k4me3o1":
     if updateRequired(config, config.Coverage.H3k4me3o1, config.Coverage.H3k4me1.Filename, config.Coverage.H3k4me3.Filename) {
-      coverage_h3k4me3o1(config)
+      return coverage_h3k4me3o1(config)
+    } else {
+      return nil
     }
-    return
   default:
     filenameBam  = config.Bam     .GetFilenames (feature)
     filenameData = config.Coverage.GetTargetFile(feature)
@@ -289,10 +292,11 @@ func modhmm_coverage(config ConfigModHmm, feature string) {
 
   if updateRequired(config, filenameData, filenameBam...) {
     if len(filenameBam) == 0 {
-      log.Fatalf("ERROR: no bam files specified for feature `%s'", logPrefix)
+      return fmt.Errorf("ERROR: no bam files specified for feature `%s'", logPrefix)
     }
-    coverage(config, feature, filenameBam, filenameData.Filename, optionsList)
+    return coverage(config, feature, filenameBam, filenameData.Filename, optionsList)
   }
+  return nil
 }
 
 func modhmm_coverage_loop(config ConfigModHmm, features []string) {
@@ -303,13 +307,15 @@ func modhmm_coverage_loop(config ConfigModHmm, features []string) {
     }
     f := config.coerceOpenChromatinAssay(feature)
     pool.AddJob(0, func(pool threadpool.ThreadPool, erf func() error) error {
-      modhmm_coverage(config, f)
-      return nil
+      return modhmm_coverage(config, f)
     })
   }
-  pool.Wait(0)
-
-  modhmm_coverage(config, "h3k4me3o1")
+  if err := pool.Wait(0); err != nil {
+    log.Fatal(err)
+  }
+  if err := modhmm_coverage(config, "h3k4me3o1"); err != nil {
+    log.Fatal(err)
+  }
 }
 
 func modhmm_coverage_all(config ConfigModHmm) {

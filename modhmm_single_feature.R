@@ -86,10 +86,12 @@ plot.mixture.joined <- function(x, model, components, col=NULL, lty=NULL, ...) {
 
 ## -----------------------------------------------------------------------------
 
-plot.model.and.counts <- function(modelFilename, countsFilename, componentsFilename=NULL, xlab="coverage", ylab="probability", log="y", main="", lty=2:100, col=NULL, ...) {
+plot.model.and.counts <- function(modelFilename, countsFilename, componentsFilename=NULL, xlab="coverage", ylab="probability", log="y", main="", lty=2:100, col=NULL, add=FALSE, ...) {
     counts <- fromJSON(file=countsFilename)
     model  <- fromJSON(file= modelFilename)
-    plot(Y/sum(Y) ~ X, counts, type="l", xlab=xlab, ylab=ylab, log=log, main=main, ...)
+    if (!add) {
+        plot(Y/sum(Y) ~ X, counts, type="l", xlab=xlab, ylab=ylab, log=log, main=main, ...)
+    }
     if (is.null(componentsFilename)) {
         plot.mixture(counts$X, model, lty=lty, col=col, ...)
     } else {
