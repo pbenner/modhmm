@@ -279,7 +279,7 @@ func modhmm_coverage(config ConfigModHmm, feature string) error {
     filenameBam  = config.Bam     .GetFilenames (feature)
     filenameData = config.Coverage.GetTargetFile(feature)
     optionsList = append(optionsList, OptionEstimateFraglen{true})
-    optionsList = append(optionsList, OptionFraglenRange{[2]int{150,250}})
+    optionsList = append(optionsList, OptionFraglenRange{[2]int{100,300}})
     optionsList = append(optionsList, OptionFraglenBinSize{10})
   }
   if config.Verbose > 0 {

@@ -102,3 +102,25 @@ plot.model.and.counts <- function(modelFilename, countsFilename, componentsFilen
         plot.mixture.joined(counts$X, model, components, lty=lty, col=col, ...)
     }
 }
+
+## -----------------------------------------------------------------------------
+
+plot.model.dir <- function(dir,
+                           open.assay = "atac",
+                           features   = c(open.assay, "h3k27ac", "h3k27me3", "h3k4me1", "h3k4me3", "h3k4me3o1", "h3k9me3", "rna"),
+                           xlim       = c(400, 200, 100, 100, 300, 800, 200, 200, 200),
+                           ...) {
+    par(mfrow=c(3,3))
+    for (i in 1:length(features)) {
+        plot.model.and.counts(sprintf("%s.json", features[i]),
+                              sprintf("%s.counts.json", features[i]),
+                              sprintf("%s.components.json", features[i]),
+                              xlim=c(0,xlim[i]), main=features[i], ...)
+        legend("topright", legend=c("foreground", "background"), lty=2:3)
+    }
+    plot.model.and.counts(sprintf("rna.json", features[8]),
+                          sprintf("rna.counts.json", features[8]),
+                          sprintf("rna-low.components.json", features[8]),
+                          xlim=c(0,xlim[9]), main="rna-low", ...)
+    legend("topright", legend=c("foreground", "background"), lty=2:3)
+}
