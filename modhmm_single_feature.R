@@ -112,15 +112,15 @@ plot.model.dir <- function(dir,
                            ...) {
     par(mfrow=c(3,3))
     for (i in 1:length(features)) {
-        plot.model.and.counts(sprintf("%s.json", features[i]),
-                              sprintf("%s.counts.json", features[i]),
-                              sprintf("%s.components.json", features[i]),
+        plot.model.and.counts(sprintf("%s/%s.json", dir, features[i]),
+                              sprintf("%s/%s.counts.json", dir, features[i]),
+                              sprintf("%s/%s.components.json", dir, features[i]),
                               xlim=c(0,xlim[i]), main=features[i], ...)
         legend("topright", legend=c("foreground", "background"), lty=2:3)
     }
-    plot.model.and.counts(sprintf("rna.json", features[8]),
-                          sprintf("rna.counts.json", features[8]),
-                          sprintf("rna-low.components.json", features[8]),
+    plot.model.and.counts(sprintf("%s/rna.json", dir, features[8]),
+                          sprintf("%s/rna.counts.json", dir, features[8]),
+                          sprintf("%s/rna-low.components.json", dir, features[8]),
                           xlim=c(0,xlim[9]), main="rna-low", ...)
     legend("topright", legend=c("foreground", "background"), lty=2:3)
 }
