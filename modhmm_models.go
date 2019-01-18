@@ -312,7 +312,7 @@ func getModHmmDefaultEstimator(config ConfigModHmm) (*matrixEstimator.HmmEstimat
   if config.ModelUnconstrained {
     printStderr(config, 2, "Implementing default model with unconstrained transition matrix\n")
   } else {
-    printStderr(config, 2, "Implementing default model with constrainted transition matrix\n")
+    printStderr(config, 2, "Implementing default model with constrained transition matrix\n")
     for i := 0; i < m; i++ {
       constraint := generic.EqualityConstraint{}
       for j := 0; j < m; j++ {
