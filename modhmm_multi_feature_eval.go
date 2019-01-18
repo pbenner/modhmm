@@ -34,21 +34,6 @@ import   "github.com/pborman/getopt"
 
 /* -------------------------------------------------------------------------- */
 
-func multi_feature_eval_mixture_weights(config ConfigModHmm) []float64 {
-  checkModelFiles(config.SingleFeatureModel.GetFilenames())
-  checkModelFiles(config.SingleFeatureComp.GetFilenames())
-  pi := []float64{}
-  for _, feature := range singleFeatureList {
-    filenameModel := config.SingleFeatureModel.GetTargetFile(feature).Filename
-    filenameComp  := config.SingleFeatureComp .GetTargetFile(feature).Filename
-    p, q := ImportMixtureWeights(config, filenameModel, filenameComp)
-    pi = append(pi, p, q)
-  }
-  return pi
-}
-
-/* -------------------------------------------------------------------------- */
-
 func get_multi_feature_model(config ConfigModHmm, state string) MatrixBatchClassifier {
   switch strings.ToLower(state) {
   case "pa": return ClassifierPA{}

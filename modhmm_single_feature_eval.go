@@ -39,13 +39,34 @@ import   "github.com/pborman/getopt"
 
 /* -------------------------------------------------------------------------- */
 
-func checkModelFiles(filenames []string) {
+func checkModelFiles(filenames ...string) {
   for _, filename := range filenames {
     if !fileExists(filename) {
       log.Fatalf(
           "ERROR: Model file `%s' required for enrichment analysis does not exist.\n" +
           "       Please download the respective file or estimate a model with the\n" +
-          "       `estimate-single-feature` subcommand", filename)
+          "       `estimate-single-feature` subcommand.", filename)
+    }
+  }
+}
+
+func checkCompFiles(filenames ...string) {
+  for _, filename := range filenames {
+    if !fileExists(filename) {
+      log.Fatalf(
+          "ERROR: Model components file `%s' required for enrichment analysis does not exist.\n" +
+          "       Please download the respective file or create it.", filename)
+    }
+  }
+}
+
+func checkCountsFiles(filenames ...string) {
+  for _, filename := range filenames {
+    if !fileExists(filename) {
+      log.Fatalf(
+          "ERROR: Model counts file `%s' required for enrichment analysis does not exist.\n" +
+          "       Please download the respective file or compute it with the\n" +
+          "       `compute-counts` subcommand.", filename)
     }
   }
 }
@@ -172,11 +193,11 @@ func modhmm_single_feature_eval(config ConfigModHmm, feature string, logScale bo
   }
   if updateRequired(config, filenameResult1, filenameData, filenameCnts, filenameModel, filenameComp) ||
     (updateRequired(config, filenameResult2, filenameData, filenameCnts, filenameModel, filenameComp)) {
-    checkModelFiles(config.SingleFeatureModel.GetFilenames())
-    checkModelFiles(config.SingleFeatureComp .GetFilenames())
-    checkModelFiles(config.CoverageCnts      .GetFilenames())
+    checkModelFiles (filenameModel)
+    checkCompFiles  (filenameComp)
+    checkCountsFiles(filenameCnts)
 
-    modhmm_coverage_all(config)
+    modhmm_coverage(config, feature)
     printStderr(config, 1, "==> Evaluating Single-Feature Model (%s) <==\n", feature)
     single_feature_eval(localConfig, filenameModel, filenameComp, filenameData, filenameCnts, filenameResult1.Filename, filenameResult2.Filename, logScale)
   }
