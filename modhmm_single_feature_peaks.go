@@ -39,9 +39,8 @@ func modhmm_call_single_feature_peaks(config ConfigModHmm, feature string, thres
   if !updateRequired(config, filenameOut, filenameIn) {
     return
   }
-  if err := modhmm_coverage(config, feature); err != nil {
-    log.Fatal(err)
-  }
+  modhmm_single_feature_eval(config, feature, true)
+
   if track, err := ImportTrack(config.SessionConfig, filenameIn); err != nil {
     log.Fatal(err)
   } else {
