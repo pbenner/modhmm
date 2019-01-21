@@ -205,7 +205,7 @@ func coverage(config ConfigModHmm, feature string, filenameBam []string, filenam
   //////////////////////////////////////////////////////////////////////////////
   for i, estimate := range fraglenEstimate {
     filename := filenameBam[i]
-    if estimate.Error == nil {
+    if estimate.Error == nil && estimate.Fraglen != 0 {
       saveFraglen(config, feature, filename, estimate.Fraglen)
     }
     if estimate.X != nil && estimate.Y != nil {
