@@ -39,6 +39,8 @@ func modhmm_call_multi_feature_peaks(config ConfigModHmm, state string, threshol
   if !updateRequired(config, filenameOut, filenameIn) {
     return
   }
+  modhmm_multi_feature_eval_loop(config, []string{state}, true)
+
   if track, err := ImportTrack(config.SessionConfig, filenameIn); err != nil {
     log.Fatal(err)
   } else {

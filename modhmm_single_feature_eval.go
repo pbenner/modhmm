@@ -197,7 +197,9 @@ func modhmm_single_feature_eval(config ConfigModHmm, feature string, logScale bo
     checkCompFiles  (filenameComp)
     checkCountsFiles(filenameCnts)
 
-    modhmm_coverage(config, feature)
+    if err := modhmm_coverage(config, feature); err != nil {
+      log.Fatal(err)
+    }
     printStderr(config, 1, "==> Evaluating Single-Feature Model (%s) <==\n", feature)
     single_feature_eval(localConfig, filenameModel, filenameComp, filenameData, filenameCnts, filenameResult1.Filename, filenameResult2.Filename, logScale)
   }
