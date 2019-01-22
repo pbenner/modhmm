@@ -20,6 +20,7 @@ package main
 
 import "log"
 import "os"
+import "strings"
 
 /* file utilities
  * -------------------------------------------------------------------------- */
@@ -89,4 +90,49 @@ func (s StringList) Contains(item string) bool {
     }
   }
   return false
+}
+
+func (s StringList) Intersection(x []string) []string {
+  r := []string{}
+  for _, elem := range x {
+    if s.Contains(elem) {
+      r = append(r, elem)
+    }
+  }
+  return r
+}
+
+/* -------------------------------------------------------------------------- */
+
+type InsensitiveStringList []string
+
+func (s InsensitiveStringList) Index(item string) int {
+  item = strings.ToLower(item)
+  for i, x := range s {
+    if item == x {
+      return i
+    }
+  }
+  return -1
+}
+
+func (s InsensitiveStringList) Contains(item string) bool {
+  item = strings.ToLower(item)
+  for _, x := range s {
+    if item == x {
+      return true
+    }
+  }
+  return false
+}
+
+func (s InsensitiveStringList) Intersection(x []string) []string {
+  r := []string{}
+  for _, elem := range x {
+    elem = strings.ToLower(elem)
+    if s.Contains(elem) {
+      r = append(r, elem)
+    }
+  }
+  return r
 }

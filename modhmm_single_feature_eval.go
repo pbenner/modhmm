@@ -216,9 +216,6 @@ func modhmm_single_feature_eval(config ConfigModHmm, feature string, logScale bo
     checkCompFiles  (filenameComp)
     checkCountsFiles(filenameCnts)
 
-    if err := modhmm_coverage(config, feature); err != nil {
-      log.Fatal(err)
-    }
     printStderr(config, 1, "==> Evaluating Single-Feature Model (%s) <==\n", feature)
     single_feature_eval(localConfig, filenameModel, filenameComp, filenameData, filenameCnts, filenameResult1.Filename, filenameResult2.Filename, logScale)
   }
@@ -228,7 +225,7 @@ func modhmm_single_feature_eval_loop(config ConfigModHmm, features []string, log
   // reduce list of features to those that require an update
   features = single_feature_filter_update(config, features, logScale)
   // compute coverages here to make use of multi-threading
-  modhmm_coverage_loop(config, features)
+  modhmm_coverage_loop(config, InsensitiveStringList(features).Intersection(coverageList))
   // eval single features
   for _, feature := range features {
     feature = config.coerceOpenChromatinAssay(feature)

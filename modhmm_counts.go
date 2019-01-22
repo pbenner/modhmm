@@ -139,9 +139,6 @@ func modhmm_compute_counts(config ConfigModHmm, feature string) {
   filenameOut := config.CoverageCnts.GetTargetFile(feature)
 
   if updateRequired(config, filenameOut, filenameIn.Filename) {
-    if err := modhmm_coverage(config, feature); err != nil {
-      log.Fatal(err)
-    }
     compute_counts(config, filenameIn.Filename, filenameOut.Filename)
   }
 }
