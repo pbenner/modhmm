@@ -139,25 +139,7 @@ func single_feature_eval(config ConfigModHmm, filenameModel, filenameComp, filen
   }
 }
 
-/* -------------------------------------------------------------------------- */
-
-func modhmm_single_feature_eval_dep(config ConfigModHmm) []string {
-  r := []string{}
-  r  = append(r, config.Coverage.GetFilenames()...)
-  r  = append(r, config.SingleFeatureModel.GetFilenames()...)
-  r  = append(r, config.SingleFeatureComp.GetFilenames()...)
-  r  = append(r, config.CoverageCnts.GetFilenames()...)
-  return r
-}
-
-func modhmm_single_feature_eval(config ConfigModHmm, feature string, logScale bool) {
-
-  if !singleFeatureList.Contains(strings.ToLower(feature)) {
-    log.Fatalf("unknown feature: %s", feature)
-  }
-
-  localConfig := config
-  localConfig.BinSummaryStatistics = "discrete mean"
+func single_feature_files(config ConfigModHmm, feature string, logScale bool) (string, string, string, string, TargetFile, TargetFile) {
   filenameModel   := ""
   filenameComp    := ""
   filenameData    := ""
@@ -191,6 +173,43 @@ func modhmm_single_feature_eval(config ConfigModHmm, feature string, logScale bo
       filenameResult2 = config.SingleFeatureBgExp.GetTargetFile(feature)
     }
   }
+  return filenameModel, filenameComp, filenameData, filenameCnts, filenameResult1, filenameResult2
+}
+
+func single_feature_filter_update(config ConfigModHmm, features []string, logScale bool) []string {
+  r := []string{}
+  for _, feature := range features {
+    filenameModel, filenameComp, filenameData, filenameCnts, filenameResult1, filenameResult2 :=
+      single_feature_files(config, feature, logScale)
+    if updateRequired(config, filenameResult1, filenameData, filenameCnts, filenameModel, filenameComp) ||
+      (updateRequired(config, filenameResult2, filenameData, filenameCnts, filenameModel, filenameComp)) {
+      r = append(r, feature)
+    }
+  }
+  return r
+}
+
+/* -------------------------------------------------------------------------- */
+
+func modhmm_single_feature_eval_dep(config ConfigModHmm) []string {
+  r := []string{}
+  r  = append(r, config.Coverage.GetFilenames()...)
+  r  = append(r, config.SingleFeatureModel.GetFilenames()...)
+  r  = append(r, config.SingleFeatureComp.GetFilenames()...)
+  r  = append(r, config.CoverageCnts.GetFilenames()...)
+  return r
+}
+
+func modhmm_single_feature_eval(config ConfigModHmm, feature string, logScale bool) {
+
+  if !singleFeatureList.Contains(strings.ToLower(feature)) {
+    log.Fatalf("unknown feature: %s", feature)
+  }
+  filenameModel, filenameComp, filenameData, filenameCnts, filenameResult1, filenameResult2 :=
+    single_feature_files(config, feature, logScale)
+
+  localConfig := config
+  localConfig.BinSummaryStatistics = "discrete mean"
   if updateRequired(config, filenameResult1, filenameData, filenameCnts, filenameModel, filenameComp) ||
     (updateRequired(config, filenameResult2, filenameData, filenameCnts, filenameModel, filenameComp)) {
     checkModelFiles (filenameModel)
@@ -206,6 +225,11 @@ func modhmm_single_feature_eval(config ConfigModHmm, feature string, logScale bo
 }
 
 func modhmm_single_feature_eval_loop(config ConfigModHmm, features []string, logScale bool) {
+  // reduce list of features to those that require an update
+  features = single_feature_filter_update(config, features, logScale)
+  // compute coverages here to make use of multi-threading
+  modhmm_coverage_loop(config, features)
+  // eval single features
   for _, feature := range features {
     feature = config.coerceOpenChromatinAssay(feature)
     modhmm_single_feature_eval(config, feature, logScale)
