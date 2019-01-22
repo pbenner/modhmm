@@ -117,6 +117,19 @@ func compute_counts(config ConfigModHmm, filenameIn, filenameOut string) {
 
 /* -------------------------------------------------------------------------- */
 
+func compute_counts_filter_update(config ConfigModHmm, features []string) []string {
+  r := []string{}
+  for _, feature := range features {
+    filenameIn  := config.Coverage    .GetTargetFile(feature)
+    filenameOut := config.CoverageCnts.GetTargetFile(feature)
+
+    if updateRequired(config, filenameOut, filenameIn.Filename) {
+      r = append(r, feature)
+    }
+  }
+  return r
+}
+
 func modhmm_compute_counts(config ConfigModHmm, feature string) {
   if !coverageList.Contains(strings.ToLower(feature)) {
     log.Fatalf("unknown feature: %s", feature)
@@ -134,6 +147,11 @@ func modhmm_compute_counts(config ConfigModHmm, feature string) {
 }
 
 func modhmm_compute_counts_loop(config ConfigModHmm, features []string) {
+  // reduce list of features to those that require an update
+  features = compute_counts_filter_update(config, features)
+  // compute coverages here to make use of multi-threading
+  modhmm_coverage_loop(config, features)
+  // extract counts
   for _, feature := range features {
     modhmm_compute_counts(config, feature)
   }
