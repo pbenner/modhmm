@@ -313,8 +313,10 @@ func modhmm_coverage_loop(config ConfigModHmm, features []string) {
   if err := pool.Wait(0); err != nil {
     log.Fatal(err)
   }
-  if err := modhmm_coverage(config, "h3k4me3o1"); err != nil {
-    log.Fatal(err)
+  if InsensitiveStringList(features).Contains("h3k4me3o1") {
+    if err := modhmm_coverage(config, "h3k4me3o1"); err != nil {
+      log.Fatal(err)
+    }
   }
 }
 

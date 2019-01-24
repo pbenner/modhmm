@@ -179,6 +179,7 @@ func single_feature_files(config ConfigModHmm, feature string, logScale bool) (s
 func single_feature_filter_update(config ConfigModHmm, features []string, logScale bool) []string {
   r := []string{}
   for _, feature := range features {
+    feature = config.coerceOpenChromatinAssay(feature)
     filenameModel, filenameComp, filenameData, filenameCnts, filenameResult1, filenameResult2 :=
       single_feature_files(config, feature, logScale)
     if updateRequired(config, filenameResult1, filenameData, filenameCnts, filenameModel, filenameComp) ||
@@ -228,7 +229,6 @@ func modhmm_single_feature_eval_loop(config ConfigModHmm, features []string, log
   modhmm_coverage_loop(config, InsensitiveStringList(features).Intersection(coverageList))
   // eval single features
   for _, feature := range features {
-    feature = config.coerceOpenChromatinAssay(feature)
     modhmm_single_feature_eval(config, feature, logScale)
   }
 }
