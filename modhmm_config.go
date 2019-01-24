@@ -157,14 +157,14 @@ func (config *ConfigCoveragePaths) CompletePaths(dir, prefix, suffix string) {
     config.Dnase.Filename = dnase
   }
   if config.Atac.Filename == "" {
-    config.Open .Filename = atac
-    config.Atac .Filename = atac
-    config.Dnase.Filename = ""
-  }
-  if config.Dnase.Filename == "" {
     config.Open .Filename = dnase
     config.Atac .Filename = ""
     config.Dnase.Filename = dnase
+  }
+  if config.Dnase.Filename == "" {
+    config.Open .Filename = atac
+    config.Atac .Filename = atac
+    config.Dnase.Filename = ""
   }
   config.Atac     .Filename = completePath(dir, prefix, config.Atac     .Filename, fmt.Sprintf("atac%s", suffix))
   config.Dnase    .Filename = completePath(dir, prefix, config.Dnase    .Filename, fmt.Sprintf("dnase%s", suffix))
