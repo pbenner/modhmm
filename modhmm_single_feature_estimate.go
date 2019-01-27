@@ -78,40 +78,6 @@ func newEstimator(config ConfigModHmm, n_delta, n_poisson, n_geometric int) Vect
   return nil
 }
 
-func newContinuousEstimator(config ConfigModHmm, n_lognormal, n_exponential int) VectorEstimator {
-  components := []ScalarEstimator{}
-  for i := 0; i < n_lognormal; i++ {
-    if normal, err := scalarEstimator.NewNormalEstimator(rand.Float64(), 1.0, 1e-8); err != nil {
-      log.Fatal(err)
-    } else {
-      if t, err := scalarEstimator.NewLogTransformEstimator(normal, 1.0); err != nil {
-        log.Fatal(err)
-      } else {
-        components = append(components, t)
-      }
-    }
-  }
-  for i := 0; i < n_exponential; i++ {
-    if exponential, err := scalarEstimator.NewExponentialEstimator(0.04, 1e4); err != nil {
-      log.Fatal(err)
-    } else {
-      components = append(components, exponential)
-    }
-  }
-  if mixture, err := scalarEstimator.NewDiscreteMixtureEstimator(nil, components, 1e-8, -1); err != nil {
-    log.Fatal(err)
-  } else {
-    // set options
-    mixture.Verbose = config.Verbose
-    if estimator, err := vectorEstimator.NewScalarIid(mixture, -1); err != nil {
-      log.Fatal(err)
-    } else {
-      return estimator
-    }
-  }
-  return nil
-}
-
 /* -------------------------------------------------------------------------- */
 
 func single_feature_estimate(config ConfigModHmm, estimator VectorEstimator, filenameIn, filenameOut string) {
