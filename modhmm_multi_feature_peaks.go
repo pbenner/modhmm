@@ -26,6 +26,7 @@ import   "strconv"
 
 import . "github.com/pbenner/ngstat/track"
 import . "github.com/pbenner/gonetics"
+import . "github.com/pbenner/modhmm/config"
 
 import   "github.com/pborman/getopt"
 
@@ -67,7 +68,7 @@ func modhmm_call_multi_feature_peaks_loop(config ConfigModHmm, states []string, 
 }
 
 func modhmm_call_multi_feature_peaks_all(config ConfigModHmm, threshold float64) {
-  modhmm_call_multi_feature_peaks_loop(config, multiFeatureList, threshold)
+  modhmm_call_multi_feature_peaks_loop(config, MultiFeatureList, threshold)
 }
 
 func modhmm_call_multi_feature_peaks_main(config ConfigModHmm, args []string) {

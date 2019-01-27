@@ -25,6 +25,7 @@ import   "os"
 import . "github.com/pbenner/ngstat/classification"
 import . "github.com/pbenner/ngstat/estimation"
 import . "github.com/pbenner/ngstat/track"
+import . "github.com/pbenner/modhmm/config"
 
 import . "github.com/pbenner/autodiff"
 import . "github.com/pbenner/autodiff/statistics"
@@ -102,8 +103,8 @@ func segment(config ConfigModHmm, trackFiles []string) {
 /* -------------------------------------------------------------------------- */
 
 func modhmm_segmentation_dep(config ConfigModHmm) []string {
-  files := make([]string, len(multiFeatureList))
-  for i, state := range multiFeatureList {
+  files := make([]string, len(MultiFeatureList))
+  for i, state := range MultiFeatureList {
     files[i] = config.MultiFeatureProb.GetTargetFile(state).Filename
   }
   return files

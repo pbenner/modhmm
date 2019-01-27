@@ -30,6 +30,7 @@ import . "github.com/pbenner/ngstat/config"
 import . "github.com/pbenner/ngstat/track"
 import . "github.com/pbenner/gonetics"
 import . "github.com/pbenner/autodiff"
+import . "github.com/pbenner/modhmm/config"
 
 import   "github.com/pborman/getopt"
 
@@ -131,7 +132,7 @@ func compute_counts_filter_update(config ConfigModHmm, features []string) []stri
 }
 
 func modhmm_compute_counts(config ConfigModHmm, feature string) {
-  if !coverageList.Contains(strings.ToLower(feature)) {
+  if !CoverageList.Contains(strings.ToLower(feature)) {
     log.Fatalf("unknown feature: %s", feature)
   }
 
@@ -155,7 +156,7 @@ func modhmm_compute_counts_loop(config ConfigModHmm, features []string) {
 }
 
 func modhmm_compute_counts_all(config ConfigModHmm) {
-  modhmm_compute_counts_loop(config, coverageList)
+  modhmm_compute_counts_loop(config, CoverageList)
 }
 
 /* -------------------------------------------------------------------------- */

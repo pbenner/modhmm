@@ -33,6 +33,8 @@ import   "github.com/pbenner/autodiff/statistics/scalarEstimator"
 import   "github.com/pbenner/autodiff/statistics/vectorDistribution"
 import   "github.com/pbenner/autodiff/statistics/vectorEstimator"
 
+import . "github.com/pbenner/modhmm/config"
+
 import   "github.com/pborman/getopt"
 
 /* -------------------------------------------------------------------------- */
@@ -135,7 +137,7 @@ func single_feature_estimate(config ConfigModHmm, estimator VectorEstimator, fil
 func modhmm_single_feature_estimate(config ConfigModHmm, feature string, n []int) {
   var estimator VectorEstimator
 
-  if !coverageList.Contains(strings.ToLower(feature)) {
+  if !CoverageList.Contains(strings.ToLower(feature)) {
     log.Fatalf("unknown feature: %s", feature)
   }
   filenameIn  := config.Coverage          .GetTargetFile(feature).Filename
@@ -188,7 +190,7 @@ func modhmm_single_feature_estimate_main(config ConfigModHmm, args []string) {
   } else {
     n = append(n, int(m))
   }
-  feature = config.coerceOpenChromatinAssay(feature)
+  feature = config.CoerceOpenChromatinAssay(feature)
 
   modhmm_single_feature_estimate(config, feature, n)
 }

@@ -32,6 +32,8 @@ import . "github.com/pbenner/autodiff/statistics"
 
 import . "github.com/pbenner/gonetics"
 
+import . "github.com/pbenner/modhmm/config"
+
 /* -------------------------------------------------------------------------- */
 
 type normalizationClassifier struct {
@@ -76,7 +78,7 @@ func multi_feature_eval_norm(config ConfigModHmm, state string, trackFiles []str
   }
 
   n := len(tracks)
-  i := multiFeatureList.Index(strings.ToLower(state))
+  i := MultiFeatureList.Index(strings.ToLower(state))
 
   if result, err := BatchClassifyMultiTrack(config.SessionConfig, normalizationClassifier{i, n, logScale}, tracks, false); err != nil {
     log.Fatal(err)
@@ -96,7 +98,7 @@ func modhmm_multi_feature_eval_norm_dep(config ConfigModHmm) []string {
 
 func modhmm_multi_feature_eval_norm(config ConfigModHmm, state string, tracks []Track, logScale bool) []Track {
 
-  if !multiFeatureList.Contains(strings.ToLower(state)) {
+  if !MultiFeatureList.Contains(strings.ToLower(state)) {
     log.Fatalf("unknown state: %s", state)
   }
 
@@ -130,5 +132,5 @@ func modhmm_multi_feature_eval_norm_loop(config ConfigModHmm, states []string, l
 }
 
 func modhmm_multi_feature_eval_norm_all(config ConfigModHmm, logScale bool) {
-  modhmm_multi_feature_eval_norm_loop(config, multiFeatureList, logScale)
+  modhmm_multi_feature_eval_norm_loop(config, MultiFeatureList, logScale)
 }

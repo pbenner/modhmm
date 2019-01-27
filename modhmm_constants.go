@@ -18,18 +18,7 @@ package main
 
 /* -------------------------------------------------------------------------- */
 
-var coverageList = StringList{
-  "open", "h3k27ac", "h3k27me3", "h3k9me3", "h3k4me1", "h3k4me3", "h3k4me3o1", "rna", "control"}
-
-/* -------------------------------------------------------------------------- */
-
-var singleFeatureList = StringList{
-  "open", "h3k27ac", "h3k27me3", "h3k9me3", "h3k4me1", "h3k4me3", "h3k4me3o1", "rna", "rna-low", "control"}
-
-/* -------------------------------------------------------------------------- */
-
-var multiFeatureList = StringList{
-  "pa", "ea", "bi", "pr", "tr", "tl", "r1", "r2", "ns", "cl"}
+import . "github.com/pbenner/modhmm/config"
 
 /* -------------------------------------------------------------------------- */
 
@@ -61,25 +50,25 @@ var jControl   int
 
 func init() {
   // track indices for multi-feature classifiers
-  jOpen      = 2*singleFeatureList.Index("open")
-  jH3k27ac   = 2*singleFeatureList.Index("h3k27ac")
-  jH3k27me3  = 2*singleFeatureList.Index("h3k27me3")
-  jH3k9me3   = 2*singleFeatureList.Index("h3k9me3")
-  jH3k4me1   = 2*singleFeatureList.Index("h3k4me1")
-  jH3k4me3   = 2*singleFeatureList.Index("h3k4me3")
-  jH3k4me3o1 = 2*singleFeatureList.Index("h3k4me3o1")
-  jRna       = 2*singleFeatureList.Index("rna")
-  jRnaLow    = 2*singleFeatureList.Index("rna-low")
-  jControl   = 2*singleFeatureList.Index("control")
+  jOpen      = 2*SingleFeatureList.Index("open")
+  jH3k27ac   = 2*SingleFeatureList.Index("h3k27ac")
+  jH3k27me3  = 2*SingleFeatureList.Index("h3k27me3")
+  jH3k9me3   = 2*SingleFeatureList.Index("h3k9me3")
+  jH3k4me1   = 2*SingleFeatureList.Index("h3k4me1")
+  jH3k4me3   = 2*SingleFeatureList.Index("h3k4me3")
+  jH3k4me3o1 = 2*SingleFeatureList.Index("h3k4me3o1")
+  jRna       = 2*SingleFeatureList.Index("rna")
+  jRnaLow    = 2*SingleFeatureList.Index("rna-low")
+  jControl   = 2*SingleFeatureList.Index("control")
   // track indices for modhmm
-  iPA = multiFeatureList.Index("pa")
-  iEA = multiFeatureList.Index("ea")
-  iBI = multiFeatureList.Index("bi")
-  iPR = multiFeatureList.Index("pr")
-  iTR = multiFeatureList.Index("tr")
-  iTL = multiFeatureList.Index("tl")
-  iR1 = multiFeatureList.Index("r1")
-  iR2 = multiFeatureList.Index("r2")
-  iCL = multiFeatureList.Index("cl")
-  iNS = multiFeatureList.Index("ns")
+  iPA = MultiFeatureList.Index("pa")
+  iEA = MultiFeatureList.Index("ea")
+  iBI = MultiFeatureList.Index("bi")
+  iPR = MultiFeatureList.Index("pr")
+  iTR = MultiFeatureList.Index("tr")
+  iTL = MultiFeatureList.Index("tl")
+  iR1 = MultiFeatureList.Index("r1")
+  iR2 = MultiFeatureList.Index("r2")
+  iCL = MultiFeatureList.Index("cl")
+  iNS = MultiFeatureList.Index("ns")
 }

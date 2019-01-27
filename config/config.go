@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package main
+package config
 
 /* -------------------------------------------------------------------------- */
 
@@ -27,6 +27,22 @@ import   "path/filepath"
 import   "strings"
 
 import . "github.com/pbenner/ngstat/config"
+import . "github.com/pbenner/modhmm/utility"
+
+/* -------------------------------------------------------------------------- */
+
+var CoverageList = StringList{
+  "open", "h3k27ac", "h3k27me3", "h3k9me3", "h3k4me1", "h3k4me3", "h3k4me3o1", "rna", "control"}
+
+/* -------------------------------------------------------------------------- */
+
+var SingleFeatureList = StringList{
+  "open", "h3k27ac", "h3k27me3", "h3k9me3", "h3k4me1", "h3k4me3", "h3k4me3o1", "rna", "rna-low", "control"}
+
+/* -------------------------------------------------------------------------- */
+
+var MultiFeatureList = StringList{
+  "pa", "ea", "bi", "pr", "tr", "tl", "r1", "r2", "ns", "cl"}
 
 /* -------------------------------------------------------------------------- */
 
@@ -37,9 +53,9 @@ type TargetFile struct {
 
 func (obj TargetFile) String() string {
   if obj.Static {
-    return fmt.Sprintf("%s %s [static]", obj.Filename, fileCheckMark(obj.Filename))
+    return fmt.Sprintf("%s %s [static]", obj.Filename, FileCheckMark(obj.Filename))
   } else {
-    return fmt.Sprintf("%s %s", obj.Filename, fileCheckMark(obj.Filename))
+    return fmt.Sprintf("%s %s", obj.Filename, FileCheckMark(obj.Filename))
   }
 }
 
@@ -180,7 +196,7 @@ func (config *ConfigCoveragePaths) CompletePaths(dir, prefix, suffix string) {
 
 func (config *ConfigCoveragePaths) GetFilenames() []string {
   filenames := []string{}
-  for _, feature := range coverageList {
+  for _, feature := range CoverageList {
     filenames = append(filenames, config.GetTargetFile(feature).Filename)
   }
   return filenames
@@ -208,7 +224,7 @@ func (config *ConfigSingleFeaturePaths) CompletePaths(dir, prefix, suffix string
 
 func (config *ConfigSingleFeaturePaths) GetFilenames() []string {
   filenames := []string{}
-  for _, feature := range singleFeatureList {
+  for _, feature := range SingleFeatureList {
     filenames = append(filenames, config.GetTargetFile(feature).Filename)
   }
   return filenames
@@ -343,7 +359,7 @@ func (config *ConfigModHmm) setDefaultDir(target, def string) string {
   return def
 }
 
-func (config *ConfigModHmm) coerceOpenChromatinAssay(feature string) string {
+func (config *ConfigModHmm) CoerceOpenChromatinAssay(feature string) string {
   switch strings.ToLower(feature) {
   case "atac" :
     if config.OpenChromatinAssay == "dnase" {
@@ -377,25 +393,25 @@ func (config *ConfigModHmm) DetectOpenChromatinAssay() string {
     return "dnase"
   }
   if config.Coverage.Atac.Filename != "" && config.Coverage.Dnase.Filename != "" {
-    if fileExists(config.Coverage.Atac.Filename) && fileExists(config.Coverage.Dnase.Filename) {
+    if FileExists(config.Coverage.Atac.Filename) && FileExists(config.Coverage.Dnase.Filename) {
       log.Fatal("Coverage bigWig files exist for both ATAC- and DNase-seq. Please select a single open chromatin assay.")
     }
   }
-  if config.Coverage.Atac.Filename != "" && fileExists(config.Coverage.Atac.Filename) {
+  if config.Coverage.Atac.Filename != "" && FileExists(config.Coverage.Atac.Filename) {
     return "atac"
   }
-  if config.Coverage.Dnase.Filename != "" && fileExists(config.Coverage.Dnase.Filename) {
+  if config.Coverage.Dnase.Filename != "" && FileExists(config.Coverage.Dnase.Filename) {
     return "dnase"
   }
   if config.SingleFeatureFg.Atac.Filename != "" && config.SingleFeatureFg.Dnase.Filename != "" {
-    if fileExists(config.SingleFeatureFg.Atac.Filename) && fileExists(config.SingleFeatureFg.Dnase.Filename) {
+    if FileExists(config.SingleFeatureFg.Atac.Filename) && FileExists(config.SingleFeatureFg.Dnase.Filename) {
       log.Fatal("SingleFeatureFg bigWig files exist for both ATAC- and DNase-seq. Please select a single open chromatin assay.")
     }
   }
-  if config.SingleFeatureFg.Atac.Filename != "" && fileExists(config.SingleFeatureFg.Atac.Filename) {
+  if config.SingleFeatureFg.Atac.Filename != "" && FileExists(config.SingleFeatureFg.Atac.Filename) {
     return "atac"
   }
-  if config.SingleFeatureFg.Dnase.Filename != "" && fileExists(config.SingleFeatureFg.Dnase.Filename) {
+  if config.SingleFeatureFg.Dnase.Filename != "" && FileExists(config.SingleFeatureFg.Dnase.Filename) {
     return "dnase"
   }
   // return default assay
@@ -460,16 +476,6 @@ func (config *ConfigModHmm) CompletePaths() {
   config.PosteriorExp           .CompletePaths(config.PosteriorDir, "posterior-marginal-exp-", ".bw")
   config.PosteriorPeak          .CompletePaths(config.PosteriorDir, "posterior-marginal-peaks-", ".bw")
   config.SetOpenChromatinAssay(config.DetectOpenChromatinAssay())
-}
-
-/* -------------------------------------------------------------------------- */
-
-func fileCheckMark(filename string) string {
-  if !fileExists(filename) {
-    return "\xE2\x9C\x97"
-  } else {
-    return "\xE2\x9C\x93"
-  }
 }
 
 /* -------------------------------------------------------------------------- */

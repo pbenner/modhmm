@@ -26,6 +26,7 @@ import   "strconv"
 
 import . "github.com/pbenner/ngstat/track"
 import . "github.com/pbenner/gonetics"
+import . "github.com/pbenner/modhmm/config"
 
 import   "github.com/pborman/getopt"
 
@@ -62,13 +63,13 @@ func modhmm_call_single_feature_peaks(config ConfigModHmm, feature string, thres
 
 func modhmm_call_single_feature_peaks_loop(config ConfigModHmm, features []string, threshold float64) {
   for _, feature := range features {
-    feature = config.coerceOpenChromatinAssay(feature)
+    feature = config.CoerceOpenChromatinAssay(feature)
     modhmm_call_single_feature_peaks(config, feature, threshold)
   }
 }
 
 func modhmm_call_single_feature_peaks_all(config ConfigModHmm, threshold float64) {
-  modhmm_call_single_feature_peaks_loop(config, singleFeatureList, threshold)
+  modhmm_call_single_feature_peaks_loop(config, SingleFeatureList, threshold)
 }
 
 func modhmm_call_single_feature_peaks_main(config ConfigModHmm, args []string) {

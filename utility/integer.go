@@ -14,18 +14,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package main
+package utility
 
 /* -------------------------------------------------------------------------- */
 
-//import   "fmt"
+// Divide a by b, the result is rounded down.
+func DivIntDown(a, b int) int {
+  return a/b
+}
 
-import . "github.com/pbenner/ngstat/io"
-
-import . "github.com/pbenner/modhmm/config"
-
-/* -------------------------------------------------------------------------- */
-
-func printStderr(config ConfigModHmm, level int, format string, args ...interface{}) {
-  PrintStderr(config.SessionConfig, level, format, args...)
+// Divide a by b, the result is rounded up.
+func DivIntUp(a, b int) int {
+  return (a+b-1)/b
 }

@@ -31,13 +31,16 @@ import . "github.com/pbenner/autodiff/statistics"
 import   "github.com/pbenner/autodiff/statistics/matrixClassifier"
 
 import . "github.com/pbenner/gonetics"
+
+import . "github.com/pbenner/modhmm/config"
+
 import   "github.com/pborman/getopt"
 
 /* -------------------------------------------------------------------------- */
 
 func getStateIndices(modhmm ModHmm, state string) []int {
   stateMap := modhmm.Hmm.StateMap
-  iState   := multiFeatureList.Index(strings.ToLower(state))
+  iState   := MultiFeatureList.Index(strings.ToLower(state))
   result   := []int{}
   for i := 0; i < len(stateMap); i++ {
     if stateMap[i] == iState {
@@ -83,8 +86,8 @@ func posterior(config ConfigModHmm, state string, trackFiles []string, tracks []
 /* -------------------------------------------------------------------------- */
 
 func modhmm_posterior_tracks(config ConfigModHmm) []string {
-  files := make([]string, len(multiFeatureList))
-  for i, state := range multiFeatureList {
+  files := make([]string, len(MultiFeatureList))
+  for i, state := range MultiFeatureList {
     files[i] = config.MultiFeatureProb.GetTargetFile(state).Filename
   }
   return files
@@ -92,7 +95,7 @@ func modhmm_posterior_tracks(config ConfigModHmm) []string {
 
 func modhmm_posterior(config ConfigModHmm, state string, tracks []Track, logScale bool) []Track {
 
-  if !multiFeatureList.Contains(strings.ToLower(state)) {
+  if !MultiFeatureList.Contains(strings.ToLower(state)) {
     log.Fatalf("unknown state: %s", state)
   }
 
@@ -128,7 +131,7 @@ func modhmm_posterior_loop(config ConfigModHmm, states []string, logScale bool) 
 }
 
 func modhmm_posterior_all(config ConfigModHmm, logScale bool) {
-  modhmm_posterior_loop(config, multiFeatureList, logScale)
+  modhmm_posterior_loop(config, MultiFeatureList, logScale)
 }
 
 /* -------------------------------------------------------------------------- */

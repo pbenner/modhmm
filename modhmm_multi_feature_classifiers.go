@@ -25,6 +25,8 @@ import . "github.com/pbenner/autodiff"
 import . "github.com/pbenner/autodiff/statistics"
 import . "github.com/pbenner/autodiff/logarithmetic"
 
+import . "github.com/pbenner/modhmm/utility"
+
 /* -------------------------------------------------------------------------- */
 
 type BasicClassifier struct {
@@ -41,7 +43,7 @@ func (obj BasicClassifier) PeakSym_(x ConstMatrix, m, min, k0 int) float64 {
   // *               *
   //
   // k defines the positive region
-  for k := k0; k < divIntUp(n,2); k++ {
+  for k := k0; k < DivIntUp(n,2); k++ {
     t := 0.0
     for i := k0; i <= k; i++ {
       j := n-i-1

@@ -30,6 +30,8 @@ import . "github.com/pbenner/ngstat/track"
 import . "github.com/pbenner/autodiff/statistics"
 import . "github.com/pbenner/gonetics"
 
+import . "github.com/pbenner/modhmm/config"
+
 import   "github.com/pborman/getopt"
 
 /* -------------------------------------------------------------------------- */
@@ -85,7 +87,7 @@ func multi_feature_eval(config ConfigModHmm, classifier MatrixBatchClassifier, t
 
 func modhmm_multi_feature_eval_dep(config ConfigModHmm) []string {
   files := []string{}
-  for _, feature := range singleFeatureList {
+  for _, feature := range SingleFeatureList {
     files = append(files, config.SingleFeatureFg.GetTargetFile(feature).Filename)
     files = append(files, config.SingleFeatureBg.GetTargetFile(feature).Filename)
   }
@@ -94,7 +96,7 @@ func modhmm_multi_feature_eval_dep(config ConfigModHmm) []string {
 
 func modhmm_multi_feature_eval(config ConfigModHmm, state string, tracks []Track, logScale bool) []Track {
 
-  if !multiFeatureList.Contains(strings.ToLower(state)) {
+  if !MultiFeatureList.Contains(strings.ToLower(state)) {
     log.Fatalf("unknown state: %s", state)
   }
 
@@ -129,7 +131,7 @@ func modhmm_multi_feature_eval_loop(config ConfigModHmm, states []string, logSca
 }
 
 func modhmm_multi_feature_eval_all(config ConfigModHmm, logScale bool) {
-  modhmm_multi_feature_eval_loop(config, multiFeatureList, logScale)
+  modhmm_multi_feature_eval_loop(config, MultiFeatureList, logScale)
 }
 
 /* -------------------------------------------------------------------------- */

@@ -30,6 +30,8 @@ import . "github.com/pbenner/autodiff/logarithmetic"
 import . "github.com/pbenner/autodiff/statistics"
 import   "github.com/pbenner/autodiff/statistics/scalarDistribution"
 
+import . "github.com/pbenner/modhmm/config"
+
 /* -------------------------------------------------------------------------- */
 
 func ImportMixture(config ConfigModHmm, filenameModel string) *scalarDistribution.Mixture {

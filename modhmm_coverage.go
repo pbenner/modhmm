@@ -32,6 +32,8 @@ import . "github.com/pbenner/ngstat/track"
 import   "github.com/pborman/getopt"
 import . "github.com/pbenner/gonetics"
 import   "github.com/pbenner/threadpool"
+import . "github.com/pbenner/modhmm/config"
+import . "github.com/pbenner/modhmm/utility"
 
 import   "gonum.org/v1/plot"
 import   "gonum.org/v1/plot/plotter"
@@ -236,7 +238,7 @@ func coverage(config ConfigModHmm, feature string, filenameBam []string, filenam
 
 func modhmm_coverage(config ConfigModHmm, feature string) error {
 
-  if !coverageList.Contains(strings.ToLower(feature)) {
+  if !CoverageList.Contains(strings.ToLower(feature)) {
     return fmt.Errorf("unknown feature: %s", feature)
   }
 
@@ -305,7 +307,7 @@ func modhmm_coverage_loop(config ConfigModHmm, features []string) {
     if strings.ToLower(feature) == "h3k4me3o1" {
       continue
     }
-    f := config.coerceOpenChromatinAssay(feature)
+    f := config.CoerceOpenChromatinAssay(feature)
     pool.AddJob(0, func(pool threadpool.ThreadPool, erf func() error) error {
       return modhmm_coverage(config, f)
     })
@@ -321,7 +323,7 @@ func modhmm_coverage_loop(config ConfigModHmm, features []string) {
 }
 
 func modhmm_coverage_all(config ConfigModHmm) {
-  modhmm_coverage_loop(config, coverageList)
+  modhmm_coverage_loop(config, CoverageList)
 }
 
 /* -------------------------------------------------------------------------- */

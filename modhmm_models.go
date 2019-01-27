@@ -28,6 +28,8 @@ import   "github.com/pbenner/autodiff/statistics/matrixEstimator"
 
 import . "github.com/pbenner/autodiff"
 
+import . "github.com/pbenner/modhmm/config"
+
 /* -------------------------------------------------------------------------- */
 
 func init() {

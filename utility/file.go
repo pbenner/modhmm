@@ -14,18 +14,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package main
+package utility
 
 /* -------------------------------------------------------------------------- */
 
-//import   "fmt"
-
-import . "github.com/pbenner/ngstat/io"
-
-import . "github.com/pbenner/modhmm/config"
+import "os"
 
 /* -------------------------------------------------------------------------- */
 
-func printStderr(config ConfigModHmm, level int, format string, args ...interface{}) {
-  PrintStderr(config.SessionConfig, level, format, args...)
+func FileExists(filename string) bool {
+  if _, err := os.Stat(filename); err != nil {
+    return false
+  } else {
+    return true
+  }
+}
+
+func FileCheckMark(filename string) string {
+  if !FileExists(filename) {
+    return "\xE2\x9C\x97"
+  } else {
+    return "\xE2\x9C\x93"
+  }
 }

@@ -25,6 +25,8 @@ import   "os"
 
 import   "github.com/pborman/getopt"
 
+import . "github.com/pbenner/modhmm/config"
+
 /* -------------------------------------------------------------------------- */
 
 var Version   string

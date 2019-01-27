@@ -35,13 +35,16 @@ import   "github.com/pbenner/autodiff/statistics/vectorClassifier"
 
 import . "github.com/pbenner/gonetics"
 
+import . "github.com/pbenner/modhmm/config"
+import . "github.com/pbenner/modhmm/utility"
+
 import   "github.com/pborman/getopt"
 
 /* -------------------------------------------------------------------------- */
 
 func checkModelFiles(filenames ...string) {
   for _, filename := range filenames {
-    if !fileExists(filename) {
+    if !FileExists(filename) {
       log.Fatalf(
           "ERROR: Model file `%s' required for enrichment analysis does not exist.\n" +
           "       Please download the respective file or estimate a model with the\n" +
@@ -52,7 +55,7 @@ func checkModelFiles(filenames ...string) {
 
 func checkCompFiles(filenames ...string) {
   for _, filename := range filenames {
-    if !fileExists(filename) {
+    if !FileExists(filename) {
       log.Fatalf(
           "ERROR: Model components file `%s' required for enrichment analysis does not exist.\n" +
           "       Please download the respective file or create it.", filename)
@@ -62,7 +65,7 @@ func checkCompFiles(filenames ...string) {
 
 func checkCountsFiles(filenames ...string) {
   for _, filename := range filenames {
-    if !fileExists(filename) {
+    if !FileExists(filename) {
       log.Fatalf(
           "ERROR: Model counts file `%s' required for enrichment analysis does not exist.\n" +
           "       Please download the respective file or compute it with the\n" +
@@ -179,7 +182,7 @@ func single_feature_files(config ConfigModHmm, feature string, logScale bool) (s
 func single_feature_filter_update(config ConfigModHmm, features []string, logScale bool) []string {
   r := []string{}
   for _, feature := range features {
-    feature = config.coerceOpenChromatinAssay(feature)
+    feature = config.CoerceOpenChromatinAssay(feature)
     filenameModel, filenameComp, filenameData, filenameCnts, filenameResult1, filenameResult2 :=
       single_feature_files(config, feature, logScale)
     if updateRequired(config, filenameResult1, filenameData, filenameCnts, filenameModel, filenameComp) ||
@@ -203,7 +206,7 @@ func modhmm_single_feature_eval_dep(config ConfigModHmm) []string {
 
 func modhmm_single_feature_eval(config ConfigModHmm, feature string, logScale bool) {
 
-  if !singleFeatureList.Contains(strings.ToLower(feature)) {
+  if !SingleFeatureList.Contains(strings.ToLower(feature)) {
     log.Fatalf("unknown feature: %s", feature)
   }
   filenameModel, filenameComp, filenameData, filenameCnts, filenameResult1, filenameResult2 :=
@@ -226,7 +229,7 @@ func modhmm_single_feature_eval_loop(config ConfigModHmm, features []string, log
   // reduce list of features to those that require an update
   features = single_feature_filter_update(config, features, logScale)
   // compute coverages here to make use of multi-threading
-  modhmm_coverage_loop(config, InsensitiveStringList(features).Intersection(coverageList))
+  modhmm_coverage_loop(config, InsensitiveStringList(features).Intersection(CoverageList))
   // eval single features
   for _, feature := range features {
     modhmm_single_feature_eval(config, feature, logScale)
@@ -234,7 +237,7 @@ func modhmm_single_feature_eval_loop(config ConfigModHmm, features []string, log
 }
 
 func modhmm_single_feature_eval_all(config ConfigModHmm, logScale bool) {
-  modhmm_single_feature_eval_loop(config, singleFeatureList, logScale)
+  modhmm_single_feature_eval_loop(config, SingleFeatureList, logScale)
 }
 
 /* -------------------------------------------------------------------------- */
