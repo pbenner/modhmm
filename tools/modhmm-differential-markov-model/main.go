@@ -31,6 +31,7 @@ import   "github.com/pborman/getopt"
 import . "github.com/pbenner/gonetics"
 import . "github.com/pbenner/ngstat/config"
 import . "github.com/pbenner/ngstat/track"
+import . "github.com/pbenner/ngstat/utility"
 import . "github.com/pbenner/modhmm/config"
 
 /* -------------------------------------------------------------------------- */
@@ -86,29 +87,11 @@ func printResult(config Config, writer io.Writer, result [][]int, invertNames ma
 /* -------------------------------------------------------------------------- */
 
 func diffMarkovModel(config Config, config1, config2 ConfigModHmm) {
-  posterior1 := make([]SimpleTrack, len(MultiFeatureList))
-  posterior2 := make([]SimpleTrack, len(MultiFeatureList))
-
-  for i, state := range MultiFeatureList {
-    if t, err := ImportTrack(config1.SessionConfig, config1.MultiFeatureProb.GetTargetFile(state).Filename); err != nil {
-      log.Fatal(err)
-    } else {
-      posterior1[i] = t
-    }
-    if t, err := ImportTrack(config2.SessionConfig, config2.MultiFeatureProb.GetTargetFile(state).Filename); err != nil {
-      log.Fatal(err)
-    } else {
-      posterior2[i] = t
-    }
+  genome, err := BigWigImportGenome(config1.MultiFeatureProb.GetTargetFile(MultiFeatureList[0]).Filename); if err != nil {
+    log.Fatal(err)
   }
-  genome1 := posterior1[0].GetGenome()
-  genome2 := posterior2[0].GetGenome()
-  if !genome1.Equals(genome2) {
-    log.Fatal("genomes between both conditions do not match")
-  }
-
-  seg1 := AllocSimpleTrack("", genome1, config1.BinSize)
-  seg2 := AllocSimpleTrack("", genome2, config2.BinSize)
+  seg1 := AllocSimpleTrack("", genome, config1.BinSize)
+  seg2 := AllocSimpleTrack("", genome, config2.BinSize)
 
   stateNames1, err := (GenericMutableTrack{seg1}).ImportSegmentation(config1.Segmentation.Filename)
   if err != nil {
@@ -136,6 +119,34 @@ func diffMarkovModel(config Config, config1, config2 ConfigModHmm) {
     result[i] = make([]int, len(invertNames))
   }
 
+  posterior1 := make([]SimpleTrack, len(invertNames))
+  posterior2 := make([]SimpleTrack, len(invertNames))
+
+  for i, state := range stateNames1 {
+    if t, err := ImportTrack(config1.SessionConfig, config1.MultiFeatureProb.GetTargetFile(state).Filename); err != nil {
+      log.Fatal(err)
+    } else {
+      posterior1[i] = t
+    }
+  }
+  for i, state := range stateNames2 {
+    if t, err := ImportTrack(config2.SessionConfig, config2.MultiFeatureProb.GetTargetFile(state).Filename); err != nil {
+      log.Fatal(err)
+    } else {
+      posterior2[i] = t
+    }
+  }
+
+  // counter
+  l := 0
+  // total track length
+  L := 0
+  for _, length := range genome.Lengths {
+    L += length/config1.BinSize
+  }
+  if config.Verbose > 0 {
+    NewProgress(L, L).PrintStderr(l)
+  }
   for _, name := range seg1.GetSeqNames() {
     seq1, err := seg1.GetSequence(name); if err != nil {
       log.Fatal(err)
@@ -165,6 +176,11 @@ func diffMarkovModel(config Config, config1, config2 ConfigModHmm) {
       } else {
         result[r1][r2]++
       }
+    }
+    l += seq1.NBins()
+
+    if config.Verbose > 0 {
+      NewProgress(L, L).PrintStderr(l)
     }
   }
   printResult(config, os.Stdout, result, invertNames)
