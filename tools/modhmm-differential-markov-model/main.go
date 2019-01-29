@@ -87,12 +87,12 @@ func diffMarkovModel(config Config, config1, config2 ConfigModHmm) {
   posterior2 := make([]SimpleTrack, len(MultiFeatureList))
 
   for i, state := range MultiFeatureList {
-    if t, err := ImportTrack(config.SessionConfig, config1.MultiFeatureProb.GetTargetFile(state).Filename); err != nil {
+    if t, err := ImportTrack(config1.SessionConfig, config1.MultiFeatureProb.GetTargetFile(state).Filename); err != nil {
       log.Fatal(err)
     } else {
       posterior1[i] = t
     }
-    if t, err := ImportTrack(config.SessionConfig, config2.MultiFeatureProb.GetTargetFile(state).Filename); err != nil {
+    if t, err := ImportTrack(config2.SessionConfig, config2.MultiFeatureProb.GetTargetFile(state).Filename); err != nil {
       log.Fatal(err)
     } else {
       posterior2[i] = t
