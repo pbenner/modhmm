@@ -91,6 +91,23 @@ func diffMarkovModel(config Config, config1, config2 ConfigModHmm) {
   if err != nil {
     log.Fatal(err)
   }
+  for i := 0; i < len(stateNames1); i++ {
+    // convert state names, i.e. EA:tr -> EA
+    stateNames1[i] = strings.Split(stateNames1[i], ":")[0]
+  }
+  for i := 0; i < len(stateNames2); i++ {
+    stateNames2[i] = strings.Split(stateNames2[i], ":")[0]
+  }
+  invertNames := make(map[string]int)
+  for _, name := range stateNames1 {
+    if _, ok := invertNames[name]; !ok {
+      invertNames[name] = len(invertNames)
+    }
+  }
+  result := make([][]int, len(invertNames))
+  for i := 0; i < len(invertNames); i++ {
+    result[i] = make([]int, len(invertNames))
+  }
 
   for _, name := range seg1.GetSeqNames() {
     seq1, err := seg1.GetSequence(name); if err != nil {
@@ -102,9 +119,24 @@ func diffMarkovModel(config Config, config1, config2 ConfigModHmm) {
     for i := 0; i < seq1.NBins(); i++ {
       s1 := int(seq1.AtBin(i))
       s2 := int(seq2.AtBin(i))
-      name1 := strings.Split(stateNames1[s1], ":")[0]
-      name2 := strings.Split(stateNames2[s2], ":")[0]
-      if name1 != name2 {
+      r1 := invertNames[stateNames1[s1]]
+      r2 := invertNames[stateNames2[s2]]
+      if stateNames1[s1] != stateNames2[s2] {
+        t1, err := posterior1[s1].GetSequence(name); if err != nil {
+          log.Fatal(err)
+        }
+        t2, err := posterior2[s2].GetSequence(name); if err != nil {
+          log.Fatal(err)
+        }
+        p1 := t1.AtBin(i)
+        p2 := t2.AtBin(i)
+        if p1 > 0.8 && p2 > 0.8 {
+          result[r1][r2]++
+        } else {
+          result[r1][r1]++
+        }
+      } else {
+        result[r1][r2]++
       }
     }
   }
