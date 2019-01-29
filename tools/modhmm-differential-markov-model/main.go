@@ -20,6 +20,7 @@ package main
 
 import   "fmt"
 import   "log"
+import   "io"
 import   "os"
 import   "strings"
 
@@ -54,6 +55,29 @@ func loadModConfig(config Config, filename string, modconfig ConfigModHmm) Confi
   }
   printStderr(config, 1, "done\n")
   return modconfig
+}
+
+/* -------------------------------------------------------------------------- */
+
+func printResult(config Config, writer io.Writer, result [][]int, invertNames map[string]int) {
+  names := make([]string, len(invertNames))
+  for name, i := range invertNames {
+    names[i] = name
+  }
+  // print header
+  fmt.Fprintf(writer, "%7s ", "")
+  for j := 0; j < len(names); j++ {
+    fmt.Fprintf(writer, "%7s ", names[j])
+  }
+  fmt.Fprintf(writer, "\n")
+  // print result
+  for i := 0; i < len(names); i++ {
+    fmt.Fprintf(writer, "%7s ", names[i])
+    for j := 0; j < len(names); j++ {
+      fmt.Fprintf(writer, "%7d ", result[i][j])
+    }
+    fmt.Fprintf(writer, "\n")
+  }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -140,6 +164,7 @@ func diffMarkovModel(config Config, config1, config2 ConfigModHmm) {
       }
     }
   }
+  printResult(config, os.Stdout, result, invertNames)
 }
 
 /* -------------------------------------------------------------------------- */
