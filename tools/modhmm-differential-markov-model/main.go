@@ -21,7 +21,9 @@ package main
 import   "fmt"
 import   "log"
 import   "io"
+import   "math"
 import   "os"
+import   "strconv"
 import   "strings"
 
 import   "github.com/pborman/getopt"
@@ -35,6 +37,7 @@ import . "github.com/pbenner/modhmm/config"
 
 type Config struct {
   SessionConfig
+  Threshold float64
 }
 
 /* -------------------------------------------------------------------------- */
@@ -154,7 +157,7 @@ func diffMarkovModel(config Config, config1, config2 ConfigModHmm) {
         }
         p1 := t1.AtBin(i)
         p2 := t2.AtBin(i)
-        if p1 > 0.8 && p2 > 0.8 {
+        if math.Exp(p1) > config.Threshold && math.Exp(p2) > config.Threshold {
           result[r1][r2]++
         } else {
           result[r1][r1]++
@@ -175,8 +178,9 @@ func main() {
   options := getopt.New()
   config  := Config{}
 
-  optHelp    := options.   BoolLong("help",    'h',     "print help")
-  optVerbose := options.CounterLong("verbose", 'v',     "verbose level [-v or -vv]")
+  optThreshold := options. StringLong("threshold",  0 , "0.8", "threshold")
+  optHelp      := options.   BoolLong("help",      'h',        "print help")
+  optVerbose   := options.CounterLong("verbose",   'v',        "verbose level [-v or -vv]")
 
   options.SetParameters("<CONFIG1.json> <CONFIG2.json>\n")
   options.Parse(os.Args)
@@ -188,6 +192,11 @@ func main() {
   }
   if *optVerbose != 0 {
     config.Verbose = *optVerbose
+  }
+  if t, err := strconv.ParseFloat(*optThreshold, 64); err != nil {
+    log.Fatal(err)
+  } else {
+    config.Threshold = t
   }
   // command arguments
   if len(options.Args()) != 2 {
