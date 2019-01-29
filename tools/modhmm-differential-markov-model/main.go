@@ -21,6 +21,7 @@ package main
 import   "fmt"
 import   "log"
 import   "os"
+import   "strings"
 
 import   "github.com/pborman/getopt"
 
@@ -73,7 +74,40 @@ func diffMarkovModel(config Config, config1, config2 ConfigModHmm) {
       posterior2[i] = t
     }
   }
+  genome1 := posterior1[0].GetGenome()
+  genome2 := posterior2[0].GetGenome()
+  if !genome1.Equals(genome2) {
+    log.Fatal("genomes between both conditions do not match")
+  }
 
+  seg1 := AllocSimpleTrack("", genome1, config1.BinSize)
+  seg2 := AllocSimpleTrack("", genome2, config2.BinSize)
+
+  stateNames1, err := (GenericMutableTrack{seg1}).ImportSegmentation(config1.Segmentation.Filename)
+  if err != nil {
+    log.Fatal(err)
+  }
+  stateNames2, err := (GenericMutableTrack{seg2}).ImportSegmentation(config2.Segmentation.Filename)
+  if err != nil {
+    log.Fatal(err)
+  }
+
+  for _, name := range seg1.GetSeqNames() {
+    seq1, err := seg1.GetSequence(name); if err != nil {
+      log.Fatal(err)
+    }
+    seq2, err := seg2.GetSequence(name); if err != nil {
+      log.Fatal(err)
+    }
+    for i := 0; i < seq1.NBins(); i++ {
+      s1 := int(seq1.AtBin(i))
+      s2 := int(seq2.AtBin(i))
+      name1 := strings.Split(stateNames1[s1], ":")[0]
+      name2 := strings.Split(stateNames2[s2], ":")[0]
+      if name1 != name2 {
+      }
+    }
+  }
 }
 
 /* -------------------------------------------------------------------------- */
