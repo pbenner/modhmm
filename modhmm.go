@@ -137,6 +137,8 @@ func main() {
     modhmm_call_multi_feature_peaks_main(config, options.Args())
   case "call-posterior-marginal-peaks":
     modhmm_call_posterior_peaks_main(config, options.Args())
+  case "differential-markov-model":
+    modhmm_differential_markov_model_main(config, options.Args())
   default:
     options.PrintUsage(os.Stderr)
     os.Exit(1)

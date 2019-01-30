@@ -29,7 +29,6 @@ import   "strings"
 import   "github.com/pborman/getopt"
 
 import . "github.com/pbenner/gonetics"
-import . "github.com/pbenner/ngstat/config"
 import . "github.com/pbenner/ngstat/track"
 import . "github.com/pbenner/ngstat/utility"
 import . "github.com/pbenner/modhmm/config"
@@ -37,27 +36,19 @@ import . "github.com/pbenner/modhmm/config"
 /* -------------------------------------------------------------------------- */
 
 type Config struct {
-  SessionConfig
+  ConfigModHmm
   Threshold float64
 }
 
 /* -------------------------------------------------------------------------- */
 
-func printStderr(config Config, level int, format string, args ...interface{}) {
-  if config.Verbose >= level {
-    fmt.Fprintf(os.Stderr, format, args...)
-  }
-}
-
-/* -------------------------------------------------------------------------- */
-
 func loadModConfig(config Config, filename string, modconfig ConfigModHmm) ConfigModHmm {
-  printStderr(config, 1, "Importing config file `%s'... ", filename)
+  printStderr(config.ConfigModHmm, 1, "Importing config file `%s'... ", filename)
   if err := modconfig.ImportFile(filename); err != nil {
-    printStderr(config, 1, "failed\n")
+    printStderr(config.ConfigModHmm, 1, "failed\n")
     log.Fatalf("reading config file `%s' failed: %v", filename, err)
   }
-  printStderr(config, 1, "done\n")
+  printStderr(config.ConfigModHmm, 1, "done\n")
   return modconfig
 }
 
@@ -188,26 +179,21 @@ func diffMarkovModel(config Config, config1, config2 ConfigModHmm) {
 
 /* -------------------------------------------------------------------------- */
 
-func main() {
-  log.SetFlags(0)
-
+func modhmm_differential_markov_model_main(configModHmm ConfigModHmm, args []string) {
   options := getopt.New()
   config  := Config{}
+  config.ConfigModHmm = configModHmm
 
   optThreshold := options. StringLong("threshold",  0 , "0.8", "threshold")
   optHelp      := options.   BoolLong("help",      'h',        "print help")
-  optVerbose   := options.CounterLong("verbose",   'v',        "verbose level [-v or -vv]")
 
   options.SetParameters("<CONFIG1.json> <CONFIG2.json>\n")
-  options.Parse(os.Args)
+  options.Parse(args)
 
   // command options
   if *optHelp {
     options.PrintUsage(os.Stdout)
     os.Exit(0)
-  }
-  if *optVerbose != 0 {
-    config.Verbose = *optVerbose
   }
   if t, err := strconv.ParseFloat(*optThreshold, 64); err != nil {
     log.Fatal(err)
