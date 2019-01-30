@@ -113,15 +113,13 @@ func diffMarkovModel(config Config, config1, config2 ConfigModHmm) {
   posterior1 := make([]SimpleTrack, len(invertNames))
   posterior2 := make([]SimpleTrack, len(invertNames))
 
-  for i, state := range stateNames1 {
-    if t, err := ImportTrack(config1.SessionConfig, config1.MultiFeatureProb.GetTargetFile(state).Filename); err != nil {
+  for state, i := range invertNames {
+    if t, err := ImportTrack(config1.SessionConfig, config1.Posterior.GetTargetFile(state).Filename); err != nil {
       log.Fatal(err)
     } else {
       posterior1[i] = t
     }
-  }
-  for i, state := range stateNames2 {
-    if t, err := ImportTrack(config2.SessionConfig, config2.MultiFeatureProb.GetTargetFile(state).Filename); err != nil {
+    if t, err := ImportTrack(config2.SessionConfig, config2.Posterior.GetTargetFile(state).Filename); err != nil {
       log.Fatal(err)
     } else {
       posterior2[i] = t
@@ -151,10 +149,10 @@ func diffMarkovModel(config Config, config1, config2 ConfigModHmm) {
       r1 := invertNames[stateNames1[s1]]
       r2 := invertNames[stateNames2[s2]]
       if stateNames1[s1] != stateNames2[s2] {
-        t1, err := posterior1[s1].GetSequence(name); if err != nil {
+        t1, err := posterior1[r1].GetSequence(name); if err != nil {
           log.Fatal(err)
         }
-        t2, err := posterior2[s2].GetSequence(name); if err != nil {
+        t2, err := posterior2[r2].GetSequence(name); if err != nil {
           log.Fatal(err)
         }
         p1 := t1.AtBin(i)

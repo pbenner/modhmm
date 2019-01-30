@@ -121,6 +121,8 @@ func compute_counts(config ConfigModHmm, filenameIn, filenameOut string) {
 func compute_counts_filter_update(config ConfigModHmm, features []string) []string {
   r := []string{}
   for _, feature := range features {
+    feature = config.CoerceOpenChromatinAssay(feature)
+
     filenameIn  := config.Coverage    .GetTargetFile(feature)
     filenameOut := config.CoverageCnts.GetTargetFile(feature)
 
