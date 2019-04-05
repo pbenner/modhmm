@@ -168,10 +168,10 @@ func modhmm_single_feature_estimate_default(config ConfigModHmm, feature string)
   case "atac"     : fallthrough
   case "dnase"    : modhmm_single_feature_estimate(config, feature, []int{1, 1, 3}); components = []int{3, 4}
   case "h3k27ac"  : modhmm_single_feature_estimate(config, feature, []int{1, 2, 2}); components = []int{4}
-  case "h3k27me3" : modhmm_single_feature_estimate(config, feature, []int{1, 1, 3}); components = []int{8}
+  case "h3k27me3" : modhmm_single_feature_estimate(config, feature, []int{4, 4, 1}); components = []int{8}
   case "h3k4me1"  : modhmm_single_feature_estimate(config, feature, []int{1, 8, 0}); components = []int{5, 6, 7, 8}
   case "h3k4me3"  : modhmm_single_feature_estimate(config, feature, []int{1, 1, 3}); components = []int{3, 4}
-  case "h3k4me3o1": modhmm_single_feature_estimate(config, feature, []int{1, 1, 3}); components = []int{2}
+  case "h3k4me3o1": modhmm_single_feature_estimate(config, feature, []int{0, 1, 2}); components = []int{2}
   case "h3k9me3"  : modhmm_single_feature_estimate(config, feature, []int{2, 4, 1}); components = []int{5, 6}
   case "rna"      : modhmm_single_feature_estimate(config, feature, []int{1, 0, 4}); components = []int{2, 3, 4}
   case "rna-low"  : modhmm_single_feature_estimate(config, feature, []int{1, 0, 4}); components = []int{1, 2}
