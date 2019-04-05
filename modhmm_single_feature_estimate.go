@@ -146,6 +146,9 @@ func single_feature_estimate(config ConfigModHmm, estimator VectorEstimator, fil
 func modhmm_single_feature_estimate(config ConfigModHmm, feature string, n []int) {
   var estimator VectorEstimator
 
+  if strings.ToLower(feature) == "rna-low" {
+    return
+  }
   if !CoverageList.Contains(strings.ToLower(feature)) {
     log.Fatalf("unknown feature: %s", feature)
   }
@@ -158,13 +161,36 @@ func modhmm_single_feature_estimate(config ConfigModHmm, feature string, n []int
   single_feature_estimate(config, estimator, filenameIn, filenameOut)
 }
 
+func modhmm_single_feature_estimate_default(config ConfigModHmm, feature string) {
+  var components []int
+  switch strings.ToLower(feature) {
+  case "open"     : fallthrough
+  case "atac"     : fallthrough
+  case "dnase"    : modhmm_single_feature_estimate(config, feature, []int{1, 1, 3}); components = []int{3, 4}
+  case "h3k27ac"  : modhmm_single_feature_estimate(config, feature, []int{1, 2, 2}); components = []int{4}
+  case "h3k27me3" : modhmm_single_feature_estimate(config, feature, []int{1, 1, 3}); components = []int{8}
+  case "h3k4me1"  : modhmm_single_feature_estimate(config, feature, []int{1, 8, 0}); components = []int{5, 6, 7, 8}
+  case "h3k4me3"  : modhmm_single_feature_estimate(config, feature, []int{1, 1, 3}); components = []int{3, 4}
+  case "h3k4me3o1": modhmm_single_feature_estimate(config, feature, []int{1, 1, 3}); components = []int{2}
+  case "h3k9me3"  : modhmm_single_feature_estimate(config, feature, []int{2, 4, 1}); components = []int{5, 6}
+  case "rna"      : modhmm_single_feature_estimate(config, feature, []int{1, 0, 4}); components = []int{2, 3, 4}
+  case "rna-low"  : modhmm_single_feature_estimate(config, feature, []int{1, 0, 4}); components = []int{1, 2}
+  case "control"  : modhmm_single_feature_estimate(config, feature, []int{7, 2, 1}); components = []int{9}
+  }
+  filenameComp  := config.SingleFeatureComp .GetTargetFile(feature)
+  filenameModel := config.SingleFeatureModel.GetTargetFile(feature).Filename
+  if updateRequired(config, filenameComp, filenameModel) {
+    ExportComponents(config, filenameComp.Filename, components)
+  }
+}
+
 /* -------------------------------------------------------------------------- */
 
 func modhmm_single_feature_estimate_main(config ConfigModHmm, args []string) {
 
   options := getopt.New()
   options.SetProgram(fmt.Sprintf("%s estimate-single-feature-mixture", os.Args[0]))
-  options.SetParameters("<FEATURE> <N_DELTA> <N_POISSON> <N_GEOMETRIC>\n")
+  options.SetParameters("<FEATURE> [<N_DELTA> <N_POISSON> <N_GEOMETRIC>]\n")
 
   optHelp := options.   BoolLong("help", 'h', "print help")
 
@@ -176,30 +202,33 @@ func modhmm_single_feature_estimate_main(config ConfigModHmm, args []string) {
     os.Exit(0)
   }
   // command arguments
-  if len(options.Args()) != 4 {
+  if len(options.Args()) != 1 && len(options.Args()) != 4 {
     options.PrintUsage(os.Stderr)
     os.Exit(1)
   }
 
   feature := options.Args()[0]
-  n       := []int{}
+  feature  = config.CoerceOpenChromatinAssay(feature)
 
-  if m, err := strconv.ParseInt(options.Args()[1], 10, 64); err != nil {
-    log.Fatal(err)
+  if len(options.Args()) == 4 {
+    n := []int{}
+    if m, err := strconv.ParseInt(options.Args()[1], 10, 64); err != nil {
+      log.Fatal(err)
+    } else {
+      n = append(n, int(m))
+    }
+    if m, err := strconv.ParseInt(options.Args()[2], 10, 64); err != nil {
+      log.Fatal(err)
+    } else {
+      n = append(n, int(m))
+    }
+    if m, err := strconv.ParseInt(options.Args()[3], 10, 64); err != nil {
+      log.Fatal(err)
+    } else {
+      n = append(n, int(m))
+    }
+    modhmm_single_feature_estimate(config, feature, n)
   } else {
-    n = append(n, int(m))
+    modhmm_single_feature_estimate_default(config, feature)
   }
-  if m, err := strconv.ParseInt(options.Args()[2], 10, 64); err != nil {
-    log.Fatal(err)
-  } else {
-    n = append(n, int(m))
-  }
-  if m, err := strconv.ParseInt(options.Args()[3], 10, 64); err != nil {
-    log.Fatal(err)
-  } else {
-    n = append(n, int(m))
-  }
-  feature = config.CoerceOpenChromatinAssay(feature)
-
-  modhmm_single_feature_estimate(config, feature, n)
 }
