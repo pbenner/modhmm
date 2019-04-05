@@ -22,6 +22,7 @@ import   "fmt"
 import   "log"
 import   "math/rand"
 import   "os"
+import   "sort"
 import   "strconv"
 import   "strings"
 
@@ -36,6 +37,46 @@ import   "github.com/pbenner/autodiff/statistics/vectorEstimator"
 import . "github.com/pbenner/modhmm/config"
 
 import   "github.com/pborman/getopt"
+
+/* -------------------------------------------------------------------------- */
+
+type SortableMixture struct {
+  *scalarDistribution.Mixture
+}
+
+func (obj SortableMixture) Len() int {
+  return obj.NComponents()
+}
+
+func (obj SortableMixture) Less(i, j int) bool {
+  xi, yi := distToValue(obj.Edist[i])
+  xj, yj := distToValue(obj.Edist[j])
+  if xi == xj {
+    return yi < yj
+  } else {
+    return xi < xj
+  }
+}
+
+func (obj SortableMixture) Swap(i, j int) {
+  obj.Edist[i], obj.Edist[j] = obj.Edist[j], obj.Edist[i]
+  obj.LogWeights.Swap(i, j)
+}
+
+func distToValue(dist ScalarPdf) (int, float64) {
+  switch a := dist.(type) {
+  case *scalarDistribution.DeltaDistribution:
+    return 0, a.GetParameters().ValueAt(0)
+  case *scalarDistribution.PoissonDistribution:
+    return 1, a.GetParameters().ValueAt(0)
+  case *scalarDistribution.PdfTranslation:
+    return distToValue(a.ScalarPdf)
+  case *scalarDistribution.GeometricDistribution:
+    return 2, -a.GetParameters().ValueAt(0)
+  default:
+    panic("internal error")
+  }
+}
 
 /* -------------------------------------------------------------------------- */
 
@@ -88,6 +129,8 @@ func single_feature_estimate(config ConfigModHmm, estimator VectorEstimator, fil
     log.Fatal(err)
   } else {
     result := d.(*vectorDistribution.ScalarIid).Distribution.(*scalarDistribution.Mixture)
+
+    sort.Sort(SortableMixture{result})
 
     printStderr(config, 1, "Exporting distribution to `%s'... ", filenameOut)
     if err := ExportDistribution(filenameOut, result); err != nil {
