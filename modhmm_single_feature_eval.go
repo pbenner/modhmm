@@ -42,40 +42,6 @@ import   "github.com/pborman/getopt"
 
 /* -------------------------------------------------------------------------- */
 
-func checkModelFiles(filenames ...string) {
-  for _, filename := range filenames {
-    if !FileExists(filename) {
-      log.Fatalf(
-          "ERROR: Model file `%s' required for enrichment analysis does not exist.\n" +
-          "       Please download the respective file or estimate a model with the\n" +
-          "       `estimate-single-feature` subcommand.", filename)
-    }
-  }
-}
-
-func checkCompFiles(filenames ...string) {
-  for _, filename := range filenames {
-    if !FileExists(filename) {
-      log.Fatalf(
-          "ERROR: Model components file `%s' required for enrichment analysis does not exist.\n" +
-          "       Please download the respective file or create it.", filename)
-    }
-  }
-}
-
-func checkCountsFiles(filenames ...string) {
-  for _, filename := range filenames {
-    if !FileExists(filename) {
-      log.Fatalf(
-          "ERROR: Model counts file `%s' required for enrichment analysis does not exist.\n" +
-          "       Please download the respective file or compute it with the\n" +
-          "       `compute-counts` subcommand.", filename)
-    }
-  }
-}
-
-/* -------------------------------------------------------------------------- */
-
 func single_feature_eval(config ConfigModHmm, filenameModel, filenameComp, filenameData, filenameCnts, filenameResult1, filenameResult2 string, logScale bool) {
   mixture := &scalarDistribution.Mixture{}
   counts  := Counts{}
@@ -216,10 +182,11 @@ func modhmm_single_feature_eval(config ConfigModHmm, feature string, logScale bo
   localConfig.BinSummaryStatistics = "discrete mean"
   if updateRequired(config, filenameResult1, filenameData, filenameCnts, filenameModel, filenameComp) ||
     (updateRequired(config, filenameResult2, filenameData, filenameCnts, filenameModel, filenameComp)) {
-    checkModelFiles (filenameModel)
-    checkCompFiles  (filenameComp)
-    checkCountsFiles(filenameCnts)
 
+    modhmm_single_feature_estimate_default(config, feature)
+    if CoverageList.Contains(strings.ToLower(feature)) {
+      modhmm_compute_counts(config, feature)
+    }
     printStderr(config, 1, "==> Evaluating Single-Feature Model (%s) <==\n", feature)
     single_feature_eval(localConfig, filenameModel, filenameComp, filenameData, filenameCnts, filenameResult1.Filename, filenameResult2.Filename, logScale)
   }
