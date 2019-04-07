@@ -179,9 +179,8 @@ func modhmm_single_feature_estimate_default(config ConfigModHmm, feature string)
     modhmm_single_feature_estimate(config, feature, n)
   }
   // export foreground mixture components
-  filenameComp  := config.SingleFeatureComp .GetTargetFile(feature)
-  filenameModel := config.SingleFeatureModel.GetTargetFile(feature).Filename
-  if updateRequired(config, filenameComp, filenameModel) {
+  filenameModel, filenameComp, _, _, _, _ := single_feature_files(config, feature, false)
+  if updateRequired(config, filenameComp, filenameModel.Filename) {
     ExportComponents(config, filenameComp.Filename, components)
   }
 }

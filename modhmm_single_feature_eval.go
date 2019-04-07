@@ -108,20 +108,20 @@ func single_feature_eval(config ConfigModHmm, filenameModel, filenameComp, filen
   }
 }
 
-func single_feature_files(config ConfigModHmm, feature string, logScale bool) (string, string, string, string, TargetFile, TargetFile) {
-  filenameModel   := ""
-  filenameComp    := ""
-  filenameData    := ""
-  filenameCnts    := ""
+func single_feature_files(config ConfigModHmm, feature string, logScale bool) (TargetFile, TargetFile, TargetFile, TargetFile, TargetFile, TargetFile) {
+  filenameModel   := TargetFile{}
+  filenameComp    := TargetFile{}
+  filenameData    := TargetFile{}
+  filenameCnts    := TargetFile{}
   filenameResult1 := TargetFile{}
   filenameResult2 := TargetFile{}
 
   switch strings.ToLower(feature) {
   case "rna-low":
-    filenameData    = config.Coverage          .Rna    .Filename
-    filenameCnts    = config.CoverageCnts      .Rna    .Filename
-    filenameModel   = config.SingleFeatureModel.Rna    .Filename
-    filenameComp    = config.SingleFeatureComp .Rna_low.Filename
+    filenameData    = config.Coverage          .Rna
+    filenameCnts    = config.CoverageCnts      .Rna
+    filenameModel   = config.SingleFeatureModel.Rna
+    filenameComp    = config.SingleFeatureComp .Rna_low
     if logScale {
       filenameResult1 = config.SingleFeatureFg.Rna_low
       filenameResult2 = config.SingleFeatureBg.Rna_low
@@ -130,10 +130,10 @@ func single_feature_files(config ConfigModHmm, feature string, logScale bool) (s
       filenameResult2 = config.SingleFeatureBgExp.Rna_low
     }
   default:
-    filenameData    = config.Coverage          .GetTargetFile(feature).Filename
-    filenameCnts    = config.CoverageCnts      .GetTargetFile(feature).Filename
-    filenameModel   = config.SingleFeatureModel.GetTargetFile(feature).Filename
-    filenameComp    = config.SingleFeatureComp .GetTargetFile(feature).Filename
+    filenameData    = config.Coverage          .GetTargetFile(feature)
+    filenameCnts    = config.CoverageCnts      .GetTargetFile(feature)
+    filenameModel   = config.SingleFeatureModel.GetTargetFile(feature)
+    filenameComp    = config.SingleFeatureComp .GetTargetFile(feature)
     if logScale {
       filenameResult1 = config.SingleFeatureFg.GetTargetFile(feature)
       filenameResult2 = config.SingleFeatureBg.GetTargetFile(feature)
@@ -151,8 +151,8 @@ func single_feature_filter_update(config ConfigModHmm, features []string, logSca
     feature = config.CoerceOpenChromatinAssay(feature)
     filenameModel, filenameComp, filenameData, filenameCnts, filenameResult1, filenameResult2 :=
       single_feature_files(config, feature, logScale)
-    if updateRequired(config, filenameResult1, filenameData, filenameCnts, filenameModel, filenameComp) ||
-      (updateRequired(config, filenameResult2, filenameData, filenameCnts, filenameModel, filenameComp)) {
+    if updateRequired(config, filenameResult1, filenameData.Filename, filenameCnts.Filename, filenameModel.Filename, filenameComp.Filename) ||
+      (updateRequired(config, filenameResult2, filenameData.Filename, filenameCnts.Filename, filenameModel.Filename, filenameComp.Filename)) {
       r = append(r, feature)
     }
   }
@@ -180,15 +180,15 @@ func modhmm_single_feature_eval(config ConfigModHmm, feature string, logScale bo
 
   localConfig := config
   localConfig.BinSummaryStatistics = "discrete mean"
-  if updateRequired(config, filenameResult1, filenameData, filenameCnts, filenameModel, filenameComp) ||
-    (updateRequired(config, filenameResult2, filenameData, filenameCnts, filenameModel, filenameComp)) {
+  if updateRequired(config, filenameResult1, filenameData.Filename, filenameCnts.Filename, filenameModel.Filename, filenameComp.Filename) ||
+    (updateRequired(config, filenameResult2, filenameData.Filename, filenameCnts.Filename, filenameModel.Filename, filenameComp.Filename)) {
 
     modhmm_single_feature_estimate_default(config, feature)
     if CoverageList.Contains(strings.ToLower(feature)) {
       modhmm_compute_counts(config, feature)
     }
     printStderr(config, 1, "==> Evaluating Single-Feature Model (%s) <==\n", feature)
-    single_feature_eval(localConfig, filenameModel, filenameComp, filenameData, filenameCnts, filenameResult1.Filename, filenameResult2.Filename, logScale)
+    single_feature_eval(localConfig, filenameModel.Filename, filenameComp.Filename, filenameData.Filename, filenameCnts.Filename, filenameResult1.Filename, filenameResult2.Filename, logScale)
   }
 }
 
