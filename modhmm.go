@@ -65,8 +65,7 @@ func main() {
     "     eval-posterior-marginals [stage 5]   - compute posterior marginals of hidden states\n\n" +
     "     segmentation             [stage 4]   - compute genome segmentation\n\n" +
     " ModHMM commands are structured in stages. Executing a command also executes all commands with\n" +
-    " lower stage number. An exception are stages 1.1 and 1.2 that must be executed manually or\n" +
-    " bypassed by providing single-feature models.\n\n" +
+    " lower stage number.\n\n" +
     " Peak calling commands:\n" +
     "     call-single-feature-peaks, call-multi-feature-peaks, call-posterior-marginal-peaks\n")
   options.Parse(os.Args)
@@ -123,6 +122,8 @@ func main() {
     modhmm_compute_counts_main(config, options.Args())
   case "estimate-single-feature":
     modhmm_single_feature_estimate_main(config, options.Args())
+  case "plot-single-feature":
+    modhmm_single_feature_plot_main(config, options.Args())
   case "eval-single-feature":
     modhmm_single_feature_eval_main(config, options.Args())
   case "eval-multi-feature":
