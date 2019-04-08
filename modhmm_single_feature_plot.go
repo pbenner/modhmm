@@ -65,7 +65,7 @@ func eval_counts(counts Counts, xlim [2]float64) (plotter.XYs, float64) {
   return xy, y_min
 }
 
-func eval_component(mixture *scalarDistribution.Mixture, k int, counts Counts, xlim [2]float64, y_min float64) plotter.XYs {
+func eval_component(mixture *scalarDistribution.Mixture, k_ []int, counts Counts, xlim [2]float64, y_min float64) plotter.XYs {
   r  := NullBareReal()
   xy := make(plotter.XYs, 0)
   for i := 0; i < len(counts.X); i++ {
@@ -75,15 +75,18 @@ func eval_component(mixture *scalarDistribution.Mixture, k int, counts Counts, x
     if !math.IsNaN(xlim[1]) && counts.X[i] > xlim[1] {
       continue
     }
-    if err := mixture.Edist[k].LogPdf(r, ConstReal(counts.X[i])); err != nil {
-      log.Fatal("evaluating mixture component failed:", err)
-    } else {
-      y := math.Exp(mixture.LogWeights.ValueAt(k) + r.GetValue())
-      if math.IsInf(y, 0) || y == 0.0 || y < y_min {
-        continue
+    y := 0.0
+    for _, k := range k_ {
+      if err := mixture.Edist[k].LogPdf(r, ConstReal(counts.X[i])); err != nil {
+        log.Fatal("evaluating mixture component failed:", err)
+      } else {
+        y += math.Exp(mixture.LogWeights.ValueAt(k) + r.GetValue())
       }
-      xy = append(xy, plotter.XY{counts.X[i], y})
     }
+    if math.IsInf(y, 0) || y == 0.0 || y < y_min {
+      continue
+    }
+    xy = append(xy, plotter.XY{counts.X[i], y})
   }
   return xy
 }
@@ -108,19 +111,7 @@ func eval_delta_component(mixture *scalarDistribution.Mixture, k int, xlim [2]fl
 
 /* -------------------------------------------------------------------------- */
 
-func modhmm_single_feature_plot_isolated(config ConfigModHmm, feature string, mixture *scalarDistribution.Mixture, counts Counts, xlim [2]float64) {
-  p, err := plot.New()
-  if err != nil {
-    log.Fatal(err)
-  }
-  p.Title.Text   = feature
-  p.X.Label.Text = "coverage value"
-  p.Y.Label.Text = "probability"
-  p.X.Scale = plot.LinearScale{}
-  p.Y.Scale = plot.LogScale{}
-  p.Y.Tick.Marker = plot.LogTicks{}
-  p.Legend.Top = true
-
+func modhmm_single_feature_plot_isolated(config ConfigModHmm, p *plot.Plot, mixture *scalarDistribution.Mixture, counts Counts, xlim [2]float64) {
   counts_xy, y_min := eval_counts(counts, xlim)
   plotutil.DefaultColors = []color.Color{color.RGBA{0, 0, 0, 255}}
   if err := plotutil.AddLines(p, "raw", counts_xy); err != nil {
@@ -135,7 +126,7 @@ func modhmm_single_feature_plot_isolated(config ConfigModHmm, feature string, mi
       list_points = append(list_points, fmt.Sprintf("Component %d", k+1))
       list_points = append(list_points, xys)
     default:
-      xys := eval_component(mixture, k, counts, xlim, y_min)
+      xys := eval_component(mixture, []int{k}, counts, xlim, y_min)
       list_lines = append(list_lines, fmt.Sprintf("Component %d", k+1))
       list_lines = append(list_lines, xys)
     }
@@ -147,12 +138,9 @@ func modhmm_single_feature_plot_isolated(config ConfigModHmm, feature string, mi
   if err := plotutil.AddLines(p, list_lines...); err != nil {
     log.Fatal("plotting mixture distribution failed: ", err)
   }
-  if err := p.Save(10*vg.Inch, 6*vg.Inch, "channel.png"); err != nil {
-    panic(err)
-  }
 }
 
-func modhmm_single_feature_plot_joined(config ConfigModHmm, feature string, mixture *scalarDistribution.Mixture, counts Counts, r, k []int, xlim [2]float64) {
+func modhmm_single_feature_plot_joined(config ConfigModHmm, p *plot.Plot, mixture *scalarDistribution.Mixture, counts Counts, r, k []int, xlim [2]float64) {
 }
 
 /* -------------------------------------------------------------------------- */
@@ -183,13 +171,28 @@ func modhmm_single_feature_plot(config ConfigModHmm, feature string, xlim [2]flo
   }
   printStderr(config, 1, "done\n")
 
+  p, err := plot.New()
+  if err != nil {
+    log.Fatal(err)
+  }
+  p.Title.Text   = feature
+  p.X.Label.Text = "coverage value"
+  p.Y.Label.Text = "probability"
+  p.X.Scale = plot.LinearScale{}
+  p.Y.Scale = plot.LogScale{}
+  p.Y.Tick.Marker = plot.LogTicks{}
+  p.Legend.Top = true
+
   if !FileExists(filenameComp.Filename) {
-    modhmm_single_feature_plot_isolated(config, feature, mixture, counts, xlim)
+    modhmm_single_feature_plot_isolated(config, p, mixture, counts, xlim)
   } else {
     k := ImportComponents(config, filenameComp.Filename, mixture.NComponents())
     r := Components(k).Invert(mixture.NComponents())
 
-    modhmm_single_feature_plot_joined(config, feature, mixture, counts, k, r, xlim)
+    modhmm_single_feature_plot_joined(config, p, mixture, counts, k, r, xlim)
+  }
+  if err := p.Save(10*vg.Inch, 6*vg.Inch, "channel.png"); err != nil {
+    panic(err)
   }
 }
 
