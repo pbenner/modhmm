@@ -202,6 +202,20 @@ func (config *ConfigCoveragePaths) GetFilenames() []string {
   return filenames
 }
 
+func (config *ConfigCoveragePaths) SetStatic(static bool) {
+  config.Atac     .Static = static
+  config.Dnase    .Static = static
+  config.Open     .Static = static
+  config.H3k27ac  .Static = static
+  config.H3k27me3 .Static = static
+  config.H3k9me3  .Static = static
+  config.H3k4me1  .Static = static
+  config.H3k4me3  .Static = static
+  config.H3k4me3o1.Static = static
+  config.Rna      .Static = static
+  config.Control  .Static = static
+}
+
 /* -------------------------------------------------------------------------- */
 
 type ConfigSingleFeaturePaths struct {
@@ -288,6 +302,7 @@ type ConfigModHmm struct {
   Coverage                   ConfigCoveragePaths      `json:"Coverage Files"`
   CoverageCnts               ConfigCoveragePaths      `json:"Coverage Counts Files"`
   CoverageMAPQ               int                      `json:"Coverage MAPQ"`
+  SingleFeatureModelStatic   bool                     `json:"Single-Feature Model Static"`
   SingleFeatureModelDir      string                   `json:"Single-Feature Model Directory"`
   SingleFeatureModel         ConfigCoveragePaths      `json:"Single-Feature Model Files"`
   SingleFeatureComp          ConfigSingleFeaturePaths `json:"Single-Feature Model Component Files"`
@@ -476,6 +491,9 @@ func (config *ConfigModHmm) CompletePaths() {
   config.PosteriorExp           .CompletePaths(config.PosteriorDir, "posterior-marginal-exp-", ".bw")
   config.PosteriorPeak          .CompletePaths(config.PosteriorDir, "posterior-marginal-peaks-", ".bw")
   config.SetOpenChromatinAssay(config.DetectOpenChromatinAssay())
+  if config.SingleFeatureModelStatic {
+    config.SingleFeatureModel.SetStatic(true)
+  }
 }
 
 /* -------------------------------------------------------------------------- */
