@@ -46,6 +46,24 @@ import   "gonum.org/v1/plot/vg/vgimg"
 
 /* -------------------------------------------------------------------------- */
 
+type scientificLogTicks struct{}
+func (scientificLogTicks) Ticks(min, max float64) []plot.Tick {
+  tks := plot.LogTicks{}.Ticks(min, max)
+  for i, t := range tks {
+    if t.Label == "" { // Skip minor ticks, they are fine.
+      continue
+    }
+    if t, err := strconv.ParseFloat(t.Label, 64); err != nil {
+      log.Fatal(err)
+    } else {
+      tks[i].Label = fmt.Sprintf("%.1e", t)
+    }
+  }
+  return tks
+}
+
+/* -------------------------------------------------------------------------- */
+
 func nrc(n int) (int, int) {
   r    := math.Sqrt(float64(n))
   x, y := 0.0, 0.0
@@ -163,7 +181,7 @@ func eval_delta_component(mixture *scalarDistribution.Mixture, k int, xlim [2]fl
 func modhmm_single_feature_plot_isolated(config ConfigModHmm, p *plot.Plot, mixture *scalarDistribution.Mixture, counts Counts, xlim [2]float64) {
   counts_xy, y_min := eval_counts(counts, xlim)
   plotutil.DefaultColors = []color.Color{color.RGBA{0, 0, 0, 255}}
-  if err := plotutil.AddLines(p, "Raw", counts_xy); err != nil {
+  if err := plotutil.AddLines(p, "raw", counts_xy); err != nil {
     log.Fatal("plotting mixture distribution failed: ", err)
   }
   var list_points []interface{}
@@ -172,11 +190,11 @@ func modhmm_single_feature_plot_isolated(config ConfigModHmm, p *plot.Plot, mixt
     switch mixture.Edist[k].(type) {
     case *scalarDistribution.DeltaDistribution:
       xys := eval_delta_component(mixture, k, xlim, y_min)
-      list_points = append(list_points, fmt.Sprintf("Component %d", k+1))
+      list_points = append(list_points, fmt.Sprintf("component %d", k+1))
       list_points = append(list_points, xys)
     default:
       xys := eval_component(mixture, []int{k}, counts, xlim, y_min)
-      list_lines = append(list_lines, fmt.Sprintf("Component %d", k+1))
+      list_lines = append(list_lines, fmt.Sprintf("component %d", k+1))
       list_lines = append(list_lines, xys)
     }
   }
@@ -192,13 +210,13 @@ func modhmm_single_feature_plot_isolated(config ConfigModHmm, p *plot.Plot, mixt
 func modhmm_single_feature_plot_joined(config ConfigModHmm, p *plot.Plot, mixture *scalarDistribution.Mixture, counts Counts, k_fg, k_bg []int, xlim [2]float64) {
   counts_xy, y_min := eval_counts(counts, xlim)
   plotutil.DefaultColors = []color.Color{color.RGBA{0, 0, 0, 255}}
-  if err := plotutil.AddLines(p, "Raw", counts_xy); err != nil {
+  if err := plotutil.AddLines(p, "raw", counts_xy); err != nil {
     log.Fatal("plotting mixture distribution failed: ", err)
   }
   xys_fg := eval_component(mixture, k_fg, counts, xlim, y_min)
   xys_bg := eval_component(mixture, k_bg, counts, xlim, y_min)
   plotutil.DefaultColors = plotutil.SoftColors
-  if err := plotutil.AddLines(p, "Foreground", xys_fg, "Background", xys_bg); err != nil {
+  if err := plotutil.AddLines(p, "foreground", xys_fg, "background", xys_bg); err != nil {
     log.Fatal("plotting mixture distribution failed: ", err)
   }
 }
@@ -243,7 +261,9 @@ func modhmm_single_feature_plot(config ConfigModHmm, xlim [2]float64, feature st
   p.Y.Label.Text = "probability"
   p.X.Scale = plot.LinearScale{}
   p.Y.Scale = plot.LogScale{}
-  p.Y.Tick.Marker = plot.LogTicks{}
+  //p.Y.Tick.Marker = plot.LogTicks{}
+  p.Y.Tick.Marker = scientificLogTicks{}
+
   p.Legend.Top = true
 
   if !FileExists(filenameComp.Filename) {
