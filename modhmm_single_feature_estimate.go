@@ -149,13 +149,15 @@ func modhmm_single_feature_estimate(config ConfigModHmm, feature string, n []int
   if !CoverageList.Contains(strings.ToLower(feature)) {
     log.Fatalf("unknown feature: %s", feature)
   }
-  filenameIn  := config.Coverage          .GetTargetFile(feature).Filename
-  filenameOut := config.SingleFeatureModel.GetTargetFile(feature).Filename
+  filenameIn  := config.Coverage          .GetTargetFile(feature)
+  filenameOut := config.SingleFeatureModel.GetTargetFile(feature)
 
-  config.BinSummaryStatistics = "discrete mean"
-  estimator = newEstimator(config, n[0], n[1], n[2])
+  if updateRequired(config, filenameOut, filenameIn.Filename) {
+    config.BinSummaryStatistics = "discrete mean"
+    estimator = newEstimator(config, n[0], n[1], n[2])
 
-  single_feature_estimate(config, estimator, filenameIn, filenameOut)
+    single_feature_estimate(config, estimator, filenameIn.Filename, filenameOut.Filename)
+  }
 }
 
 func modhmm_single_feature_estimate_default(config ConfigModHmm, feature string) {
