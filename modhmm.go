@@ -22,6 +22,7 @@ import   "fmt"
 import   "log"
 import   "io"
 import   "os"
+import   "path"
 
 import   "github.com/pborman/getopt"
 
@@ -116,7 +117,7 @@ func main() {
   command := options.Args()[0]
 
   // print config
-  config.CompletePaths()
+  config.CompletePaths(path.Dir(*optConfig))
   if str := config.String(); str != "" {
     printStderr(config, 0, "%s\n", str)
   }

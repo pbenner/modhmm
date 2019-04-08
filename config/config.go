@@ -466,15 +466,15 @@ func (config *ConfigModHmm) SetOpenChromatinAssay(assay string) {
   config.OpenChromatinAssay = assay
 }
 
-func (config *ConfigModHmm) CompletePaths() {
-  config.BamDir                 = config.setDefaultDir(config.BamDir,  "")
-  config.CoverageDir            = config.setDefaultDir(config.CoverageDir, config.BamDir)
-  config.SingleFeatureModelDir  = config.setDefaultDir(config.SingleFeatureModelDir, config.CoverageDir)
-  config.SingleFeatureDir       = config.setDefaultDir(config.SingleFeatureDir, config.SingleFeatureModelDir)
-  config.MultiFeatureDir        = config.setDefaultDir(config.MultiFeatureDir, config.SingleFeatureDir)
-  config.ModelDir               = config.setDefaultDir(config.ModelDir, config.MultiFeatureDir)
-  config.SegmentationDir        = config.setDefaultDir(config.SegmentationDir, config.ModelDir)
-  config.PosteriorDir           = config.setDefaultDir(config.PosteriorDir, config.SegmentationDir)
+func (config *ConfigModHmm) CompletePaths(prefix string) {
+  config.BamDir                 = config.setDefaultDir(filepath.Join(prefix, config.BamDir),  "")
+  config.CoverageDir            = config.setDefaultDir(filepath.Join(prefix, config.CoverageDir), config.BamDir)
+  config.SingleFeatureModelDir  = config.setDefaultDir(filepath.Join(prefix, config.SingleFeatureModelDir), config.CoverageDir)
+  config.SingleFeatureDir       = config.setDefaultDir(filepath.Join(prefix, config.SingleFeatureDir), config.SingleFeatureModelDir)
+  config.MultiFeatureDir        = config.setDefaultDir(filepath.Join(prefix, config.MultiFeatureDir), config.SingleFeatureDir)
+  config.ModelDir               = config.setDefaultDir(filepath.Join(prefix, config.ModelDir), config.MultiFeatureDir)
+  config.SegmentationDir        = config.setDefaultDir(filepath.Join(prefix, config.SegmentationDir), config.ModelDir)
+  config.PosteriorDir           = config.setDefaultDir(filepath.Join(prefix, config.PosteriorDir), config.SegmentationDir)
   config.Model.Filename         = completePath(config.ModelDir, "", config.Model.Filename, "segmentation.json")
   config.Segmentation.Filename  = completePath(config.SegmentationDir, "", config.Segmentation.Filename, "segmentation.bed.gz")
   config.Bam                    .CompletePaths(config.BamDir, "", "")

@@ -23,6 +23,7 @@ import   "log"
 import   "io"
 import   "math"
 import   "os"
+import   "path"
 import   "strconv"
 import   "strings"
 
@@ -208,8 +209,8 @@ func modhmm_differential_markov_model_main(configModHmm ConfigModHmm, args []str
   config1  = loadModConfig(config, options.Args()[0], config1)
   config2  = loadModConfig(config, options.Args()[1], config2)
 
-  config1.CompletePaths()
-  config2.CompletePaths()
+  config1.CompletePaths(path.Dir(options.Args()[0]))
+  config2.CompletePaths(path.Dir(options.Args()[1]))
 
   diffMarkovModel(config, config1, config2)
 }
