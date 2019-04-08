@@ -220,7 +220,7 @@ func modhmm_single_feature_plot(config ConfigModHmm, feature string, xlim [2]flo
     cmd := exec.Command("display", tmpfile.Name())
     if err := cmd.Run(); err != nil {
       os.Remove(tmpfile.Name())
-      log.Fatal(err)
+      log.Fatalf("%v: opening image viewer failed - try using `--save`", err)
     }
     os.Remove(tmpfile.Name())
   } else {
