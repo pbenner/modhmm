@@ -129,7 +129,7 @@ Create a configuration file named `mm10-liver-embryo-day12.5.json` (ModHMM accep
 }
 ```
 
-Create output directory
+Create output directories
 ```sh
   mkdir mm10-liver-embryo-day12.5
   mkdir mm10-liver-embryo-day12.5:models
@@ -194,7 +194,7 @@ Create a configuration file named `mm10-forebrain-embryo-day11.5.json`:
 }
 ```
 
-Create output directory
+Create output directories
 ```sh
   mkdir mm10-forebrain-embryo-day11.5
   mkdir mm10-forebrain-embryo-day11.5:models
