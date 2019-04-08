@@ -41,6 +41,53 @@ import   "gonum.org/v1/plot"
 import   "gonum.org/v1/plot/plotter"
 import   "gonum.org/v1/plot/plotutil"
 import   "gonum.org/v1/plot/vg"
+import   "gonum.org/v1/plot/vg/draw"
+import   "gonum.org/v1/plot/vg/vgimg"
+
+/* -------------------------------------------------------------------------- */
+
+func nrc(n int) (int, int) {
+  r    := math.Sqrt(float64(n))
+  x, y := 0.0, 0.0
+  if r - math.Floor(r) >= 0.5 {
+    x, y = math.Ceil (r), math.Ceil(r)
+  } else {
+    x, y = math.Floor(r), math.Ceil(r)
+  }
+  return int(x), int(y)
+}
+
+/* -------------------------------------------------------------------------- */
+
+func plot_result(img *vgimg.Canvas, save string) {
+  if save == "" {
+    tmpfile, err := ioutil.TempFile("", "*.png")
+    if err != nil {
+      log.Fatal(err)
+    }
+    png := vgimg.PngCanvas{Canvas: img}
+    if _, err := png.WriteTo(tmpfile); err != nil {
+      os.Remove(tmpfile.Name())
+      log.Fatal(err)
+    }
+    cmd := exec.Command("display", tmpfile.Name())
+    if err := cmd.Run(); err != nil {
+      os.Remove(tmpfile.Name())
+      log.Fatalf("%v: opening image viewer failed - try using `--save`", err)
+    }
+    os.Remove(tmpfile.Name())
+  } else {
+    f, err := os.Create(save)
+    if err != nil {
+      log.Fatal(err)
+    }
+    png := vgimg.PngCanvas{Canvas: img}
+    if _, err := png.WriteTo(f); err != nil {
+      os.Remove(save)
+      log.Fatal(err)
+    }
+  }
+}
 
 /* -------------------------------------------------------------------------- */
 
@@ -158,7 +205,7 @@ func modhmm_single_feature_plot_joined(config ConfigModHmm, p *plot.Plot, mixtur
 
 /* -------------------------------------------------------------------------- */
 
-func modhmm_single_feature_plot(config ConfigModHmm, feature string, xlim [2]float64, save string) {
+func modhmm_single_feature_plot(config ConfigModHmm, xlim [2]float64, feature string) *plot.Plot {
   if !SingleFeatureList.Contains(strings.ToLower(feature)) {
     log.Fatalf("unknown feature: %s", feature)
   }
@@ -207,30 +254,50 @@ func modhmm_single_feature_plot(config ConfigModHmm, feature string, xlim [2]flo
 
     modhmm_single_feature_plot_joined(config, p, mixture, counts, k_fg, k_bg, xlim)
   }
-  size_x := 10*vg.Inch
-  size_y :=  6*vg.Inch
-  if save == "" {
-    tmpfile, err := ioutil.TempFile("", "*.png")
-    if err != nil {
-      log.Fatal(err)
-    }
-    tmpfile.Close()
+  return p
+}
 
-    if err := p.Save(size_x, size_y, tmpfile.Name()); err != nil {
-      os.Remove(tmpfile.Name())
-      log.Fatal(err)
-    }
-    cmd := exec.Command("display", tmpfile.Name())
-    if err := cmd.Run(); err != nil {
-      os.Remove(tmpfile.Name())
-      log.Fatalf("%v: opening image viewer failed - try using `--save`", err)
-    }
-    os.Remove(tmpfile.Name())
-  } else {
-    if err := p.Save(size_x, size_y, save); err != nil {
-      log.Fatal(err)
+/* -------------------------------------------------------------------------- */
+
+func modhmm_single_feature_plot_loop(config ConfigModHmm, xlim [2]float64, save string, features []string) {
+  n1, n2 := nrc(len(features))
+  plots := make([][]*plot.Plot, n1)
+  for i := 0; i < n1; i++ {
+    plots[i] = make([]*plot.Plot, n2)
+    for j := 0; j < n2; j++ {
+      if i*n2+j >= len(features) {
+        break
+      }
+      plots[i][j] = modhmm_single_feature_plot(config, xlim, features[i*n2+j])
     }
   }
+  t := draw.Tiles{
+    Rows:      n1,
+    Cols:      n2,
+    PadX:      vg.Millimeter,
+    PadY:      vg.Millimeter,
+    PadTop:    vg.Points(2),
+    PadBottom: vg.Points(2),
+    PadLeft:   vg.Points(2),
+    PadRight:  vg.Points(2),
+  }
+  img := vgimg.New(vg.Points(float64(n2)*300), vg.Points(float64(n1)*200))
+  dc  := draw .New(img)
+
+  canvases := plot.Align(plots, t, dc)
+
+  for i := 0; i < n1; i++ {
+    for j := 0; j < n2; j++ {
+        if plots[i][j] != nil {
+            plots[i][j].Draw(canvases[i][j])
+        }
+    }
+  }
+  plot_result(img, save)
+}
+
+func modhmm_single_feature_plot_all(config ConfigModHmm, xlim [2]float64, save string) {
+  modhmm_single_feature_plot_loop(config, xlim, save, SingleFeatureList)
 }
 
 /* -------------------------------------------------------------------------- */
@@ -239,7 +306,7 @@ func modhmm_single_feature_plot_main(config ConfigModHmm, args []string) {
 
   options := getopt.New()
   options.SetProgram(fmt.Sprintf("%s plot-single-feature", os.Args[0]))
-  options.SetParameters("[FEATURE]\n")
+  options.SetParameters("[FEATURE]...\n")
 
   optSave := options.StringLong("save",  0 , "", "save plot to file")
   optXlim := options.StringLong("xlim",  0 , "", "range of the x-axis (e.g. 0-100)")
@@ -251,10 +318,6 @@ func modhmm_single_feature_plot_main(config ConfigModHmm, args []string) {
   if *optHelp {
     options.PrintUsage(os.Stdout)
     os.Exit(0)
-  }
-  if len(options.Args()) != 1 {
-    options.PrintUsage(os.Stdout)
-    os.Exit(1)
   }
   xlim := [2]float64{math.NaN(), math.NaN()}
   if *optXlim != "" {
@@ -274,5 +337,9 @@ func modhmm_single_feature_plot_main(config ConfigModHmm, args []string) {
       xlim[1] = v
     }
   }
-  modhmm_single_feature_plot(config, options.Args()[0], xlim, *optSave)
+  if len(options.Args()) == 0 {
+    modhmm_single_feature_plot_all(config, xlim, *optSave)
+  } else {
+    modhmm_single_feature_plot_loop(config, xlim, *optSave, options.Args())
+  }
 }
