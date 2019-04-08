@@ -159,6 +159,9 @@ func modhmm_single_feature_plot_joined(config ConfigModHmm, p *plot.Plot, mixtur
 /* -------------------------------------------------------------------------- */
 
 func modhmm_single_feature_plot(config ConfigModHmm, feature string, xlim [2]float64, save string) {
+  if !SingleFeatureList.Contains(strings.ToLower(feature)) {
+    log.Fatalf("unknown feature: %s", feature)
+  }
   mixture := &scalarDistribution.Mixture{}
   counts  := Counts{}
 

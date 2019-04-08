@@ -66,8 +66,13 @@ func main() {
     "     segmentation             [stage 4]   - compute genome segmentation\n\n" +
     " ModHMM commands are structured in stages. Executing a command also executes all commands with\n" +
     " lower stage number.\n\n" +
+    " Plotting commands:\n" +
+    "     plot-single-feature                  - plot fitted single-feature mixture distribution used\n" +
+    "                                            for enrichment analysis\n" +
     " Peak calling commands:\n" +
-    "     call-single-feature-peaks, call-multi-feature-peaks, call-posterior-marginal-peaks\n")
+    "     call-single-feature-peaks            - call peaks of single-feature enrichment analysis\n" +
+    "     call-multi-feature-peaks             - call peaks of multi-feature classifications\n" +
+    "     call-posterior-marginal-peaks        - call peaks of HMM marginal posterior tracks\n")
   options.Parse(os.Args)
 
   config := DefaultModHmmConfig()
