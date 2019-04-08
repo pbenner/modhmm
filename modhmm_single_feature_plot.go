@@ -114,7 +114,7 @@ func eval_delta_component(mixture *scalarDistribution.Mixture, k int, xlim [2]fl
 func modhmm_single_feature_plot_isolated(config ConfigModHmm, p *plot.Plot, mixture *scalarDistribution.Mixture, counts Counts, xlim [2]float64) {
   counts_xy, y_min := eval_counts(counts, xlim)
   plotutil.DefaultColors = []color.Color{color.RGBA{0, 0, 0, 255}}
-  if err := plotutil.AddLines(p, "raw", counts_xy); err != nil {
+  if err := plotutil.AddLines(p, "Raw", counts_xy); err != nil {
     log.Fatal("plotting mixture distribution failed: ", err)
   }
   var list_points []interface{}
@@ -140,7 +140,18 @@ func modhmm_single_feature_plot_isolated(config ConfigModHmm, p *plot.Plot, mixt
   }
 }
 
-func modhmm_single_feature_plot_joined(config ConfigModHmm, p *plot.Plot, mixture *scalarDistribution.Mixture, counts Counts, r, k []int, xlim [2]float64) {
+func modhmm_single_feature_plot_joined(config ConfigModHmm, p *plot.Plot, mixture *scalarDistribution.Mixture, counts Counts, k_fg, k_bg []int, xlim [2]float64) {
+  counts_xy, y_min := eval_counts(counts, xlim)
+  plotutil.DefaultColors = []color.Color{color.RGBA{0, 0, 0, 255}}
+  if err := plotutil.AddLines(p, "Raw", counts_xy); err != nil {
+    log.Fatal("plotting mixture distribution failed: ", err)
+  }
+  xys_fg := eval_component(mixture, k_fg, counts, xlim, y_min)
+  xys_bg := eval_component(mixture, k_bg, counts, xlim, y_min)
+  plotutil.DefaultColors = plotutil.SoftColors
+  if err := plotutil.AddLines(p, "Foreground", xys_fg, "Background", xys_bg); err != nil {
+    log.Fatal("plotting mixture distribution failed: ", err)
+  }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -186,10 +197,10 @@ func modhmm_single_feature_plot(config ConfigModHmm, feature string, xlim [2]flo
   if !FileExists(filenameComp.Filename) {
     modhmm_single_feature_plot_isolated(config, p, mixture, counts, xlim)
   } else {
-    k := ImportComponents(config, filenameComp.Filename, mixture.NComponents())
-    r := Components(k).Invert(mixture.NComponents())
+    k_fg := ImportComponents(config, filenameComp.Filename, mixture.NComponents())
+    k_bg := Components(k_fg).Invert(mixture.NComponents())
 
-    modhmm_single_feature_plot_joined(config, p, mixture, counts, k, r, xlim)
+    modhmm_single_feature_plot_joined(config, p, mixture, counts, k_fg, k_bg, xlim)
   }
   if err := p.Save(10*vg.Inch, 6*vg.Inch, "channel.png"); err != nil {
     panic(err)
