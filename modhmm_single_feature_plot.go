@@ -42,6 +42,29 @@ import   "gonum.org/v1/plot/vg"
 
 /* -------------------------------------------------------------------------- */
 
+func eval_counts(counts Counts, xlim [2]float64) (plotter.XYs, float64) {
+  xy  := make(plotter.XYs, 0)
+  sum := 0
+  for i := 0; i < len(counts.X); i++ {
+    sum += counts.Y[i]
+  }
+  y_min := math.Inf(1)
+  for i := 0; i < len(counts.X); i++ {
+    if !math.IsNaN(xlim[0]) && counts.X[i] < xlim[0] {
+      continue
+    }
+    if !math.IsNaN(xlim[1]) && counts.X[i] > xlim[1] {
+      continue
+    }
+    y := float64(counts.Y[i])/float64(sum)
+    xy = append(xy, plotter.XY{counts.X[i], y})
+    if y < y_min {
+      y_min = y
+    }
+  }
+  return xy, y_min
+}
+
 func eval_component(mixture *scalarDistribution.Mixture, k int, counts Counts, xlim [2]float64, y_min float64) plotter.XYs {
   r  := NullBareReal()
   xy := make(plotter.XYs, 0)
@@ -98,33 +121,13 @@ func modhmm_single_feature_plot_isolated(config ConfigModHmm, feature string, mi
   p.Y.Tick.Marker = plot.LogTicks{}
   p.Legend.Top = true
 
-  y_min := math.Inf(1)
+  counts_xy, y_min := eval_counts(counts, xlim)
+  plotutil.DefaultColors = []color.Color{color.RGBA{0, 0, 0, 255}}
+  if err := plotutil.AddLines(p, "raw", counts_xy); err != nil {
+    log.Fatal("plotting mixture distribution failed: ", err)
+  }
   var list_points []interface{}
   var list_lines  []interface{}
-  {
-    xy  := make(plotter.XYs, 0)
-    sum := 0
-    for i := 0; i < len(counts.X); i++ {
-      sum += counts.Y[i]
-    }
-    for i := 0; i < len(counts.X); i++ {
-      if !math.IsNaN(xlim[0]) && counts.X[i] < xlim[0] {
-        continue
-      }
-      if !math.IsNaN(xlim[1]) && counts.X[i] > xlim[1] {
-        continue
-      }
-      y := float64(counts.Y[i])/float64(sum)
-      xy = append(xy, plotter.XY{counts.X[i], y})
-      if y < y_min {
-        y_min = y
-      }
-    }
-    plotutil.DefaultColors = []color.Color{color.RGBA{0, 0, 0, 255}}
-    if err := plotutil.AddLines(p, "raw", xy); err != nil {
-      log.Fatal("plotting mixture distribution failed: ", err)
-    }
-  }
   for k := 0; k < mixture.NComponents(); k ++ {
     switch mixture.Edist[k].(type) {
     case *scalarDistribution.DeltaDistribution:
