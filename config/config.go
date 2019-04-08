@@ -244,6 +244,11 @@ func (config *ConfigSingleFeaturePaths) GetFilenames() []string {
   return filenames
 }
 
+func (config *ConfigSingleFeaturePaths) SetStatic(static bool) {
+  config.ConfigCoveragePaths.SetStatic(static)
+  config.Rna_low.Static = static
+}
+
 /* -------------------------------------------------------------------------- */
 
 type ConfigMultiFeaturePaths struct {
@@ -492,7 +497,9 @@ func (config *ConfigModHmm) CompletePaths() {
   config.PosteriorPeak          .CompletePaths(config.PosteriorDir, "posterior-marginal-peaks-", ".bw")
   config.SetOpenChromatinAssay(config.DetectOpenChromatinAssay())
   if config.SingleFeatureModelStatic {
+    config.CoverageCnts      .SetStatic(true)
     config.SingleFeatureModel.SetStatic(true)
+    config.SingleFeatureComp .SetStatic(true)
   }
 }
 

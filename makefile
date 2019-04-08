@@ -1,13 +1,14 @@
 
-VERSION = 1.0.0
-FILES   = modhmm.go $(filter-out %_test.go modhmm.go,$(wildcard *go))
-GOBIN   = $(shell echo $${GOPATH}/bin)
+VERSION   = 1.0.0
+FILES     = modhmm.go $(filter-out %_test.go modhmm.go,$(wildcard *.go))
+FILES_DEP = modhmm.go $(filter-out %_test.go modhmm.go,$(wildcard *.go config/*.go))
+GOBIN     = $(shell echo $${GOPATH}/bin)
 
 # ------------------------------------------------------------------------------
 
 all: modhmm
 
-modhmm: $(wildcard *.go)
+modhmm: $(FILES_DEP)
 	go build -ldflags "\
 	   -X main.Version=$(VERSION) \
 	   -X main.BuildTime=`TZ=UTC date -u '+%Y-%m-%dT%H:%M:%SZ'` \
