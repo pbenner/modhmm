@@ -20,9 +20,11 @@ package main
 
 import   "fmt"
 import   "image/color"
+import   "io/ioutil"
 import   "log"
 import   "math"
 import   "os"
+import   "os/exec"
 import   "strconv"
 import   "strings"
 
@@ -156,7 +158,7 @@ func modhmm_single_feature_plot_joined(config ConfigModHmm, p *plot.Plot, mixtur
 
 /* -------------------------------------------------------------------------- */
 
-func modhmm_single_feature_plot(config ConfigModHmm, feature string, xlim [2]float64) {
+func modhmm_single_feature_plot(config ConfigModHmm, feature string, xlim [2]float64, save string) {
   mixture := &scalarDistribution.Mixture{}
   counts  := Counts{}
 
@@ -202,8 +204,29 @@ func modhmm_single_feature_plot(config ConfigModHmm, feature string, xlim [2]flo
 
     modhmm_single_feature_plot_joined(config, p, mixture, counts, k_fg, k_bg, xlim)
   }
-  if err := p.Save(10*vg.Inch, 6*vg.Inch, "channel.png"); err != nil {
-    panic(err)
+  size_x := 10*vg.Inch
+  size_y :=  6*vg.Inch
+  if save == "" {
+    tmpfile, err := ioutil.TempFile("", "*.png")
+    if err != nil {
+      log.Fatal(err)
+    }
+    tmpfile.Close()
+
+    if err := p.Save(size_x, size_y, tmpfile.Name()); err != nil {
+      os.Remove(tmpfile.Name())
+      log.Fatal(err)
+    }
+    cmd := exec.Command("display", tmpfile.Name())
+    if err := cmd.Run(); err != nil {
+      os.Remove(tmpfile.Name())
+      log.Fatal(err)
+    }
+    os.Remove(tmpfile.Name())
+  } else {
+    if err := p.Save(size_x, size_y, save); err != nil {
+      log.Fatal(err)
+    }
   }
 }
 
@@ -215,8 +238,9 @@ func modhmm_single_feature_plot_main(config ConfigModHmm, args []string) {
   options.SetProgram(fmt.Sprintf("%s plot-single-feature", os.Args[0]))
   options.SetParameters("[FEATURE]\n")
 
-  optXlim     := options.StringLong("xlim",  0 , "", "range of the x-axis (e.g. 0-100)")
-  optHelp     := options.  BoolLong("help", 'h',     "print help")
+  optSave := options.StringLong("save",  0 , "", "save plot to file")
+  optXlim := options.StringLong("xlim",  0 , "", "range of the x-axis (e.g. 0-100)")
+  optHelp := options.  BoolLong("help", 'h',     "print help")
 
   options.Parse(args)
 
@@ -247,5 +271,5 @@ func modhmm_single_feature_plot_main(config ConfigModHmm, args []string) {
       xlim[1] = v
     }
   }
-  modhmm_single_feature_plot(config, options.Args()[0], xlim)
+  modhmm_single_feature_plot(config, options.Args()[0], xlim, *optSave)
 }
