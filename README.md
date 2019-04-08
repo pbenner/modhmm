@@ -6,7 +6,7 @@ ModHMM is a highly modular genome segmentation method that incorporates genome-w
 
 ModHMM can be installed by either downloading a binary from the [binary repository](https://github.com/pbenner/modhmm-binary) or by compiling the program from source. To compile ModHMM you must first install the [Go compiler](https://golang.org/dl/), i.e.:
 ```sh
-  wget https://dl.google.com/go/go1.11.linux-amd64.tar.gz
+  wget https://dl.google.com/go/go1.12.2.linux-amd64.tar.gz
   mkdir -p ~/.local/opt
   tar -xvf go1.11.linux-amd64.tar.gz -C ~/.local/opt
 ```
@@ -132,12 +132,7 @@ Create a configuration file named `mm10-liver-embryo-day12.5.json` (ModHMM accep
 Create output directory
 ```sh
   mkdir mm10-liver-embryo-day12.5
-```
-
-Download and unpack the single-feature model:
-```sh
-  wget https://github.com/pbenner/modhmm-segmentations/raw/master/mm10-liver-embryo-day12.5-models.tar.bz2
-  tar -xvf mm10-liver-embryo-day12.5-models.tar.bz
+  mkdir mm10-liver-embryo-day12.5:models
 ```
 
 Execute ModHMM:
@@ -202,12 +197,7 @@ Create a configuration file named `mm10-forebrain-embryo-day11.5.json`:
 Create output directory
 ```sh
   mkdir mm10-forebrain-embryo-day11.5
-```
-
-Download and unpack the single-feature model:
-```sh
-  wget https://github.com/pbenner/modhmm-segmentations/raw/master/mm10-liver-embryo-day12.5-models.tar.bz2
-  tar -xvf mm10-liver-embryo-day12.5-models.tar.bz
+  mkdir mm10-forebrain-embryo-day11.5:models
 ```
 
 Execute ModHMM:
@@ -215,9 +205,9 @@ Execute ModHMM:
   modhmm -c mm10-forebrain-embryo-day11.5.json segmentation
 ```
 
-### Example 3: Estimate single-feature models on ENCODE data from mouse embyonic forebrain at day 11.5
+### Example 3: Estimate custom single-feature models on ENCODE data from mouse embyonic forebrain at day 11.5
 
-Create a configuration file named `mm10-forebrain-embryo-day11.5.json`:
+Create a configuration file named `mm10-forebrain-embryo-day11.5.json` and set model files static to prevent automatic updates:
 ```R
 {
     "Bam Directory" : ".bam",
@@ -233,6 +223,7 @@ Create a configuration file named `mm10-forebrain-embryo-day11.5.json`:
         "Control"   : ["ENCFF631YQS.bam", "ENCFF658BBR.bam"]
     },
     "Coverage Threads"                : 5,
+    "Single-Feature Model Static"     : true,
     "Single-Feature Model Directory"  : "mm10-forebrain-embryo-day11.5:models",
     "Directory"                       : "mm10-forebrain-embryo-day11.5",
     "Description"                     : "forebrain embryo day11.5",
@@ -242,13 +233,13 @@ Create a configuration file named `mm10-forebrain-embryo-day11.5.json`:
 ```
 
 Create directories:
-```ssh
+```sh
   mkdir mm10-forebrain-embryo-day11.5
   mkdir mm10-forebrain-embryo-day11.5:models
 ```
 
 Compute coverages and count files:
-```ssh
+```sh
   modhmm -c mm10-forebrain-embryo-day11.5.json compute-counts
 ```
 
@@ -257,17 +248,9 @@ Estimate a single-feature model for H3K27ac with one dirac component, two Poisso
   modhmm -c mm10-forebrain-embryo-day11.5.json estimate-single-feature h3k27ac 1 2 2
 ```
 
-The resulting estimate can be easily inspected in *GNU-R* by first sourcing the file *modhmm_single_feature.R* from the ModHMM source package:
-```R
-  source("path/to/modhmm_single_feature.R")
-```
-
-Plot a histogram of the raw data and the estimated mixture distribution:
-```R
-  plot.model.and.counts("mm10-forebrain-embryo-day11.5:models/h3k27ac.json",
-                        "mm10-forebrain-embryo-day11.5:models/h3k27ac.counts.json",
-                         xlim=c(0,100))
-  legend("topright", legend=0:4, pch=c(1,rep(NA,4)), lty=c(NA,2:5))
+The resulting estimate can be easily inspected:
+```sh
+  modhmm -c mm10-forebrain-embryo-day11.5.json plot-single-feature --xlim=0-200 h3k27ac
 ```
 
 Select component 4 as foreground:
@@ -275,13 +258,9 @@ Select component 4 as foreground:
   echo '[4]' > mm10-forebrain-embryo-day11.5:models/h3k27ac.components.json
 ```
 
-Visualize the foreground and background components of the mixture distribution:
+Visualize the merged foreground and background components of the mixture distribution:
 ```R
-  plot.model.and.counts("mm10-forebrain-embryo-day11.5:models/h3k27ac.json",
-                        "mm10-forebrain-embryo-day11.5:models/h3k27ac.counts.json",
-                        "mm10-forebrain-embryo-day11.5:models/h3k27ac.components.json",
-                        xlim=c(0,100))
-  legend("topright", legend=c("foreground", "background"), lty=2:3)
+  modhmm -c mm10-forebrain-embryo-day11.5.json plot-single-feature --xlim=0-200 h3k27ac
 ```
 
 Repeat these steps for all remaining features:
@@ -297,11 +276,11 @@ Repeat these steps for all remaining features:
 
   echo '[3,4]'     > mm10-forebrain-embryo-day11.5:models/dnase.components.json
   echo '[8]'       > mm10-forebrain-embryo-day11.5:models/h3k27me3.components.json
-  echo '[1,3,4,6]' > mm10-forebrain-embryo-day11.5:models/h3k4me1.components.json
+  echo '[5,6,7,8]' > mm10-forebrain-embryo-day11.5:models/h3k4me1.components.json
   echo '[3,4]'     > mm10-forebrain-embryo-day11.5:models/h3k4me3.components.json
   echo '[2]'       > mm10-forebrain-embryo-day11.5:models/h3k4me3o1.components.json
-  echo '[3,6]'     > mm10-forebrain-embryo-day11.5:models/h3k9me3.components.json
-  echo '[1,3,4]'   > mm10-forebrain-embryo-day11.5:models/rna.components.json
-  echo '[1,3]'     > mm10-forebrain-embryo-day11.5:models/rna-low.components.json
+  echo '[5,6]'     > mm10-forebrain-embryo-day11.5:models/h3k9me3.components.json
+  echo '[2,3,4]'   > mm10-forebrain-embryo-day11.5:models/rna.components.json
+  echo '[1,2]'     > mm10-forebrain-embryo-day11.5:models/rna-low.components.json
   echo '[9]'       > mm10-forebrain-embryo-day11.5:models/control.components.json
 ```
