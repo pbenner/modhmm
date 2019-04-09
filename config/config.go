@@ -369,12 +369,20 @@ func DefaultModHmmConfig() ConfigModHmm {
   return config
 }
 
-func (config *ConfigModHmm) setDefaultDir(target, def string) string {
+func (config *ConfigModHmm) setDefaultDir(prefix, target, def string) string {
   if target != "" {
-    return target
+    if path.IsAbs(target) {
+      return target
+    } else {
+      return path.Join(prefix, target)
+    }
   }
   if config.Directory != "" {
-    return config.Directory
+    if path.IsAbs(config.Directory) {
+      return config.Directory
+    } else {
+      return path.Join(prefix, config.Directory)
+    }
   }
   return def
 }
@@ -467,14 +475,14 @@ func (config *ConfigModHmm) SetOpenChromatinAssay(assay string) {
 }
 
 func (config *ConfigModHmm) CompletePaths(prefix string) {
-  config.BamDir                 = config.setDefaultDir(filepath.Join(prefix, config.BamDir),  "")
-  config.CoverageDir            = config.setDefaultDir(filepath.Join(prefix, config.CoverageDir), config.BamDir)
-  config.SingleFeatureModelDir  = config.setDefaultDir(filepath.Join(prefix, config.SingleFeatureModelDir), config.CoverageDir)
-  config.SingleFeatureDir       = config.setDefaultDir(filepath.Join(prefix, config.SingleFeatureDir), config.SingleFeatureModelDir)
-  config.MultiFeatureDir        = config.setDefaultDir(filepath.Join(prefix, config.MultiFeatureDir), config.SingleFeatureDir)
-  config.ModelDir               = config.setDefaultDir(filepath.Join(prefix, config.ModelDir), config.MultiFeatureDir)
-  config.SegmentationDir        = config.setDefaultDir(filepath.Join(prefix, config.SegmentationDir), config.ModelDir)
-  config.PosteriorDir           = config.setDefaultDir(filepath.Join(prefix, config.PosteriorDir), config.SegmentationDir)
+  config.BamDir                 = config.setDefaultDir(prefix, config.BamDir               ,  "")
+  config.CoverageDir            = config.setDefaultDir(prefix, config.CoverageDir          , config.BamDir)
+  config.SingleFeatureModelDir  = config.setDefaultDir(prefix, config.SingleFeatureModelDir, config.CoverageDir)
+  config.SingleFeatureDir       = config.setDefaultDir(prefix, config.SingleFeatureDir     , config.SingleFeatureModelDir)
+  config.MultiFeatureDir        = config.setDefaultDir(prefix, config.MultiFeatureDir      , config.SingleFeatureDir)
+  config.ModelDir               = config.setDefaultDir(prefix, config.ModelDir             , config.MultiFeatureDir)
+  config.SegmentationDir        = config.setDefaultDir(prefix, config.SegmentationDir      , config.ModelDir)
+  config.PosteriorDir           = config.setDefaultDir(prefix, config.PosteriorDir         , config.SegmentationDir)
   config.Model.Filename         = completePath(config.ModelDir, "", config.Model.Filename, "segmentation.json")
   config.Segmentation.Filename  = completePath(config.SegmentationDir, "", config.Segmentation.Filename, "segmentation.bed.gz")
   config.Bam                    .CompletePaths(config.BamDir, "", "")
