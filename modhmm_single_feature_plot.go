@@ -20,11 +20,13 @@ package main
 
 import   "fmt"
 import   "image/color"
+import   "io"
 import   "io/ioutil"
 import   "log"
 import   "math"
 import   "os"
 import   "os/exec"
+import   "path"
 import   "strconv"
 import   "strings"
 
@@ -43,6 +45,7 @@ import   "gonum.org/v1/plot/plotutil"
 import   "gonum.org/v1/plot/vg"
 import   "gonum.org/v1/plot/vg/draw"
 import   "gonum.org/v1/plot/vg/vgimg"
+import   "gonum.org/v1/plot/vg/vgpdf"
 
 /* -------------------------------------------------------------------------- */
 
@@ -78,34 +81,77 @@ func nrc(n int) (int, int) {
 
 /* -------------------------------------------------------------------------- */
 
-func plot_result(img *vgimg.Canvas, save string) {
-  if save == "" {
-    tmpfile, err := ioutil.TempFile("", "*.png")
-    if err != nil {
-      log.Fatal(err)
-    }
-    png := vgimg.PngCanvas{Canvas: img}
-    if _, err := png.WriteTo(tmpfile); err != nil {
-      os.Remove(tmpfile.Name())
-      log.Fatal(err)
-    }
-    cmd := exec.Command("display", tmpfile.Name())
-    if err := cmd.Run(); err != nil {
-      os.Remove(tmpfile.Name())
-      log.Fatalf("%v: opening image viewer failed - try using `--save`", err)
-    }
-    os.Remove(tmpfile.Name())
-  } else {
-    f, err := os.Create(save)
-    if err != nil {
-      log.Fatal(err)
-    }
-    png := vgimg.PngCanvas{Canvas: img}
-    if _, err := png.WriteTo(f); err != nil {
-      os.Remove(save)
-      log.Fatal(err)
+func plot_result(plots [][]*plot.Plot, save string) error {
+  n1 := len(plots)
+  n2 := len(plots[0])
+  s1 := vg.Points(float64(n2)*300)
+  s2 := vg.Points(float64(n1)*200)
+  t  := draw.Tiles{
+    Rows:      n1,
+    Cols:      n2,
+    PadX:      vg.Millimeter,
+    PadY:      vg.Millimeter,
+    PadTop:    vg.Points(2),
+    PadBottom: vg.Points(2),
+    PadLeft:   vg.Points(2),
+    PadRight:  vg.Points(2),
+  }
+  var img          vg.CanvasSizer
+  var canvases [][]draw.Canvas
+  var writer       io.Writer
+  var filename     string
+
+  switch strings.ToLower(path.Ext(save)) {
+  default    : fallthrough
+  case ".png":
+    img      = vgimg.New(s1, s2)
+    dc      := draw .New(img)
+    canvases = plot .Align(plots, t, dc)
+  case ".pdf":
+    img      = vgpdf.New(s1, s2)
+    dc      := draw .New(img)
+    canvases = plot .Align(plots, t, dc)
+  }
+  for i := 0; i < n1; i++ {
+    for j := 0; j < n2; j++ {
+        if plots[i][j] != nil {
+            plots[i][j].Draw(canvases[i][j])
+        }
     }
   }
+  if save == "" {
+    if tmpfile, err := ioutil.TempFile("", "*.png"); err != nil {
+      return err
+    } else {
+      defer os.Remove(tmpfile.Name())
+      writer   = tmpfile
+      filename = tmpfile.Name()
+    }
+  } else {
+    if f, err := os.Create(save); err != nil {
+      return err
+    } else {
+      writer = f
+    }
+  }
+  switch a := img.(type) {
+  case *vgimg.Canvas:
+    png := vgimg.PngCanvas{Canvas: a}
+    if _, err := png.WriteTo(writer); err != nil {
+      return err
+    }
+  case *vgpdf.Canvas:
+    if _, err := a.WriteTo(writer); err != nil {
+      return err
+    }
+  }
+  if filename != "" {
+    cmd := exec.Command("display", filename)
+    if err := cmd.Run(); err != nil {
+      return fmt.Errorf("%v: opening image viewer failed - try using `--save`", err)
+    }
+  }
+  return nil
 }
 
 /* -------------------------------------------------------------------------- */
@@ -298,29 +344,9 @@ func modhmm_single_feature_plot_loop(config ConfigModHmm, save string, features 
       plots[i][j] = modhmm_single_feature_plot(config, features[i*n2+j])
     }
   }
-  t := draw.Tiles{
-    Rows:      n1,
-    Cols:      n2,
-    PadX:      vg.Millimeter,
-    PadY:      vg.Millimeter,
-    PadTop:    vg.Points(2),
-    PadBottom: vg.Points(2),
-    PadLeft:   vg.Points(2),
-    PadRight:  vg.Points(2),
+  if err := plot_result(plots, save); err != nil {
+    log.Fatal(err)
   }
-  img := vgimg.New(vg.Points(float64(n2)*300), vg.Points(float64(n1)*200))
-  dc  := draw .New(img)
-
-  canvases := plot.Align(plots, t, dc)
-
-  for i := 0; i < n1; i++ {
-    for j := 0; j < n2; j++ {
-        if plots[i][j] != nil {
-            plots[i][j].Draw(canvases[i][j])
-        }
-    }
-  }
-  plot_result(img, save)
 }
 
 func modhmm_single_feature_plot_all(config ConfigModHmm, save string) {
