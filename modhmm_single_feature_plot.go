@@ -96,22 +96,18 @@ func plot_result(plots [][]*plot.Plot, save string) error {
     PadLeft:   vg.Points(2),
     PadRight:  vg.Points(2),
   }
-  var img          vg.CanvasSizer
-  var canvases [][]draw.Canvas
-  var writer       io.Writer
-  var filename     string
+  var img      vg.CanvasSizer
+  var writer   io.Writer
+  var filename string
 
   switch strings.ToLower(path.Ext(save)) {
   default    : fallthrough
   case ".png":
-    img      = vgimg.New(s1, s2)
-    dc      := draw .New(img)
-    canvases = plot .Align(plots, t, dc)
+    img = vgimg.New(s1, s2)
   case ".pdf":
-    img      = vgpdf.New(s1, s2)
-    dc      := draw .New(img)
-    canvases = plot .Align(plots, t, dc)
+    img = vgpdf.New(s1, s2)
   }
+  canvases := plot.Align(plots, t, draw.New(img))
   for i := 0; i < n1; i++ {
     for j := 0; j < n2; j++ {
         if plots[i][j] != nil {
