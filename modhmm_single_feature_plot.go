@@ -297,11 +297,12 @@ func modhmm_single_feature_plot(config ConfigModHmm, feature string) *plot.Plot 
   if err != nil {
     log.Fatal(err)
   }
-  p.Title.Text   = feature
-  p.X.Label.Text = "coverage value"
-  p.Y.Label.Text = "probability"
-  p.X.Scale = plot.LinearScale{}
-  p.Y.Scale = plot.LogScale{}
+  p.Title.Text    = feature
+  p.Legend.Top    = true
+  p.X.Label.Text  = "coverage value"
+  p.Y.Label.Text  = "probability"
+  p.X.Scale       = plot.LinearScale{}
+  p.Y.Scale       = plot.LogScale{}
   p.Y.Tick.Marker = scientificLogTicks{}
   // set font size
   p.Title .Font.Size       = vg.Length(config.FontSize)
@@ -311,7 +312,6 @@ func modhmm_single_feature_plot(config ConfigModHmm, feature string) *plot.Plot 
   p.X.Tick.Label.Font.Size = vg.Length(config.FontSize)
   p.Y.Tick.Label.Font.Size = vg.Length(config.FontSize)
 
-  p.Legend.Top = true
 
   if !FileExists(filenameComp.Filename) {
     modhmm_single_feature_plot_isolated(config, p, mixture, counts)
