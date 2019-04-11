@@ -81,7 +81,7 @@ func nrc(n int) (int, int) {
 
 /* -------------------------------------------------------------------------- */
 
-func plot_result(plots [][]*plot.Plot, save string) error {
+func plot_result(plots [][]*plot.Plot, save string) (string, error) {
   n1 := len(plots)
   n2 := len(plots[0])
   s1 := vg.Points(float64(n2)*300)
@@ -116,40 +116,36 @@ func plot_result(plots [][]*plot.Plot, save string) error {
     }
   }
   if save == "" {
-    if tmpfile, err := ioutil.TempFile("", "*.png"); err != nil {
-      return err
+    if f, err := ioutil.TempFile("", "*.png"); err != nil {
+      return "", err
     } else {
-      defer os.Remove(tmpfile.Name())
-      defer tmpfile.Close()
-      writer   = tmpfile
-      filename = tmpfile.Name()
+      defer f.Close()
+      writer   = f
+      filename = f.Name()
     }
   } else {
     if f, err := os.Create(save); err != nil {
-      return err
+      return "", err
     } else {
       defer f.Close()
-      writer = f
+      writer   = f
+      filename = save
     }
   }
   switch a := img.(type) {
   case *vgimg.Canvas:
     png := vgimg.PngCanvas{Canvas: a}
     if _, err := png.WriteTo(writer); err != nil {
-      return err
+      os.Remove(filename)
+      return "", err
     }
   case *vgpdf.Canvas:
     if _, err := a.WriteTo(writer); err != nil {
-      return err
+      os.Remove(filename)
+      return "", err
     }
   }
-  if filename != "" {
-    cmd := exec.Command("display", filename)
-    if err := cmd.Run(); err != nil {
-      return fmt.Errorf("%v: opening image viewer failed - try using `--save`", err)
-    }
-  }
-  return nil
+  return filename, nil
 }
 
 /* -------------------------------------------------------------------------- */
@@ -342,8 +338,15 @@ func modhmm_single_feature_plot_loop(config ConfigModHmm, save string, features 
       plots[i][j] = modhmm_single_feature_plot(config, features[i*n2+j])
     }
   }
-  if err := plot_result(plots, save); err != nil {
+  if filename, err := plot_result(plots, save); err != nil {
     log.Fatal(err)
+  } else {
+    if save == "" {
+      cmd := exec.Command("display", filename)
+      if err := cmd.Run(); err != nil {
+        log.Fatalf("%v: opening image viewer failed - try using `--save`", err)
+      }
+    }
   }
 }
 
