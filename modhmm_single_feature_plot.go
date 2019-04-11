@@ -124,6 +124,7 @@ func plot_result(plots [][]*plot.Plot, save string) error {
       return err
     } else {
       defer os.Remove(tmpfile.Name())
+      defer tmpfile.Close()
       writer   = tmpfile
       filename = tmpfile.Name()
     }
@@ -131,6 +132,7 @@ func plot_result(plots [][]*plot.Plot, save string) error {
     if f, err := os.Create(save); err != nil {
       return err
     } else {
+      defer f.Close()
       writer = f
     }
   }
