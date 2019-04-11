@@ -273,12 +273,6 @@ func modhmm_single_feature_plot(config ConfigModHmm, feature string) *plot.Plot 
 
   filenameModel, filenameComp, _, filenameCnts, _, _ := single_feature_files(config, feature, false)
 
-  if !FileExists(filenameModel.Filename) {
-    log.Fatalf("%s: file does not exist", filenameModel.Filename)
-  }
-  if !FileExists(filenameCnts.Filename) {
-    log.Fatalf("%s: file does not exist", filenameCnts.Filename)
-  }
   printStderr(config, 1, "Importing mixture model from `%s'... ", filenameModel.Filename)
   if err := ImportDistribution(filenameModel.Filename, mixture, BareRealType); err != nil {
     printStderr(config, 1, "failed\n")
