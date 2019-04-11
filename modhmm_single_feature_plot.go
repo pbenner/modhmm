@@ -47,6 +47,7 @@ import   "gonum.org/v1/plot/vg/vgimg"
 /* -------------------------------------------------------------------------- */
 
 type scientificLogTicks struct{}
+
 func (scientificLogTicks) Ticks(min, max float64) []plot.Tick {
   tks := plot.LogTicks{}.Ticks(min, max)
   for i, t := range tks {
@@ -178,8 +179,8 @@ func eval_delta_component(mixture *scalarDistribution.Mixture, k int, xlim [2]fl
 
 /* -------------------------------------------------------------------------- */
 
-func modhmm_single_feature_plot_isolated(config ConfigModHmm, p *plot.Plot, mixture *scalarDistribution.Mixture, counts Counts, xlim [2]float64) {
-  counts_xy, y_min := eval_counts(counts, xlim)
+func modhmm_single_feature_plot_isolated(config ConfigModHmm, p *plot.Plot, mixture *scalarDistribution.Mixture, counts Counts) {
+  counts_xy, y_min := eval_counts(counts, config.XLim)
   plotutil.DefaultColors = []color.Color{color.RGBA{0, 0, 0, 255}}
   if err := plotutil.AddLines(p, "raw", counts_xy); err != nil {
     log.Fatal("plotting mixture distribution failed: ", err)
@@ -189,11 +190,11 @@ func modhmm_single_feature_plot_isolated(config ConfigModHmm, p *plot.Plot, mixt
   for k := 0; k < mixture.NComponents(); k ++ {
     switch mixture.Edist[k].(type) {
     case *scalarDistribution.DeltaDistribution:
-      xys := eval_delta_component(mixture, k, xlim, y_min)
+      xys := eval_delta_component(mixture, k, config.XLim, y_min)
       list_points = append(list_points, fmt.Sprintf("component %d", k+1))
       list_points = append(list_points, xys)
     default:
-      xys := eval_component(mixture, []int{k}, counts, xlim, y_min)
+      xys := eval_component(mixture, []int{k}, counts, config.XLim, y_min)
       list_lines = append(list_lines, fmt.Sprintf("component %d", k+1))
       list_lines = append(list_lines, xys)
     }
@@ -207,14 +208,14 @@ func modhmm_single_feature_plot_isolated(config ConfigModHmm, p *plot.Plot, mixt
   }
 }
 
-func modhmm_single_feature_plot_joined(config ConfigModHmm, p *plot.Plot, mixture *scalarDistribution.Mixture, counts Counts, k_fg, k_bg []int, xlim [2]float64) {
-  counts_xy, y_min := eval_counts(counts, xlim)
+func modhmm_single_feature_plot_joined(config ConfigModHmm, p *plot.Plot, mixture *scalarDistribution.Mixture, counts Counts, k_fg, k_bg []int) {
+  counts_xy, y_min := eval_counts(counts, config.XLim)
   plotutil.DefaultColors = []color.Color{color.RGBA{0, 0, 0, 255}}
   if err := plotutil.AddLines(p, "raw", counts_xy); err != nil {
     log.Fatal("plotting mixture distribution failed: ", err)
   }
-  xys_fg := eval_component(mixture, k_fg, counts, xlim, y_min)
-  xys_bg := eval_component(mixture, k_bg, counts, xlim, y_min)
+  xys_fg := eval_component(mixture, k_fg, counts, config.XLim, y_min)
+  xys_bg := eval_component(mixture, k_bg, counts, config.XLim, y_min)
   plotutil.DefaultColors = plotutil.SoftColors
   if err := plotutil.AddLines(p, "foreground", xys_fg, "background", xys_bg); err != nil {
     log.Fatal("plotting mixture distribution failed: ", err)
@@ -223,7 +224,7 @@ func modhmm_single_feature_plot_joined(config ConfigModHmm, p *plot.Plot, mixtur
 
 /* -------------------------------------------------------------------------- */
 
-func modhmm_single_feature_plot(config ConfigModHmm, xlim [2]float64, feature string) *plot.Plot {
+func modhmm_single_feature_plot(config ConfigModHmm, feature string) *plot.Plot {
   if !SingleFeatureList.Contains(strings.ToLower(feature)) {
     log.Fatalf("unknown feature: %s", feature)
   }
@@ -261,25 +262,31 @@ func modhmm_single_feature_plot(config ConfigModHmm, xlim [2]float64, feature st
   p.Y.Label.Text = "probability"
   p.X.Scale = plot.LinearScale{}
   p.Y.Scale = plot.LogScale{}
-  //p.Y.Tick.Marker = plot.LogTicks{}
   p.Y.Tick.Marker = scientificLogTicks{}
+  // set font size
+  p.Title .Font.Size       = vg.Length(config.FontSize)
+  p.Legend.Font.Size       = vg.Length(config.FontSize)
+  p.X.Label.Font.Size      = vg.Length(config.FontSize)
+  p.Y.Label.Font.Size      = vg.Length(config.FontSize)
+  p.X.Tick.Label.Font.Size = vg.Length(config.FontSize)
+  p.Y.Tick.Label.Font.Size = vg.Length(config.FontSize)
 
   p.Legend.Top = true
 
   if !FileExists(filenameComp.Filename) {
-    modhmm_single_feature_plot_isolated(config, p, mixture, counts, xlim)
+    modhmm_single_feature_plot_isolated(config, p, mixture, counts)
   } else {
     k_fg := ImportComponents(config, filenameComp.Filename, mixture.NComponents())
     k_bg := Components(k_fg).Invert(mixture.NComponents())
 
-    modhmm_single_feature_plot_joined(config, p, mixture, counts, k_fg, k_bg, xlim)
+    modhmm_single_feature_plot_joined(config, p, mixture, counts, k_fg, k_bg)
   }
   return p
 }
 
 /* -------------------------------------------------------------------------- */
 
-func modhmm_single_feature_plot_loop(config ConfigModHmm, xlim [2]float64, save string, features []string) {
+func modhmm_single_feature_plot_loop(config ConfigModHmm, save string, features []string) {
   n1, n2 := nrc(len(features))
   plots := make([][]*plot.Plot, n1)
   for i := 0; i < n1; i++ {
@@ -288,7 +295,7 @@ func modhmm_single_feature_plot_loop(config ConfigModHmm, xlim [2]float64, save 
       if i*n2+j >= len(features) {
         break
       }
-      plots[i][j] = modhmm_single_feature_plot(config, xlim, features[i*n2+j])
+      plots[i][j] = modhmm_single_feature_plot(config, features[i*n2+j])
     }
   }
   t := draw.Tiles{
@@ -316,8 +323,8 @@ func modhmm_single_feature_plot_loop(config ConfigModHmm, xlim [2]float64, save 
   plot_result(img, save)
 }
 
-func modhmm_single_feature_plot_all(config ConfigModHmm, xlim [2]float64, save string) {
-  modhmm_single_feature_plot_loop(config, xlim, save, SingleFeatureList)
+func modhmm_single_feature_plot_all(config ConfigModHmm, save string) {
+  modhmm_single_feature_plot_loop(config, save, SingleFeatureList)
 }
 
 /* -------------------------------------------------------------------------- */
@@ -328,9 +335,10 @@ func modhmm_single_feature_plot_main(config ConfigModHmm, args []string) {
   options.SetProgram(fmt.Sprintf("%s plot-single-feature", os.Args[0]))
   options.SetParameters("[FEATURE]...\n")
 
-  optSave := options.StringLong("save",  0 , "", "save plot to file")
-  optXlim := options.StringLong("xlim",  0 , "", "range of the x-axis (e.g. 0-100)")
-  optHelp := options.  BoolLong("help", 'h',     "print help")
+  optSave     := options.StringLong("save",       0 , "", "save plot to file")
+  optXlim     := options.StringLong("xlim",       0 , "", "range of the x-axis (e.g. 0-100)")
+  optFontSize := options.StringLong("font-size",  0 , "", "size of the font")
+  optHelp     := options.  BoolLong("help",      'h',     "print help")
 
   options.Parse(args)
 
@@ -339,7 +347,6 @@ func modhmm_single_feature_plot_main(config ConfigModHmm, args []string) {
     options.PrintUsage(os.Stdout)
     os.Exit(0)
   }
-  xlim := [2]float64{math.NaN(), math.NaN()}
   if *optXlim != "" {
     r := strings.Split(*optXlim, "-")
     if len(r) != 2 {
@@ -349,17 +356,24 @@ func modhmm_single_feature_plot_main(config ConfigModHmm, args []string) {
     if v, err := strconv.ParseFloat(r[0], 64); err != nil {
       log.Fatal(err)
     } else {
-      xlim[0] = v
+      config.XLim[0] = v
     }
     if v, err := strconv.ParseFloat(r[1], 64); err != nil {
       log.Fatal(err)
     } else {
-      xlim[1] = v
+      config.XLim[1] = v
+    }
+  }
+  if *optFontSize != "" {
+    if v, err := strconv.ParseFloat(*optFontSize, 64); err != nil {
+      log.Fatal(err)
+    } else {
+      config.FontSize = v
     }
   }
   if len(options.Args()) == 0 {
-    modhmm_single_feature_plot_all(config, xlim, *optSave)
+    modhmm_single_feature_plot_all(config, *optSave)
   } else {
-    modhmm_single_feature_plot_loop(config, xlim, *optSave, options.Args())
+    modhmm_single_feature_plot_loop(config, *optSave, options.Args())
   }
 }

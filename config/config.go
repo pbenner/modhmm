@@ -22,6 +22,7 @@ import   "fmt"
 import   "bytes"
 import   "log"
 import   "io"
+import   "math"
 import   "path"
 import   "path/filepath"
 import   "strings"
@@ -334,6 +335,8 @@ type ConfigModHmm struct {
   SegmentationDir            string                   `json:"Segmentation Directory"`
   Directory                  string
   Description                string
+  FontSize                   float64
+  XLim                    [2]float64
 }
 
 /* -------------------------------------------------------------------------- */
@@ -363,6 +366,9 @@ func DefaultModHmmConfig() ConfigModHmm {
   config.CoverageThreads      = 1
   config.CoverageBinSize      = 10
   config.CoverageMAPQ         = 30
+  config.FontSize             = 12
+  config.XLim[0]              = math.NaN()
+  config.XLim[1]              = math.NaN()
   config.OpenChromatinAssay   = ""
   config.Threads              = 1
   config.Verbose              = 0
