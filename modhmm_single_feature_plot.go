@@ -230,7 +230,7 @@ func eval_delta_component(mixture *scalarDistribution.Mixture, k int, xlim [2]fl
 func modhmm_single_feature_plot_isolated(config ConfigModHmm, p *plot.Plot, mixture *scalarDistribution.Mixture, counts Counts) {
   counts_xy, y_min := eval_counts(counts, config.XLim)
   plotutil.DefaultColors = []color.Color{color.RGBA{0, 0, 0, 255}}
-  if err := plotutil.AddLines(p, "raw", counts_xy); err != nil {
+  if err := plotutil.AddLines(p, "relative frequency", counts_xy); err != nil {
     log.Fatal("plotting mixture distribution failed: ", err)
   }
   var list_points []interface{}
@@ -259,7 +259,7 @@ func modhmm_single_feature_plot_isolated(config ConfigModHmm, p *plot.Plot, mixt
 func modhmm_single_feature_plot_joined(config ConfigModHmm, p *plot.Plot, mixture *scalarDistribution.Mixture, counts Counts, k_fg, k_bg []int) {
   counts_xy, y_min := eval_counts(counts, config.XLim)
   plotutil.DefaultColors = []color.Color{color.RGBA{0, 0, 0, 255}}
-  if err := plotutil.AddLines(p, "raw", counts_xy); err != nil {
+  if err := plotutil.AddLines(p, "relative frequency", counts_xy); err != nil {
     log.Fatal("plotting mixture distribution failed: ", err)
   }
   xys_fg := eval_component(mixture, k_fg, counts, config.XLim, y_min)
