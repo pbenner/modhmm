@@ -219,12 +219,17 @@ func eval_delta_component(mixture *scalarDistribution.Mixture, k int, xlim [2]fl
 
 /* -------------------------------------------------------------------------- */
 
-func modhmm_single_feature_plot_isolated(config ConfigModHmm, p *plot.Plot, mixture *scalarDistribution.Mixture, counts Counts) {
+func modhmm_single_feature_plot_counts(config ConfigModHmm, p *plot.Plot, counts Counts) float64 {
   counts_xy, y_min := eval_counts(counts, config.XLim)
   plotutil.DefaultColors = []color.Color{color.RGBA{0, 0, 0, 255}}
   if err := plotutil.AddLines(p, "relative frequency", counts_xy); err != nil {
     log.Fatal("plotting mixture distribution failed: ", err)
   }
+  return y_min
+}
+
+func modhmm_single_feature_plot_isolated(config ConfigModHmm, p *plot.Plot, mixture *scalarDistribution.Mixture, counts Counts) {
+  y_min := modhmm_single_feature_plot_counts(config, p, counts)
   var list_points []interface{}
   var list_lines  []interface{}
   for k := 0; k < mixture.NComponents(); k ++ {
@@ -249,11 +254,7 @@ func modhmm_single_feature_plot_isolated(config ConfigModHmm, p *plot.Plot, mixt
 }
 
 func modhmm_single_feature_plot_joined(config ConfigModHmm, p *plot.Plot, mixture *scalarDistribution.Mixture, counts Counts, k_fg, k_bg []int) {
-  counts_xy, y_min := eval_counts(counts, config.XLim)
-  plotutil.DefaultColors = []color.Color{color.RGBA{0, 0, 0, 255}}
-  if err := plotutil.AddLines(p, "relative frequency", counts_xy); err != nil {
-    log.Fatal("plotting mixture distribution failed: ", err)
-  }
+  y_min  := modhmm_single_feature_plot_counts(config, p, counts)
   xys_fg := eval_component(mixture, k_fg, counts, config.XLim, y_min)
   xys_bg := eval_component(mixture, k_bg, counts, config.XLim, y_min)
   plotutil.DefaultColors = plotutil.SoftColors
@@ -268,25 +269,6 @@ func modhmm_single_feature_plot(config ConfigModHmm, feature string) *plot.Plot 
   if !SingleFeatureList.Contains(strings.ToLower(feature)) {
     log.Fatalf("unknown feature: %s", feature)
   }
-  mixture := &scalarDistribution.Mixture{}
-  counts  := Counts{}
-
-  filenameModel, filenameComp, _, filenameCnts, _, _ := single_feature_files(config, feature, false)
-
-  printStderr(config, 1, "Importing mixture model from `%s'... ", filenameModel.Filename)
-  if err := ImportDistribution(filenameModel.Filename, mixture, BareRealType); err != nil {
-    printStderr(config, 1, "failed\n")
-    log.Fatal(err)
-  }
-  printStderr(config, 1, "done\n")
-
-  printStderr(config, 1, "Importing reference counts from `%s'... ", filenameCnts.Filename)
-  if err := counts.ImportFile(filenameCnts.Filename); err != nil {
-    printStderr(config, 1, "failed\n")
-    log.Fatal(err)
-  }
-  printStderr(config, 1, "done\n")
-
   p, err := plot.New()
   if err != nil {
     log.Fatal(err)
@@ -306,14 +288,34 @@ func modhmm_single_feature_plot(config ConfigModHmm, feature string) *plot.Plot 
   p.X.Tick.Label.Font.Size = vg.Length(config.FontSize)
   p.Y.Tick.Label.Font.Size = vg.Length(config.FontSize)
 
+  filenameModel, filenameComp, _, filenameCnts, _, _ := single_feature_files(config, feature, false)
 
-  if !FileExists(filenameComp.Filename) {
-    modhmm_single_feature_plot_isolated(config, p, mixture, counts)
+  counts := Counts{}
+  printStderr(config, 1, "Importing reference counts from `%s'... ", filenameCnts.Filename)
+  if err := counts.ImportFile(filenameCnts.Filename); err != nil {
+    printStderr(config, 1, "failed\n")
+    log.Fatal(err)
+  }
+  printStderr(config, 1, "done\n")
+
+  if !FileExists(filenameModel.Filename) {
+    modhmm_single_feature_plot_counts(config, p, counts)
   } else {
-    k_fg := ImportComponents(config, filenameComp.Filename, mixture.NComponents())
-    k_bg := Components(k_fg).Invert(mixture.NComponents())
+    mixture := &scalarDistribution.Mixture{}
+    printStderr(config, 1, "Importing mixture model from `%s'... ", filenameModel.Filename)
+    if err := ImportDistribution(filenameModel.Filename, mixture, BareRealType); err != nil {
+      printStderr(config, 1, "failed\n")
+      log.Fatal(err)
+    }
+    printStderr(config, 1, "done\n")
+    if !FileExists(filenameComp.Filename) {
+      modhmm_single_feature_plot_isolated(config, p, mixture, counts)
+    } else {
+      k_fg := ImportComponents(config, filenameComp.Filename, mixture.NComponents())
+      k_bg := Components(k_fg).Invert(mixture.NComponents())
 
-    modhmm_single_feature_plot_joined(config, p, mixture, counts, k_fg, k_bg)
+      modhmm_single_feature_plot_joined(config, p, mixture, counts, k_fg, k_bg)
+    }
   }
   return p
 }
