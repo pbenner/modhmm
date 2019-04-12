@@ -265,7 +265,7 @@ func modhmm_single_feature_plot_joined(config ConfigModHmm, p *plot.Plot, mixtur
 
 /* -------------------------------------------------------------------------- */
 
-func modhmm_single_feature_plot(config ConfigModHmm, feature string) *plot.Plot {
+func modhmm_single_feature_plot(config ConfigModHmm, ignoreModel, ignoreComponents bool, feature string) *plot.Plot {
   if !SingleFeatureList.Contains(strings.ToLower(feature)) {
     log.Fatalf("unknown feature: %s", feature)
   }
@@ -298,7 +298,7 @@ func modhmm_single_feature_plot(config ConfigModHmm, feature string) *plot.Plot 
   }
   printStderr(config, 1, "done\n")
 
-  if !FileExists(filenameModel.Filename) {
+  if ignoreModel || !FileExists(filenameModel.Filename) {
     modhmm_single_feature_plot_counts(config, p, counts)
   } else {
     mixture := &scalarDistribution.Mixture{}
@@ -308,7 +308,7 @@ func modhmm_single_feature_plot(config ConfigModHmm, feature string) *plot.Plot 
       log.Fatal(err)
     }
     printStderr(config, 1, "done\n")
-    if !FileExists(filenameComp.Filename) {
+    if ignoreComponents || !FileExists(filenameComp.Filename) {
       modhmm_single_feature_plot_isolated(config, p, mixture, counts)
     } else {
       k_fg := ImportComponents(config, filenameComp.Filename, mixture.NComponents())
@@ -322,7 +322,7 @@ func modhmm_single_feature_plot(config ConfigModHmm, feature string) *plot.Plot 
 
 /* -------------------------------------------------------------------------- */
 
-func modhmm_single_feature_plot_loop(config ConfigModHmm, save string, features []string) {
+func modhmm_single_feature_plot_loop(config ConfigModHmm, save string, ignoreModel, ignoreComponents bool, features []string) {
   n1, n2 := nrc(len(features))
   plots := make([][]*plot.Plot, n1)
   for i := 0; i < n1; i++ {
@@ -331,7 +331,7 @@ func modhmm_single_feature_plot_loop(config ConfigModHmm, save string, features 
       if i*n2+j >= len(features) {
         break
       }
-      plots[i][j] = modhmm_single_feature_plot(config, features[i*n2+j])
+      plots[i][j] = modhmm_single_feature_plot(config, ignoreModel, ignoreComponents, features[i*n2+j])
     }
   }
   if filename, err := plot_result(plots, save); err != nil {
@@ -346,8 +346,8 @@ func modhmm_single_feature_plot_loop(config ConfigModHmm, save string, features 
   }
 }
 
-func modhmm_single_feature_plot_all(config ConfigModHmm, save string) {
-  modhmm_single_feature_plot_loop(config, save, SingleFeatureList)
+func modhmm_single_feature_plot_all(config ConfigModHmm, save string, ignoreModel, ignoreComponents bool) {
+  modhmm_single_feature_plot_loop(config, save, ignoreModel, ignoreComponents, SingleFeatureList)
 }
 
 /* -------------------------------------------------------------------------- */
@@ -358,10 +358,12 @@ func modhmm_single_feature_plot_main(config ConfigModHmm, args []string) {
   options.SetProgram(fmt.Sprintf("%s plot-single-feature", os.Args[0]))
   options.SetParameters("[FEATURE]...\n")
 
-  optSave     := options.StringLong("save",       0 , "", "save plot to file")
-  optXlim     := options.StringLong("xlim",       0 , "", "range of the x-axis (e.g. 0-100)")
-  optFontSize := options.StringLong("font-size",  0 , "", "size of the font")
-  optHelp     := options.  BoolLong("help",      'h',     "print help")
+  optSave        := options.StringLong("save",              0 , "", "save plot to file")
+  optXlim        := options.StringLong("xlim",              0 , "", "range of the x-axis (e.g. 0-100)")
+  optFontSize    := options.StringLong("font-size",         0 , "", "size of the font")
+  optIgnoreModel := options.  BoolLong("ignore-model",      0 ,     "do not plot mixture model")
+  optIgnoreComp  := options.  BoolLong("ignore-components", 0 ,     "ignore components file")
+  optHelp        := options.  BoolLong("help",             'h',     "print help")
 
   options.Parse(args)
 
@@ -395,8 +397,8 @@ func modhmm_single_feature_plot_main(config ConfigModHmm, args []string) {
     }
   }
   if len(options.Args()) == 0 {
-    modhmm_single_feature_plot_all(config, *optSave)
+    modhmm_single_feature_plot_all(config, *optSave, *optIgnoreModel, *optIgnoreComp)
   } else {
-    modhmm_single_feature_plot_loop(config, *optSave, options.Args())
+    modhmm_single_feature_plot_loop(config, *optSave, *optIgnoreModel, *optIgnoreComp, options.Args())
   }
 }
