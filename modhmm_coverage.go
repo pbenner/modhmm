@@ -171,10 +171,20 @@ func coverage_h3k4me3o1(config ConfigModHmm) error {
   track2, err := ImportTrack(config.SessionConfig, config.Coverage.H3k4me3.Filename); if err != nil {
     return err
   }
+  n1 := int64(0)
+  n2 := int64(0)
+  if err := (GenericMutableTrack{}).MapList([]Track{track1, track2}, func(seqname string, position int, values ...float64) float64 {
+    n1 += int64(values[0])
+    n2 += int64(values[1])
+    return 0.0
+  }); err != nil {
+    return err
+  }
+  z := float64(n1)/float64(n2)
   if err := (GenericMutableTrack{track1}).MapList([]Track{track1, track2}, func(seqname string, position int, values ...float64) float64 {
     x1 := values[0]
     x2 := values[1]
-    return math.Round((x2+1.0)/(x1+1.0)*10)
+    return math.Round(z*(x2+1.0)/(x1+1.0)*10)
   }); err != nil {
     return err
   }
