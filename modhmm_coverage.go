@@ -163,7 +163,7 @@ func importFraglen(config ConfigModHmm, feature, filename string) int {
 /* -------------------------------------------------------------------------- */
 
 func coverage_h3k4me3o1(config ConfigModHmm) error {
-  config.BinSummaryStatistics = "discrete mean"
+  config.BinSummaryStatistics = "mean"
   config.BinOverlap = 1
   track1, err := ImportTrack(config.SessionConfig, config.Coverage.H3k4me1.Filename); if err != nil {
     return err

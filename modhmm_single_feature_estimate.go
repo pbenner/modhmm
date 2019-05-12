@@ -192,7 +192,7 @@ func modhmm_single_feature_estimate_default(config ConfigModHmm, feature string)
 func modhmm_single_feature_estimate_main(config ConfigModHmm, args []string) {
 
   options := getopt.New()
-  options.SetProgram(fmt.Sprintf("%s estimate-single-feature-mixture", os.Args[0]))
+  options.SetProgram(fmt.Sprintf("%s estimate-single-feature", os.Args[0]))
   options.SetParameters("<FEATURE> [<N_DELTA> <N_POISSON> <N_GEOMETRIC>]\n")
 
   optHelp := options.   BoolLong("help", 'h', "print help")
