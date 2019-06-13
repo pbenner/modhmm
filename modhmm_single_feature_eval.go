@@ -48,8 +48,7 @@ func single_feature_eval(config ConfigModHmm, filenameModel, filenameComp, filen
   mixture := ImportMixtureDistribution(config, filenameModel)
   counts  := Counts{}
 
-  k := ImportComponents(config, filenameComp, mixture.NComponents())
-  r := Components(k).Invert(mixture.NComponents())
+  k, r := ImportComponents(config, filenameComp, mixture.NComponents())
 
   printStderr(config, 1, "Importing reference counts from `%s'... ", filenameCnts)
   if err := counts.ImportFile(filenameCnts); err != nil {

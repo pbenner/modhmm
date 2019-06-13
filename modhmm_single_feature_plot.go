@@ -311,8 +311,7 @@ func modhmm_single_feature_plot(config ConfigModHmm, ignoreModel, ignoreComponen
     if ignoreComponents || !FileExists(filenameComp.Filename) {
       modhmm_single_feature_plot_isolated(config, p, mixture, counts)
     } else {
-      k_fg := ImportComponents(config, filenameComp.Filename, mixture.NComponents())
-      k_bg := Components(k_fg).Invert(mixture.NComponents())
+      k_fg, k_bg := ImportComponents(config, filenameComp.Filename, mixture.NComponents())
 
       modhmm_single_feature_plot_joined(config, p, mixture, counts, k_fg, k_bg)
     }

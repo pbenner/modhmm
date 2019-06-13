@@ -19,7 +19,9 @@ package main
 /* -------------------------------------------------------------------------- */
 
 import   "fmt"
+import   "bytes"
 import   "io"
+import   "io/ioutil"
 import   "log"
 import   "math"
 import   "path"
@@ -34,6 +36,21 @@ import   "github.com/pbenner/autodiff/statistics/scalarDistribution"
 import . "github.com/pbenner/modhmm/config"
 
 /* -------------------------------------------------------------------------- */
+
+func ImportDefaultFile(object Serializable, filename string, args... interface{}) error {
+  // remove directory from filename
+  _, filename = path.Split(filename)
+
+  f, err := Assets.Open(filename)
+  if err != nil {
+    return err
+  }
+  str, err := ioutil.ReadAll(f)
+  if err != nil {
+    return err
+  }
+  return object.Import(bytes.NewReader(str), args...)
+}
 
 func ImportDefaultDistribution(filename string, distribution BasicDistribution, t ScalarType) error {
   // remove directory from filename
@@ -114,12 +131,16 @@ func (obj *Components) Export(writer io.Writer) error {
   return JsonExport(writer, obj)
 }
 
-func ImportComponents(config ConfigModHmm, filename string, n int) []int {
+func ImportComponents(config ConfigModHmm, filename string, n int) ([]int, []int) {
   var k Components
   printStderr(config, 1, "Importing foreground components from `%s'... ", filename)
   if err := ImportFile(&k, filename); err != nil {
     printStderr(config, 1, "failed\n")
-    log.Fatalf("ERROR: could not import components from `%s': %v", filename, err)
+    printStderr(config, 1, "Importing default foreground components... ")
+    if err := ImportDefaultFile(&k, filename); err != nil {
+      printStderr(config, 1, "failed\n")
+      log.Fatal(err)
+    }
   }
   if err := k.Check(n); err != nil {
     printStderr(config, 1, "failed\n")
@@ -127,7 +148,8 @@ func ImportComponents(config ConfigModHmm, filename string, n int) []int {
   } else {
     printStderr(config, 1, "done\n")
   }
-  return []int(k)
+  r := Components(k).Invert(n)
+  return []int(k), []int(r)
 }
 
 func ExportComponents(config ConfigModHmm, filename string, k []int) {
@@ -144,8 +166,7 @@ func ExportComponents(config ConfigModHmm, filename string, k []int) {
 func ImportMixtureWeights(config ConfigModHmm, filenameModel, filenameComp string) (float64, float64) {
   mixture := ImportMixtureDistribution(config, filenameModel)
 
-  k := ImportComponents(config, filenameComp, mixture.NComponents())
-  r := Components(k).Invert(mixture.NComponents())
+  k, r := ImportComponents(config, filenameComp, mixture.NComponents())
 
   p := math.Inf(-1)
   q := math.Inf(-1)
