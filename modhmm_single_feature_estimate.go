@@ -160,21 +160,41 @@ func modhmm_single_feature_estimate(config ConfigModHmm, feature string, n []int
   }
 }
 
-func modhmm_single_feature_estimate_default(config ConfigModHmm, feature string) {
+func modhmm_single_feature_estimate_default(config ConfigModHmm, feature, defcomp string) {
   var n, components []int
-  switch strings.ToLower(feature) {
-  case "open"     : fallthrough
-  case "atac"     : fallthrough
-  case "dnase"    : n = []int{1, 1, 3}; components = []int{3, 4}
-  case "h3k27ac"  : n = []int{1, 2, 2}; components = []int{4}
-  case "h3k27me3" : n = []int{4, 4, 1}; components = []int{8}
-  case "h3k4me1"  : n = []int{1, 8, 0}; components = []int{5, 6, 7, 8}
-  case "h3k4me3"  : n = []int{1, 1, 3}; components = []int{3, 4}
-  case "h3k4me3o1": n = []int{0, 1, 2}; components = []int{2}
-  case "h3k9me3"  : n = []int{2, 4, 1}; components = []int{5, 6}
-  case "rna"      : n = []int{1, 0, 4}; components = []int{2, 3, 4}
-  case "rna-low"  :                     components = []int{1, 2}
-  case "control"  : n = []int{7, 2, 1}; components = []int{9}
+  switch strings.ToLower(defcomp) {
+  case "mm10":
+    switch strings.ToLower(feature) {
+    case "open"     : fallthrough
+    case "atac"     : fallthrough
+    case "dnase"    : n = []int{1, 1, 3}; components = []int{3, 4}
+    case "h3k27ac"  : n = []int{1, 2, 2}; components = []int{4}
+    case "h3k27me3" : n = []int{4, 4, 1}; components = []int{8}
+    case "h3k4me1"  : n = []int{1, 8, 0}; components = []int{5, 6, 7, 8}
+    case "h3k4me3"  : n = []int{1, 1, 3}; components = []int{3, 4}
+    case "h3k4me3o1": n = []int{0, 1, 2}; components = []int{2}
+    case "h3k9me3"  : n = []int{2, 4, 1}; components = []int{5, 6}
+    case "rna"      : n = []int{1, 0, 4}; components = []int{2, 3, 4}
+    case "rna-low"  :                     components = []int{1, 2}
+    case "control"  : n = []int{7, 2, 1}; components = []int{9}
+    }
+  case "hg19":
+    switch strings.ToLower(feature) {
+    case "open"     : fallthrough
+    case "atac"     : fallthrough
+    case "dnase"    : n = []int{1, 1, 3}; components = []int{3, 4}
+    case "h3k27ac"  : n = []int{1, 2, 2}; components = []int{4}
+    case "h3k27me3" : n = []int{4, 4, 1}; components = []int{8}
+    case "h3k4me1"  : n = []int{1, 8, 0}; components = []int{5, 6, 7, 8}
+    case "h3k4me3"  : n = []int{1, 2, 1}; components = []int{3}
+    case "h3k4me3o1": n = []int{0, 2, 1}; components = []int{2}
+    case "h3k9me3"  : n = []int{2, 4, 1}; components = []int{5, 6}
+    case "rna"      : n = []int{1, 0, 4}; components = []int{2, 3, 4}
+    case "rna-low"  :                     components = []int{1, 2}
+    case "control"  : n = []int{7, 2, 1}; components = []int{9}
+    }
+  default:
+    log.Fatalf("unknown default comonents specifier: %s", defcomp)
   }
   // estimate mixture
   if CoverageList.Contains(strings.ToLower(feature)) {
@@ -195,7 +215,8 @@ func modhmm_single_feature_estimate_main(config ConfigModHmm, args []string) {
   options.SetProgram(fmt.Sprintf("%s estimate-single-feature", os.Args[0]))
   options.SetParameters("<FEATURE> [<N_DELTA> <N_POISSON> <N_GEOMETRIC>]\n")
 
-  optHelp := options.   BoolLong("help", 'h', "print help")
+  optDefComp := options. StringLong("default-components",  0 , "default number of components [mm10, hg19]")
+  optHelp    := options.   BoolLong("help",               'h', "print help")
 
   options.Parse(args)
 
@@ -232,6 +253,6 @@ func modhmm_single_feature_estimate_main(config ConfigModHmm, args []string) {
     }
     modhmm_single_feature_estimate(config, feature, n)
   } else {
-    modhmm_single_feature_estimate_default(config, feature)
+    modhmm_single_feature_estimate_default(config, feature, *optDefComp)
   }
 }
