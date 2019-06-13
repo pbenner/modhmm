@@ -22,16 +22,12 @@ import   "fmt"
 import   "log"
 import   "math"
 import   "os"
-import   "path"
 import   "strings"
 
 import . "github.com/pbenner/ngstat/classification"
 import . "github.com/pbenner/ngstat/track"
 
-import . "github.com/pbenner/autodiff"
-import . "github.com/pbenner/autodiff/statistics"
 import   "github.com/pbenner/autodiff/statistics/scalarClassifier"
-import   "github.com/pbenner/autodiff/statistics/scalarDistribution"
 import   "github.com/pbenner/autodiff/statistics/vectorClassifier"
 
 import . "github.com/pbenner/gonetics"
@@ -46,46 +42,11 @@ import   "github.com/pborman/getopt"
 
 //go:generate go run modhmm_single_feature_default.gen.go
 
-func ImportDefaultDistribution(filename string, distribution BasicDistribution, t ScalarType) error {
-  // remove directory from filename
-  _, filename = path.Split(filename)
-
-  config := ConfigDistribution{}
-
-  f, err := Assets.Open(filename)
-  if err != nil {
-    return err
-  }
-  if err := config.ReadJson(f); err != nil {
-    return err
-  }
-  if err := distribution.ImportConfig(config, t); err != nil {
-    return err
-  }
-  return nil
-}
-
 /* -------------------------------------------------------------------------- */
 
 func single_feature_eval(config ConfigModHmm, filenameModel, filenameComp, filenameData, filenameCnts, filenameResult1, filenameResult2 string, logScale bool) {
-  mixture := &scalarDistribution.Mixture{}
+  mixture := ImportMixtureDistribution(config, filenameModel)
   counts  := Counts{}
-
-  if _, err := os.Stat(filenameModel); err != nil {
-    printStderr(config, 1, "Importing mixture model from `%s'... ", filenameModel)
-    if err := ImportDistribution(filenameModel, mixture, BareRealType); err != nil {
-      printStderr(config, 1, "failed\n")
-      log.Fatal(err)
-    }
-    printStderr(config, 1, "done\n")
-  } else {
-    printStderr(config, 1, "Importing default mixture model... ", filenameModel)
-    if err := ImportDefaultDistribution(filenameModel, mixture, BareRealType); err != nil {
-      printStderr(config, 1, "failed\n")
-      log.Fatal(err)
-    }
-    printStderr(config, 1, "done\n")
-  }
 
   k := ImportComponents(config, filenameComp, mixture.NComponents())
   r := Components(k).Invert(mixture.NComponents())
@@ -221,10 +182,11 @@ func modhmm_single_feature_eval(config ConfigModHmm, feature string, logScale bo
   if updateRequired(config, filenameResult1, filenameData.Filename, filenameCnts.Filename, filenameModel.Filename, filenameComp.Filename) ||
     (updateRequired(config, filenameResult2, filenameData.Filename, filenameCnts.Filename, filenameModel.Filename, filenameComp.Filename)) {
 
-    modhmm_single_feature_estimate_default(config, feature)
-    if CoverageList.Contains(strings.ToLower(feature)) {
-      modhmm_compute_counts(config, feature)
-    }
+    // estimate single feature model if required
+    // modhmm_single_feature_estimate_default(config, feature)
+    // if CoverageList.Contains(strings.ToLower(feature)) {
+    //   modhmm_compute_counts(config, feature)
+    // }
     printStderr(config, 1, "==> Evaluating Single-Feature Model (%s) <==\n", feature)
     single_feature_eval(localConfig, filenameModel.Filename, filenameComp.Filename, filenameData.Filename, filenameCnts.Filename, filenameResult1.Filename, filenameResult2.Filename, logScale)
   }

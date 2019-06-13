@@ -22,6 +22,7 @@ import   "fmt"
 import   "io"
 import   "log"
 import   "math"
+import   "path"
 
 import . "github.com/pbenner/ngstat/config"
 
@@ -34,16 +35,39 @@ import . "github.com/pbenner/modhmm/config"
 
 /* -------------------------------------------------------------------------- */
 
-func ImportMixture(config ConfigModHmm, filenameModel string) *scalarDistribution.Mixture {
-  mixture := &scalarDistribution.Mixture{}
+func ImportDefaultDistribution(filename string, distribution BasicDistribution, t ScalarType) error {
+  // remove directory from filename
+  _, filename = path.Split(filename)
 
-  printStderr(config, 1, "Importing mixture model from `%s'... ", filenameModel)
-  if err := ImportDistribution(filenameModel, mixture, BareRealType); err != nil {
-    printStderr(config, 1, "failed\n")
-    log.Fatal(err)
+  config := ConfigDistribution{}
+
+  f, err := Assets.Open(filename)
+  if err != nil {
+    return err
   }
-  printStderr(config, 1, "done\n")
+  if err := config.ReadJson(f); err != nil {
+    return err
+  }
+  if err := distribution.ImportConfig(config, t); err != nil {
+    return err
+  }
+  return nil
+}
 
+func ImportMixtureDistribution(config ConfigModHmm, filename string) *scalarDistribution.Mixture {
+  mixture := &scalarDistribution.Mixture{}
+  printStderr(config, 1, "Importing mixture model from `%s'... ", filename)
+  if err := ImportDistribution(filename, mixture, BareRealType); err != nil {
+    printStderr(config, 1, "failed\n")
+    printStderr(config, 1, "Importing default mixture model... ")
+    if err := ImportDefaultDistribution(filename, mixture, BareRealType); err != nil {
+      printStderr(config, 1, "failed\n")
+      log.Fatal(err)
+    }
+    printStderr(config, 1, "done\n")
+  } else {
+    printStderr(config, 1, "done\n")
+  }
   return mixture
 }
 
@@ -118,7 +142,7 @@ func ExportComponents(config ConfigModHmm, filename string, k []int) {
 /* -------------------------------------------------------------------------- */
 
 func ImportMixtureWeights(config ConfigModHmm, filenameModel, filenameComp string) (float64, float64) {
-  mixture := ImportMixture(config, filenameModel)
+  mixture := ImportMixtureDistribution(config, filenameModel)
 
   k := ImportComponents(config, filenameComp, mixture.NComponents())
   r := Components(k).Invert(mixture.NComponents())
