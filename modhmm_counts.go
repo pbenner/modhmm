@@ -36,6 +36,22 @@ import   "github.com/pborman/getopt"
 
 /* -------------------------------------------------------------------------- */
 
+func ImportCounts(config ConfigModHmm, filename string) Counts {
+  counts := Counts{}
+  printStderr(config, 1, "Importing reference counts from `%s'... ", filename)
+  if err := counts.ImportFile(filename); err != nil {
+    printStderr(config, 1, "failed\n")
+    if err := counts.ImportDefaultFile(filename); err != nil {
+      log.Fatal(err)
+    }
+  } else {
+    printStderr(config, 1, "done\n")
+  }
+  return counts
+}
+
+/* -------------------------------------------------------------------------- */
+
 type Counts struct {
   X []float64
   Y []int
@@ -64,6 +80,13 @@ func (config *Counts) Import(reader io.Reader, args... interface{}) error {
 
 func (config *Counts) Export(writer io.Writer) error {
   return JsonExport(writer, config)
+}
+
+func (config *Counts) ImportDefaultFile(filename string) error {
+  if err := ImportDefaultFile(config, filename, BareRealType); err != nil {
+    return err
+  }
+  return nil
 }
 
 func (config *Counts) ImportFile(filename string) error {

@@ -46,16 +46,8 @@ import   "github.com/pborman/getopt"
 
 func single_feature_eval(config ConfigModHmm, filenameModel, filenameComp, filenameData, filenameCnts, filenameResult1, filenameResult2 string, logScale bool) {
   mixture := ImportMixtureDistribution(config, filenameModel)
-  counts  := Counts{}
-
-  k, r := ImportComponents(config, filenameComp, mixture.NComponents())
-
-  printStderr(config, 1, "Importing reference counts from `%s'... ", filenameCnts)
-  if err := counts.ImportFile(filenameCnts); err != nil {
-    printStderr(config, 1, "failed\n")
-    log.Fatal(err)
-  }
-  printStderr(config, 1, "done\n")
+  k, r    := ImportComponents(config, filenameComp, mixture.NComponents())
+  counts  := ImportCounts(config, filenameCnts)
 
   scalarClassifier1 := scalarClassifier.MixturePosterior{mixture, k}
   scalarClassifier2 := scalarClassifier.MixturePosterior{mixture, r}
