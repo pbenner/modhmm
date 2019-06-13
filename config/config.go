@@ -22,7 +22,6 @@ import   "fmt"
 import   "bytes"
 import   "log"
 import   "io"
-import   "math"
 import   "path"
 import   "path/filepath"
 import   "strings"
@@ -367,8 +366,6 @@ func DefaultModHmmConfig() ConfigModHmm {
   config.CoverageBinSize      = 10
   config.CoverageMAPQ         = 30
   config.FontSize             = 12
-  config.XLim[0]              = math.NaN()
-  config.XLim[1]              = math.NaN()
   config.OpenChromatinAssay   = ""
   config.Threads              = 1
   config.Verbose              = 0

@@ -91,7 +91,9 @@ func main() {
     config.Verbose = *optVerbose
   }
   if *optGenConf  {
-    config.Export(os.Stdout)
+    if err := config.Export(os.Stdout); err != nil {
+      log.Fatal(err)
+    }
     os.Exit(0)
   }
   if *optConfig != "" {

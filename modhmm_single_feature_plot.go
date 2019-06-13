@@ -158,10 +158,10 @@ func eval_counts(counts Counts, xlim [2]float64) (plotter.XYs, float64) {
   }
   y_min := math.Inf(1)
   for i := 0; i < len(counts.X); i++ {
-    if !math.IsNaN(xlim[0]) && counts.X[i] < xlim[0] {
+    if (xlim[0] != 0 && xlim[1] != 0) && counts.X[i] < xlim[0] {
       continue
     }
-    if !math.IsNaN(xlim[1]) && counts.X[i] > xlim[1] {
+    if (xlim[0] != 0 && xlim[1] != 0) && counts.X[i] > xlim[1] {
       continue
     }
     y := float64(counts.Y[i])/float64(sum)
@@ -177,10 +177,10 @@ func eval_component(mixture *scalarDistribution.Mixture, k_ []int, counts Counts
   r  := NullBareReal()
   xy := make(plotter.XYs, 0)
   for i := 0; i < len(counts.X); i++ {
-    if !math.IsNaN(xlim[0]) && counts.X[i] < xlim[0] {
+    if (xlim[0] != 0 && xlim[1] != 0) && counts.X[i] < xlim[0] {
       continue
     }
-    if !math.IsNaN(xlim[1]) && counts.X[i] > xlim[1] {
+    if (xlim[0] != 0 && xlim[1] != 0) && counts.X[i] > xlim[1] {
       continue
     }
     y := 0.0
@@ -202,10 +202,10 @@ func eval_component(mixture *scalarDistribution.Mixture, k_ []int, counts Counts
 func eval_delta_component(mixture *scalarDistribution.Mixture, k int, xlim [2]float64, y_min float64) plotter.XYs {
   x := mixture.Edist[k].(*scalarDistribution.DeltaDistribution).X.GetValue()
   y := math.Exp(mixture.LogWeights.ValueAt(k))
-  if !math.IsNaN(xlim[0]) && x < xlim[0] {
+  if (xlim[0] != 0 && xlim[1] != 0) && x < xlim[0] {
     return nil
   }
-  if !math.IsNaN(xlim[1]) && x > xlim[1] {
+  if (xlim[0] != 0 && xlim[1] != 0) && x > xlim[1] {
     return nil
   }
   if math.IsInf(y, 0) || y == 0.0 || y < y_min {
