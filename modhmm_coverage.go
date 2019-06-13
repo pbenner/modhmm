@@ -146,7 +146,7 @@ func importFraglen(config ConfigModHmm, feature, filename string) int {
   basename := strings.TrimRight(filename, filepath.Ext(filename))
   filename  = fmt.Sprintf("%s.fraglen.txt", basename)
   if f, err := os.Open(filename); err != nil {
-    return 0
+    return -1
   } else {
     defer f.Close()
     printStderr(config, 1, "[%s] Reading fragment length from `%s'\n", feature, filename)
@@ -156,7 +156,7 @@ func importFraglen(config ConfigModHmm, feature, filename string) int {
         return int(fraglen)
       }
     }
-    return 0
+    return -1
   }
 }
 
