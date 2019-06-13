@@ -1,0 +1,47 @@
+{
+  "Name": "scalar:mixture distribution",
+  "Parameters": [
+    0.5885761649697306,
+    0.1349867234037956,
+    0.14508733717813246,
+    0.12023537711870211,
+    0.011114397329637088
+  ],
+  "Distributions": [
+    {
+      "Name": "scalar:delta distribution",
+      "Parameters": [
+        0
+      ],
+      "Distributions": null
+    },
+    {
+      "Name": "scalar:geometric distribution",
+      "Parameters": [
+        0.008514991139466499
+      ],
+      "Distributions": null
+    },
+    {
+      "Name": "scalar:geometric distribution",
+      "Parameters": [
+        0.4078420462308122
+      ],
+      "Distributions": null
+    },
+    {
+      "Name": "scalar:geometric distribution",
+      "Parameters": [
+        0.041998820106740074
+      ],
+      "Distributions": null
+    },
+    {
+      "Name": "scalar:geometric distribution",
+      "Parameters": [
+        0.0012756346460719382
+      ],
+      "Distributions": null
+    }
+  ]
+}

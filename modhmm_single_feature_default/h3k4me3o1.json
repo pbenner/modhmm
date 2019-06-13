@@ -1,0 +1,39 @@
+{
+  "Name": "scalar:mixture distribution",
+  "Parameters": [
+    0.8738685357095757,
+    0.11948581783513357,
+    0.0066456464552898725
+  ],
+  "Distributions": [
+    {
+      "Name": "scalar:pdf translation",
+      "Parameters": [
+        -0
+      ],
+      "Distributions": [
+        {
+          "Name": "scalar:poisson distribution",
+          "Parameters": [
+            7.44658995318634
+          ],
+          "Distributions": null
+        }
+      ]
+    },
+    {
+      "Name": "scalar:geometric distribution",
+      "Parameters": [
+        0.08293308199215384
+      ],
+      "Distributions": null
+    },
+    {
+      "Name": "scalar:geometric distribution",
+      "Parameters": [
+        0.0036062454341831396
+      ],
+      "Distributions": null
+    }
+  ]
+}
