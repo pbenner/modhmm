@@ -40,24 +40,6 @@ import   "gonum.org/v1/plot/plotter"
 import   "gonum.org/v1/plot/plotutil"
 import   "gonum.org/v1/plot/vg"
 
-/* utility
- * -------------------------------------------------------------------------- */
-
-func parseFilename(filename string) (string, int) {
-  if tmp := strings.Split(filename, ":"); len(tmp) == 2 {
-    t, err := strconv.ParseInt(tmp[1], 10, 64)
-    if err != nil {
-      log.Fatal(err)
-    }
-    return tmp[0], int(t)
-  } else
-  if len(tmp) >= 2 {
-    log.Fatalf("invalid input file description `%s'", filename)
-  }
-  return filename, 0
-}
-
-
 /* fragment length estimation
  * -------------------------------------------------------------------------- */
 
@@ -199,17 +181,10 @@ func coverage_h3k4me3o1(config ConfigModHmm) error {
 func coverage(config ConfigModHmm, feature string, filenameBam []string, filenameData string, optionsList []interface{}) error {
   fraglen := make([]int, len(filenameBam))
 
-  // split filename:fraglen
-  for i, filename := range filenameBam {
-    filenameBam[i], fraglen[i] = parseFilename(filename)
-  }
   // import fragment length
   for i, filename := range filenameBam {
-    if fraglen[i] == 0 {
-      fraglen[i] = importFraglen(config, feature, filename)
-    }
+    fraglen[i] = importFraglen(config, feature, filename)
   }
-
   //////////////////////////////////////////////////////////////////////////////
   result, fraglenEstimate, _, err := BamCoverage(filenameData, filenameBam, nil, fraglen, nil, optionsList...)
 
@@ -217,7 +192,7 @@ func coverage(config ConfigModHmm, feature string, filenameBam []string, filenam
   //////////////////////////////////////////////////////////////////////////////
   for i, estimate := range fraglenEstimate {
     filename := filenameBam[i]
-    if estimate.Error == nil && estimate.Fraglen != 0 {
+    if estimate.Error == nil && estimate.Fraglen != -1 {
       saveFraglen(config, feature, filename, estimate.Fraglen)
     }
     if estimate.X != nil && estimate.Y != nil {
@@ -227,7 +202,6 @@ func coverage(config ConfigModHmm, feature string, filenameBam []string, filenam
       saveCrossCorrPlot(config, feature, filename, estimate.Fraglen, estimate.X, estimate.Y)
     }
   }
-
   // process result
   //////////////////////////////////////////////////////////////////////////////
   if err != nil {
