@@ -166,7 +166,10 @@ func coverage_h3k4me3o1(config ConfigModHmm) error {
   if err := (GenericMutableTrack{track1}).MapList([]Track{track1, track2}, func(seqname string, position int, values ...float64) float64 {
     x1 := values[0]
     x2 := values[1]
-    return math.Round(z*(x2+1.0)/(x1+1.0)*10)
+    // do not add a pseudocount to x2 so that if x1 and x2
+    // are both zero, also the result is zero
+    // (otherwise strange peaks appear in the distribution)
+    return math.Round(z*(x2+0.0)/(x1+1.0)*10)
   }); err != nil {
     return err
   }
