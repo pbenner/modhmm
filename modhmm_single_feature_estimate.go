@@ -35,6 +35,7 @@ import   "github.com/pbenner/autodiff/statistics/vectorDistribution"
 import   "github.com/pbenner/autodiff/statistics/vectorEstimator"
 
 import . "github.com/pbenner/modhmm/config"
+import . "github.com/pbenner/modhmm/utility"
 
 import   "github.com/pborman/getopt"
 
@@ -207,16 +208,29 @@ func modhmm_single_feature_estimate_default(config ConfigModHmm, feature, defcom
   }
 }
 
+func modhmm_single_feature_estimate_default_loop(config ConfigModHmm, features []string, defcomp string) {
+  // compute coverages here to make use of multi-threading
+  modhmm_coverage_loop(config, InsensitiveStringList(features).Intersection(CoverageList))
+  // eval single features
+  for _, feature := range features {
+    modhmm_single_feature_estimate_default(config, feature, defcomp)
+  }
+}
+
+func modhmm_single_feature_estimate_default_all(config ConfigModHmm, defcomp string) {
+  modhmm_single_feature_estimate_default_loop(config, SingleFeatureList, defcomp)
+}
+
 /* -------------------------------------------------------------------------- */
 
 func modhmm_single_feature_estimate_main(config ConfigModHmm, args []string) {
 
   options := getopt.New()
   options.SetProgram(fmt.Sprintf("%s estimate-single-feature", os.Args[0]))
-  options.SetParameters("<FEATURE> [<N_DELTA> <N_POISSON> <N_GEOMETRIC>]\n")
+  options.SetParameters("[<FEATURE> [<N_DELTA> <N_POISSON> <N_GEOMETRIC>]]\n")
 
-  optDefComp := options. StringLong("default-components",  0 , "default number of components [mm10, hg19]")
-  optHelp    := options.   BoolLong("help",               'h', "print help")
+  optDefComp := options. StringLong("default-components",  0 , "mm10", "default number of components [mm10, hg19]")
+  optHelp    := options.   BoolLong("help",               'h',         "print help")
 
   options.Parse(args)
 
@@ -226,15 +240,17 @@ func modhmm_single_feature_estimate_main(config ConfigModHmm, args []string) {
     os.Exit(0)
   }
   // command arguments
-  if len(options.Args()) != 1 && len(options.Args()) != 4 {
+  if len(options.Args()) != 0 && len(options.Args()) != 1 && len(options.Args()) != 4 {
     options.PrintUsage(os.Stderr)
     os.Exit(1)
   }
+  var feature string
+  if len(options.Args()) > 0 {
+    feature = config.CoerceOpenChromatinAssay(options.Args()[0])
+  }
 
-  feature := options.Args()[0]
-  feature  = config.CoerceOpenChromatinAssay(feature)
-
-  if len(options.Args()) == 4 {
+  switch len(options.Args()) {
+  case 4:
     n := []int{}
     if m, err := strconv.ParseInt(options.Args()[1], 10, 64); err != nil {
       log.Fatal(err)
@@ -252,7 +268,9 @@ func modhmm_single_feature_estimate_main(config ConfigModHmm, args []string) {
       n = append(n, int(m))
     }
     modhmm_single_feature_estimate(config, feature, n)
-  } else {
+  case 1:
     modhmm_single_feature_estimate_default(config, feature, *optDefComp)
+  case 0:
+    modhmm_single_feature_estimate_default_all(config, *optDefComp)
   }
 }
