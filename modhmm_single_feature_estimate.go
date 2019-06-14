@@ -144,7 +144,7 @@ func single_feature_estimate(config ConfigModHmm, estimator VectorEstimator, fil
 
 /* -------------------------------------------------------------------------- */
 
-func modhmm_single_feature_estimate(config ConfigModHmm, feature string, n []int) {
+func modhmm_single_feature_estimate(config ConfigModHmm, feature string, n []int, force bool) {
   var estimator VectorEstimator
 
   if !CoverageList.Contains(strings.ToLower(feature)) {
@@ -153,7 +153,7 @@ func modhmm_single_feature_estimate(config ConfigModHmm, feature string, n []int
   filenameIn  := config.Coverage          .GetTargetFile(feature)
   filenameOut := config.SingleFeatureModel.GetTargetFile(feature)
 
-  if updateRequired(config, filenameOut, filenameIn.Filename) {
+  if force || updateRequired(config, filenameOut, filenameIn.Filename) {
     config.BinSummaryStatistics = "discrete mean"
     estimator = newEstimator(config, n[0], n[1], n[2])
 
@@ -161,7 +161,7 @@ func modhmm_single_feature_estimate(config ConfigModHmm, feature string, n []int
   }
 }
 
-func modhmm_single_feature_estimate_default(config ConfigModHmm, feature, defcomp string) {
+func modhmm_single_feature_estimate_default(config ConfigModHmm, feature string, force bool, defcomp string) {
   var n, components []int
   switch strings.ToLower(defcomp) {
   case "mm10":
@@ -199,26 +199,26 @@ func modhmm_single_feature_estimate_default(config ConfigModHmm, feature, defcom
   }
   // estimate mixture
   if CoverageList.Contains(strings.ToLower(feature)) {
-    modhmm_single_feature_estimate(config, feature, n)
+    modhmm_single_feature_estimate(config, feature, n, force)
   }
   // export foreground mixture components
   filenameModel, filenameComp, _, _, _, _ := single_feature_files(config, feature, false)
-  if updateRequired(config, filenameComp, filenameModel.Filename) {
+  if force || updateRequired(config, filenameComp, filenameModel.Filename) {
     ExportComponents(config, filenameComp.Filename, components)
   }
 }
 
-func modhmm_single_feature_estimate_default_loop(config ConfigModHmm, features []string, defcomp string) {
+func modhmm_single_feature_estimate_default_loop(config ConfigModHmm, features []string, force bool, defcomp string) {
   // compute coverages here to make use of multi-threading
   modhmm_coverage_loop(config, InsensitiveStringList(features).Intersection(CoverageList))
   // eval single features
   for _, feature := range features {
-    modhmm_single_feature_estimate_default(config, feature, defcomp)
+    modhmm_single_feature_estimate_default(config, feature, force, defcomp)
   }
 }
 
-func modhmm_single_feature_estimate_default_all(config ConfigModHmm, defcomp string) {
-  modhmm_single_feature_estimate_default_loop(config, SingleFeatureList, defcomp)
+func modhmm_single_feature_estimate_default_all(config ConfigModHmm, force bool, defcomp string) {
+  modhmm_single_feature_estimate_default_loop(config, SingleFeatureList, force, defcomp)
 }
 
 /* -------------------------------------------------------------------------- */
@@ -230,6 +230,7 @@ func modhmm_single_feature_estimate_main(config ConfigModHmm, args []string) {
   options.SetParameters("[<FEATURE> [<N_DELTA> <N_POISSON> <N_GEOMETRIC>]]\n")
 
   optDefComp := options. StringLong("default-components",  0 , "mm10", "default number of components [mm10, hg19]")
+  optForce   := options.   BoolLong("force",               0 ,         "always overwrite existing files")
   optHelp    := options.   BoolLong("help",               'h',         "print help")
 
   options.Parse(args)
@@ -267,10 +268,10 @@ func modhmm_single_feature_estimate_main(config ConfigModHmm, args []string) {
     } else {
       n = append(n, int(m))
     }
-    modhmm_single_feature_estimate(config, feature, n)
+    modhmm_single_feature_estimate(config, feature, n, *optForce)
   case 1:
-    modhmm_single_feature_estimate_default(config, feature, *optDefComp)
+    modhmm_single_feature_estimate_default(config, feature, *optForce, *optDefComp)
   case 0:
-    modhmm_single_feature_estimate_default_all(config, *optDefComp)
+    modhmm_single_feature_estimate_default_all(config, *optForce, *optDefComp)
   }
 }
