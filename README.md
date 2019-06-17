@@ -58,6 +58,37 @@ mm10 midbrain embryo day 16.5  | [Download](https://github.com/pbenner/modhmm-se
 
 Unlike most other genome segmentation methods, ModHMM so far depends on data from a fixed set of features or assays (ATAC/DNase, H3K27ac, H3K27me3, H3K4me1, H3K4me3, WCE/IgG, and RNA-seq). Preferentially, the data should be provided as BAM files, but it is also possible to use bigWig files as input. If BAM files are provided, ModHMM first computes a coverage of each feature and in case of single-end sequencing data automatically estimates the mean fragment length. The most difficult and crucial step of computing ModHMM segmentations is the enrichment analysis of individual features. ModHMM uses a feature specific mixture model for estimating genome-wide enrichment probabilities (i.e. for each feature the probability of a peak at each genomic position). These single-feature models can be estimated by ModHMM, but there is so far no good heuristic for selecting the correct number of components. To make the software easily applicable to new data sets, ModHMM implements a default single-feature model. Genome segmentations based on this default model are slightly less accurate, but allow the user to obtain a quick annotation with very little effort.
 
+ModHMM requires a configuration file in JSON format. The following is a simple example where data is provided as BAM files:
+```R
+{
+    # Directory containing feature alignment files
+    "Bam Directory" : ".bam",
+    # Names of alignment files (for each feature a comma separated list of
+    # replicates must be specified, any number of replicates is supported)
+    "Bam Files"     : {
+        "ATAC"      : [    "atac-rep1.bam",     "atac-rep2.bam"],
+        "DNase"     : [   "dnase-rep1.bam",    "dnase-rep2.bam"],
+        "H3K27ac"   : [ "h3k27ac-rep1.bam",  "h3k27ac-rep2.bam"],
+        "H3K27me3"  : ["h3k27me3-rep1.bam", "h3k27me3-rep2.bam"],
+        "H3K9me3"   : [ "h3k9me3-rep1.bam",  "h3k9me3-rep2.bam"],
+        "H3K4me1"   : [ "h3k4me1-rep1.bam",  "h3k4me1-rep2.bam"],
+        "H3K4me3"   : [ "h3k4me3-rep1.bam",  "h3k4me3-rep2.bam"],
+        "RNA"       : [     "rna-rep1.bam",      "rna-rep2.bam"],
+        "Control"   : [ "control-rep1.bam",  "control-rep2.bam"]
+    },
+    # Number of threads used for computing coverage bigWigs (memory intense!)
+    "Coverage Threads"                : 5,
+    # Directory containing all auxiliary files and the final segmentation
+    "Directory"                       : "mm10-liver-embryo-day12.5",
+    "Description"                     : "liver embryo day12.5",
+    # Number of threads used for evaluating classifiers and computing the segmentation
+    "Threads"                         : 20,
+    # Verbose level (0: no output, 1: low, 2: high)
+    "Verbose"                         : 1
+}
+```
+
+
 ### Example 1: Compute segmentation on ENCODE data from mouse embyonic liver at day 12.5
 
 Download BAM files from ENCODE and store them in a directory called `.bam`:
@@ -91,9 +122,7 @@ Download BAM files from ENCODE and store them in a directory called `.bam`:
 Create a configuration file named `mm10-liver-embryo-day12.5.json` (ModHMM accepts an extended JSON format that allows comments):
 ```R
 {
-    # Directory containing feature alignment files
     "Bam Directory" : ".bam",
-    # Names of alignment files
     "Bam Files"     : {
         "ATAC"      : ["ENCFF929LOH.bam", "ENCFF848NLJ.bam"],
         "H3K27ac"   : ["ENCFF524ZFV.bam", "ENCFF322QGS.bam"],
@@ -104,17 +133,10 @@ Create a configuration file named `mm10-liver-embryo-day12.5.json` (ModHMM accep
         "RNA"       : ["ENCFF405LEY.bam", "ENCFF627PCS.bam"],
         "Control"   : ["ENCFF865QGZ.bam", "ENCFF438RYK.bam"]
     },
-    # Number of threads used for computing coverage bigWigs (memory intense!)
     "Coverage Threads"                : 5,
-    # Directory containing the single-feature models that must either be
-    # estimated by hand or downloaded from the ModHMM repository
-    "Single-Feature Model Directory"  : "mm10-liver-embryo-day12.5:models",
-    # Directory containing all auxiliary files and the final segmentation
     "Directory"                       : "mm10-liver-embryo-day12.5",
     "Description"                     : "liver embryo day12.5",
-    # Number of threads used for evaluating classifiers and computing the segmentation
     "Threads"                         : 20,
-    # Verbose level (0: no output, 1: low, 2: high)
     "Verbose"                         : 1
 }
 ```
@@ -176,7 +198,6 @@ Create a configuration file named `mm10-forebrain-embryo-day11.5.json`:
         "Control"   : ["ENCFF631YQS.bam", "ENCFF658BBR.bam"]
     },
     "Coverage Threads"                : 5,
-    "Single-Feature Model Directory"  : "mm10-liver-embryo-day12.5:models",
     "Directory"                       : "mm10-forebrain-embryo-day11.5",
     "Description"                     : "forebrain embryo day11.5",
     "Threads"                         : 20,
@@ -226,11 +247,6 @@ Create directories:
 ```sh
   mkdir mm10-forebrain-embryo-day11.5
   mkdir mm10-forebrain-embryo-day11.5:models
-```
-
-Compute coverages and count files:
-```sh
-  modhmm -c mm10-forebrain-embryo-day11.5.json compute-counts
 ```
 
 Estimate a single-feature model for H3K27ac with one dirac component, two Poisson, and two geometric components:
