@@ -144,6 +144,8 @@ func single_feature_eval(config ConfigModHmm, files SingleFeatureFiles, logScale
 func single_feature_filter_update(config ConfigModHmm, features []string, logScale bool) []string {
   r := []string{}
   for _, feature := range features {
+    feature = config.CoerceOpenChromatinAssay(feature)
+
     files := config.SingleFeatureFiles(feature, logScale)
     if updateRequired(config, files.Foreground, files.Dependencies()...) ||
       (updateRequired(config, files.Background, files.Dependencies()...)) {
@@ -168,18 +170,11 @@ func modhmm_single_feature_eval(config ConfigModHmm, feature string, logScale bo
 
   files := config.SingleFeatureFiles(feature, logScale)
 
-  localConfig := config
-  localConfig.BinSummaryStatistics = "discrete mean"
   if updateRequired(config, files.Foreground, files.Dependencies()...) ||
     (updateRequired(config, files.Background, files.Dependencies()...)) {
 
-    // estimate single feature model if required
-    // modhmm_single_feature_estimate_default(config, feature)
-    // if CoverageList.Contains(strings.ToLower(feature)) {
-    //   modhmm_compute_counts(config, feature)
-    // }
     printStderr(config, 1, "==> Evaluating Single-Feature Model (%s) <==\n", feature)
-    single_feature_eval(localConfig, files, logScale)
+    single_feature_eval(config, files, logScale)
   }
 }
 

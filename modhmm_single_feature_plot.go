@@ -266,6 +266,8 @@ func modhmm_single_feature_plot_joined(config ConfigModHmm, p *plot.Plot, mixtur
 /* -------------------------------------------------------------------------- */
 
 func modhmm_single_feature_plot(config ConfigModHmm, ignoreModel, ignoreComponents bool, feature string) *plot.Plot {
+  feature = config.CoerceOpenChromatinAssay(feature)
+
   if !SingleFeatureList.Contains(strings.ToLower(feature)) {
     log.Fatalf("unknown feature: %s", feature)
   }
