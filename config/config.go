@@ -32,6 +32,11 @@ import . "github.com/pbenner/modhmm/utility"
 /* -------------------------------------------------------------------------- */
 
 var CoverageList = StringList{
+  "open", "h3k27ac", "h3k27me3", "h3k9me3", "h3k4me1", "h3k4me3", "rna", "control"}
+
+/* -------------------------------------------------------------------------- */
+
+var CountsList = StringList{
   "open", "h3k27ac", "h3k27me3", "h3k9me3", "h3k4me1", "h3k4me3", "h3k4me3o1", "rna", "control"}
 
 /* -------------------------------------------------------------------------- */
@@ -57,6 +62,33 @@ func (obj TargetFile) String() string {
   } else {
     return fmt.Sprintf("%s %s", obj.Filename, FileCheckMark(obj.Filename))
   }
+}
+
+/* -------------------------------------------------------------------------- */
+
+type SingleFeatureFiles struct {
+  Feature      string
+  Foreground   TargetFile
+  Background   TargetFile
+  Model        TargetFile
+  Components   TargetFile
+  Coverage   []TargetFile
+  Counts     []TargetFile
+}
+
+func (obj SingleFeatureFiles) Dependencies() []string {
+  filenames := []string{}
+  filenames  = append(filenames, obj.Foreground.Filename)
+  filenames  = append(filenames, obj.Background.Filename)
+  filenames  = append(filenames, obj.Model     .Filename)
+  filenames  = append(filenames, obj.Components.Filename)
+  for _, file := range obj.Coverage {
+    filenames = append(filenames, file.Filename)
+  }
+  for _, file := range obj.Counts {
+    filenames = append(filenames, file.Filename)
+  }
+  return filenames
 }
 
 /* -------------------------------------------------------------------------- */
@@ -142,7 +174,6 @@ type ConfigCoveragePaths struct {
   H3k9me3    TargetFile `json:"H3K27me3"`
   H3k4me1    TargetFile `json:"H3K4me1"`
   H3k4me3    TargetFile `json:"H3K4me3"`
-  H3k4me3o1  TargetFile `json:"H3K4me3o1"`
   Rna        TargetFile `json:"RNA"`
   Control    TargetFile `json:"Control"`
 }
@@ -157,7 +188,6 @@ func (config *ConfigCoveragePaths) GetTargetFile(feature string) TargetFile {
   case "h3k9me3"  : return config.H3k9me3
   case "h3k4me1"  : return config.H3k4me1
   case "h3k4me3"  : return config.H3k4me3
-  case "h3k4me3o1": return config.H3k4me3o1
   case "rna"      : return config.Rna
   case "control"  : return config.Control
   default:
@@ -189,7 +219,6 @@ func (config *ConfigCoveragePaths) CompletePaths(dir, prefix, suffix string) {
   config.H3k9me3  .Filename = completePath(dir, prefix, config.H3k9me3  .Filename, fmt.Sprintf("h3k9me3%s", suffix))
   config.H3k4me1  .Filename = completePath(dir, prefix, config.H3k4me1  .Filename, fmt.Sprintf("h3k4me1%s", suffix))
   config.H3k4me3  .Filename = completePath(dir, prefix, config.H3k4me3  .Filename, fmt.Sprintf("h3k4me3%s", suffix))
-  config.H3k4me3o1.Filename = completePath(dir, prefix, config.H3k4me3o1.Filename, fmt.Sprintf("h3k4me3o1%s", suffix))
   config.Rna      .Filename = completePath(dir, prefix, config.Rna      .Filename, fmt.Sprintf("rna%s", suffix))
   config.Control  .Filename = completePath(dir, prefix, config.Control  .Filename, fmt.Sprintf("control%s", suffix))
 }
@@ -211,29 +240,65 @@ func (config *ConfigCoveragePaths) SetStatic(static bool) {
   config.H3k9me3  .Static = static
   config.H3k4me1  .Static = static
   config.H3k4me3  .Static = static
-  config.H3k4me3o1.Static = static
   config.Rna      .Static = static
   config.Control  .Static = static
 }
 
 /* -------------------------------------------------------------------------- */
 
+type ConfigCountsPaths struct {
+  ConfigCoveragePaths
+  H3k4me3o1   TargetFile `json:"H3K4me3o1"`
+  Rna_low     TargetFile `json:"RNA low"`
+}
+
+func (config *ConfigCountsPaths) GetTargetFile(feature string) TargetFile {
+  switch strings.ToLower(feature) {
+  case "h3K4me3o1": return config.H3k4me3o1
+  case "rna-low"  : return config.Rna_low
+  default         : return config.ConfigCoveragePaths.GetTargetFile(feature)
+  }
+}
+
+func (config *ConfigCountsPaths) CompletePaths(dir, prefix, suffix string) {
+  config.ConfigCoveragePaths.CompletePaths(dir, prefix, suffix)
+  config.H3k4me3o1.Filename = completePath(dir, prefix, config.H3k4me3o1.Filename, fmt.Sprintf("h3k4me3o1%s", suffix))
+}
+
+func (config *ConfigCountsPaths) GetFilenames() []string {
+  filenames := []string{}
+  for _, feature := range SingleFeatureList {
+    filenames = append(filenames, config.GetTargetFile(feature).Filename)
+  }
+  return filenames
+}
+
+func (config *ConfigCountsPaths) SetStatic(static bool) {
+  config.ConfigCoveragePaths.SetStatic(static)
+  config.H3k4me3o1.Static = static
+}
+
+/* -------------------------------------------------------------------------- */
+
 type ConfigSingleFeaturePaths struct {
   ConfigCoveragePaths
+  H3k4me3o1   TargetFile `json:"H3K4me3o1"`
   Rna_low     TargetFile `json:"RNA low"`
 }
 
 func (config *ConfigSingleFeaturePaths) GetTargetFile(feature string) TargetFile {
   switch strings.ToLower(feature) {
-  case "rna_low": return config.Rna_low
-  case "rna-low": return config.Rna_low
-  default: return config.ConfigCoveragePaths.GetTargetFile(feature)
+  case "h3K4me3o1": return config.H3k4me3o1
+  case "rna_low"  : return config.Rna_low
+  case "rna-low"  : return config.Rna_low
+  default         : return config.ConfigCoveragePaths.GetTargetFile(feature)
   }
 }
 
 func (config *ConfigSingleFeaturePaths) CompletePaths(dir, prefix, suffix string) {
   config.ConfigCoveragePaths.CompletePaths(dir, prefix, suffix)
-  config.Rna_low.Filename = completePath(dir, prefix, config.Rna_low.Filename, fmt.Sprintf("rna-low%s", suffix))
+  config.H3k4me3o1.Filename = completePath(dir, prefix, config.H3k4me3o1.Filename, fmt.Sprintf("h3k4me3o1%s", suffix))
+  config.Rna_low  .Filename = completePath(dir, prefix, config.Rna_low  .Filename, fmt.Sprintf("rna-low%s", suffix))
 }
 
 func (config *ConfigSingleFeaturePaths) GetFilenames() []string {
@@ -246,7 +311,8 @@ func (config *ConfigSingleFeaturePaths) GetFilenames() []string {
 
 func (config *ConfigSingleFeaturePaths) SetStatic(static bool) {
   config.ConfigCoveragePaths.SetStatic(static)
-  config.Rna_low.Static = static
+  config.H3k4me3o1.Static = static
+  config.Rna_low  .Static = static
 }
 
 /* -------------------------------------------------------------------------- */
@@ -305,7 +371,7 @@ type ConfigModHmm struct {
   CoverageThreads            int                      `json:"Coverage Threads"`
   CoverageDir                string                   `json:"Coverage Directory"`
   Coverage                   ConfigCoveragePaths      `json:"Coverage Files"`
-  CoverageCnts               ConfigCoveragePaths      `json:"Coverage Counts Files"`
+  CoverageCnts               ConfigCountsPaths        `json:"Coverage Counts Files"`
   CoverageMAPQ               int                      `json:"Coverage MAPQ"`
   SingleFeatureModelDir      string                   `json:"Single-Feature Model Directory"`
   SingleFeatureModel         ConfigCoveragePaths      `json:"Single-Feature Model Files"`
@@ -508,6 +574,50 @@ func (config *ConfigModHmm) CompletePaths(prefix string) {
   config.SetOpenChromatinAssay(config.DetectOpenChromatinAssay())
 }
 
+func (config *ConfigModHmm) SingleFeatureFiles(feature string, logScale bool) SingleFeatureFiles {
+
+  if !SingleFeatureList.Contains(strings.ToLower(feature)) {
+    log.Fatalf("unknown feature: %s", feature)
+  }
+  files := SingleFeatureFiles{}
+  files.Feature = config.CoerceOpenChromatinAssay(strings.ToLower(feature))
+
+  switch files.Feature {
+  case "rna-low":
+    if logScale {
+      files.Foreground = config.SingleFeatureFg.Rna_low
+      files.Background = config.SingleFeatureBg.Rna_low
+    } else {
+      files.Foreground = config.SingleFeatureFgExp.Rna_low
+      files.Background = config.SingleFeatureBgExp.Rna_low
+    }
+    files.Model      = config.SingleFeatureModel.Rna
+    files.Components = config.SingleFeatureComp .Rna_low
+    files.Coverage   = append(files.Coverage, config.Coverage    .Rna)
+    files.Counts     = append(files.Counts,   config.CoverageCnts.Rna)
+  default:
+    if logScale {
+      files.Foreground = config.SingleFeatureFg.GetTargetFile(feature)
+      files.Background = config.SingleFeatureBg.GetTargetFile(feature)
+    } else {
+      files.Foreground = config.SingleFeatureFgExp.GetTargetFile(feature)
+      files.Background = config.SingleFeatureBgExp.GetTargetFile(feature)
+    }
+    files.Model      = config.SingleFeatureModel.GetTargetFile(feature)
+    files.Components = config.SingleFeatureComp .GetTargetFile(feature)
+    if files.Feature == "h3k4me3o1" {
+      files.Coverage = append(files.Coverage, config.Coverage    .H3k4me1)
+      files.Coverage = append(files.Coverage, config.Coverage    .H3k4me3)
+      files.Counts   = append(files.Counts,   config.CoverageCnts.H3k4me1)
+      files.Counts   = append(files.Counts,   config.CoverageCnts.H3k4me3)
+    } else {
+      files.Coverage = append(files.Coverage, config.Coverage    .GetTargetFile(feature))
+      files.Counts   = append(files.Counts,   config.CoverageCnts.GetTargetFile(feature))
+    }
+  }
+  return files
+}
+
 /* -------------------------------------------------------------------------- */
 
 func (config ConfigBam) String(openChromatinAssay string) string {
@@ -546,7 +656,6 @@ func (config ConfigCoveragePaths) String(openChromatinAssay string) string {
   fmt.Fprintf(&buffer, " -> H3K27me3             : %v\n", config.H3k27me3)
   fmt.Fprintf(&buffer, " -> H3K4me1              : %v\n", config.H3k4me1)
   fmt.Fprintf(&buffer, " -> H3K4me3              : %v\n", config.H3k4me3)
-  fmt.Fprintf(&buffer, " -> H3K4me3o1            : %v\n", config.H3k4me3o1)
   fmt.Fprintf(&buffer, " -> RNA                  : %v\n", config.Rna)
   fmt.Fprintf(&buffer, " -> Control              : %v\n", config.Control)
 

@@ -21,7 +21,6 @@ package main
 import   "fmt"
 import   "bufio"
 import   "log"
-import   "math"
 import   "path/filepath"
 import   "strconv"
 import   "strings"
@@ -33,7 +32,6 @@ import   "github.com/pborman/getopt"
 import . "github.com/pbenner/gonetics"
 import   "github.com/pbenner/threadpool"
 import . "github.com/pbenner/modhmm/config"
-import . "github.com/pbenner/modhmm/utility"
 
 import   "gonum.org/v1/plot"
 import   "gonum.org/v1/plot/plotter"
@@ -144,43 +142,6 @@ func importFraglen(config ConfigModHmm, feature, filename string) int {
 
 /* -------------------------------------------------------------------------- */
 
-func coverage_h3k4me3o1(config ConfigModHmm) error {
-  config.BinSummaryStatistics = "mean"
-  config.BinOverlap = 1
-  track1, err := ImportTrack(config.SessionConfig, config.Coverage.H3k4me1.Filename); if err != nil {
-    return err
-  }
-  track2, err := ImportTrack(config.SessionConfig, config.Coverage.H3k4me3.Filename); if err != nil {
-    return err
-  }
-  n1 := int64(0)
-  n2 := int64(0)
-  if err := (GenericMutableTrack{}).MapList([]Track{track1, track2}, func(seqname string, position int, values ...float64) float64 {
-    n1 += int64(values[0])
-    n2 += int64(values[1])
-    return 0.0
-  }); err != nil {
-    return err
-  }
-  z := float64(n1)/float64(n2)
-  if err := (GenericMutableTrack{track1}).MapList([]Track{track1, track2}, func(seqname string, position int, values ...float64) float64 {
-    x1 := values[0]
-    x2 := values[1]
-    // do not add a pseudocount to x2 so that if x1 and x2
-    // are both zero, also the result is zero
-    // (otherwise strange peaks appear in the distribution)
-    return math.Round(z*(x2+0.0)/(x1+1.0)*10)
-  }); err != nil {
-    return err
-  }
-  if err := ExportTrack(config.SessionConfig, track1, config.Coverage.H3k4me3o1.Filename); err != nil {
-    return err
-  }
-  return err
-}
-
-/* -------------------------------------------------------------------------- */
-
 func coverage(config ConfigModHmm, feature string, filenameBam []string, filenameData string, optionsList []interface{}) error {
   fraglen := make([]int, len(filenameBam))
 
@@ -258,12 +219,6 @@ func modhmm_coverage(config ConfigModHmm, feature string) error {
   case "rna":
     filenameBam  = config.Bam.Rna
     filenameData = config.Coverage.Rna
-  case "h3k4me3o1":
-    if updateRequired(config, config.Coverage.H3k4me3o1, config.Coverage.H3k4me1.Filename, config.Coverage.H3k4me3.Filename) {
-      return coverage_h3k4me3o1(config)
-    } else {
-      return nil
-    }
   default:
     filenameBam  = config.Bam     .GetFilenames (feature)
     filenameData = config.Coverage.GetTargetFile(feature)
@@ -291,9 +246,6 @@ func modhmm_coverage(config ConfigModHmm, feature string) error {
 func modhmm_coverage_loop(config ConfigModHmm, features []string) {
   pool := threadpool.New(config.CoverageThreads, 10)
   for _, feature := range features {
-    if strings.ToLower(feature) == "h3k4me3o1" {
-      continue
-    }
     f := config.CoerceOpenChromatinAssay(feature)
     pool.AddJob(0, func(pool threadpool.ThreadPool, erf func() error) error {
       return modhmm_coverage(config, f)
@@ -301,11 +253,6 @@ func modhmm_coverage_loop(config ConfigModHmm, features []string) {
   }
   if err := pool.Wait(0); err != nil {
     log.Fatal(err)
-  }
-  if InsensitiveStringList(features).Contains("h3k4me3o1") {
-    if err := modhmm_coverage(config, "h3k4me3o1"); err != nil {
-      log.Fatal(err)
-    }
   }
 }
 

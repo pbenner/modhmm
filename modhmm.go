@@ -58,16 +58,15 @@ func main() {
   options.SetParameters("<COMMAND>\n\n" +
     " Commands:\n" +
     "     coverage                 [stage 1]   - compute single-feature coverages from bam files\n" +
-    "     compute-counts           [stage 1.1] - compute coverage counts used for quantile normalization\n" +
-    "     estimate-single-feature  [stage 1.2] - estimate mixture distribution for single-feature\n" +
+    "     estimate-single-feature  [stage 1.1] - estimate mixture distribution for single-feature\n" +
     "                                            enrichment analysis\n" +
     "     eval-single-feature      [stage 2]   - evaluate single-feature models\n" +
     "     eval-multi-feature       [stage 3]   - evaluate  multi-feature models\n" +
     "     eval-posterior-marginals [stage 5]   - compute posterior marginals of hidden states\n\n" +
     "     segmentation             [stage 4]   - compute genome segmentation\n\n" +
     " ModHMM commands are structured in stages. Executing a command also executes all commands with\n" +
-    " lower stage number. An exception are stages 1.1 and 1.2 that must be executed manually. By default,\n" +
-    " stages 1.1 and 1.2 are bypassed and the default single-feature model is used.\n\n" +
+    " lower stage number. An exception is stages 1.1 that must be executed manually. By default,\n" +
+    " stage 1.1 is bypassed and the default single-feature model is used.\n\n" +
     " Plotting commands:\n" +
     "     plot-single-feature                  - plot fitted single-feature mixture distribution used\n" +
     "                                            for enrichment analysis\n" +
@@ -127,8 +126,6 @@ func main() {
   switch command {
   case "coverage":
     modhmm_coverage_main(config, options.Args())
-  case "compute-counts":
-    modhmm_compute_counts_main(config, options.Args())
   case "estimate-single-feature":
     modhmm_single_feature_estimate_main(config, options.Args())
   case "plot-single-feature":

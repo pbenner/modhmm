@@ -122,8 +122,11 @@ func newEstimator(config ConfigModHmm, n_delta, n_poisson, n_geometric int) Vect
 
 /* -------------------------------------------------------------------------- */
 
-func single_feature_estimate(config ConfigModHmm, estimator VectorEstimator, filenameIn, filenameOut string) {
-  if err := ImportAndEstimateOnSingleTrack(config.SessionConfig, estimator, filenameIn); err != nil {
+func single_feature_estimate(config ConfigModHmm, estimator VectorEstimator, files SingleFeatureFiles) {
+  config.BinSummaryStatistics = "discrete mean"
+  track := single_feature_import(config, files, false)
+
+  if err := EstimateOnSingleTrack(config.SessionConfig, estimator, track); err != nil {
     log.Fatal(err)
   }
   if d, err := estimator.GetEstimate(); err != nil {
@@ -133,12 +136,23 @@ func single_feature_estimate(config ConfigModHmm, estimator VectorEstimator, fil
 
     sort.Sort(SortableMixture{result})
 
-    printStderr(config, 1, "Exporting distribution to `%s'... ", filenameOut)
-    if err := ExportDistribution(filenameOut, result); err != nil {
+    printStderr(config, 1, "Exporting distribution to `%s'... ", files.Model.Filename)
+    if err := ExportDistribution(files.Model.Filename, result); err != nil {
       printStderr(config, 1, "failed\n")
       log.Fatal(err)
     }
     printStderr(config, 1, "done\n")
+  }
+  if files.Feature == "h3k4me3o1" {
+    // update counts
+    if updateRequired(config, config.CoverageCnts.H3k4me3o1, files.Coverage[0].Filename, files.Coverage[1].Filename) {
+      compute_counts(config, track, config.CoverageCnts.H3k4me3o1.Filename)
+    }
+  } else {
+    // update counts
+    if updateRequired(config, files.Counts[0], files.Coverage[0].Filename) {
+      compute_counts(config, track, files.Counts[0].Filename)
+    }
   }
 }
 
@@ -150,14 +164,17 @@ func modhmm_single_feature_estimate(config ConfigModHmm, feature string, n []int
   if !CoverageList.Contains(strings.ToLower(feature)) {
     log.Fatalf("unknown feature: %s", feature)
   }
-  filenameIn  := config.Coverage          .GetTargetFile(feature)
-  filenameOut := config.SingleFeatureModel.GetTargetFile(feature)
-
-  if force || updateRequired(config, filenameOut, filenameIn.Filename) {
-    config.BinSummaryStatistics = "discrete mean"
+  files := config.SingleFeatureFiles(feature, false)
+  // single feature model depends on coverage files
+  filenamesDep := []string{}
+  for _, file := range files.Coverage {
+    filenamesDep = append(filenamesDep, file.Filename)
+  }
+  // update model
+  if force || updateRequired(config, files.Model, filenamesDep...) {
     estimator = newEstimator(config, n[0], n[1], n[2])
 
-    single_feature_estimate(config, estimator, filenameIn.Filename, filenameOut.Filename)
+    single_feature_estimate(config, estimator, files)
   }
 }
 
@@ -202,9 +219,9 @@ func modhmm_single_feature_estimate_default(config ConfigModHmm, feature string,
     modhmm_single_feature_estimate(config, feature, n, force)
   }
   // export foreground mixture components
-  filenameModel, filenameComp, _, _, _, _ := single_feature_files(config, feature, false)
-  if force || updateRequired(config, filenameComp, filenameModel.Filename) {
-    ExportComponents(config, filenameComp.Filename, components)
+  files := config.SingleFeatureFiles(feature, false)
+  if force || updateRequired(config, files.Components, files.Model.Filename) {
+    ExportComponents(config, files.Components.Filename, components)
   }
 }
 

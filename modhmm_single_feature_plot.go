@@ -288,30 +288,28 @@ func modhmm_single_feature_plot(config ConfigModHmm, ignoreModel, ignoreComponen
   p.X.Tick.Label.Font.Size = vg.Length(config.FontSize)
   p.Y.Tick.Label.Font.Size = vg.Length(config.FontSize)
 
-  filenameModel, filenameComp, _, filenameCnts, _, _ := single_feature_files(config, feature, false)
-
+  files  := config.SingleFeatureFiles(feature, false)
   counts := Counts{}
-  printStderr(config, 1, "Importing reference counts from `%s'... ", filenameCnts.Filename)
-  if err := counts.ImportFile(filenameCnts.Filename); err != nil {
-    printStderr(config, 1, "failed\n")
-    log.Fatal(err)
+  if files.Feature == "h3k4me3o1" {
+    counts = ImportCounts(config, config.CoverageCnts.H3k4me3o1.Filename)
+  } else {
+    counts = ImportCounts(config, files.Counts[0].Filename)
   }
-  printStderr(config, 1, "done\n")
 
-  if ignoreModel || !FileExists(filenameModel.Filename) {
+  if ignoreModel || !FileExists(files.Model.Filename) {
     modhmm_single_feature_plot_counts(config, p, counts)
   } else {
     mixture := &scalarDistribution.Mixture{}
-    printStderr(config, 1, "Importing mixture model from `%s'... ", filenameModel.Filename)
-    if err := ImportDistribution(filenameModel.Filename, mixture, BareRealType); err != nil {
+    printStderr(config, 1, "Importing mixture model from `%s'... ", files.Model.Filename)
+    if err := ImportDistribution(files.Model.Filename, mixture, BareRealType); err != nil {
       printStderr(config, 1, "failed\n")
       log.Fatal(err)
     }
     printStderr(config, 1, "done\n")
-    if ignoreComponents || !FileExists(filenameComp.Filename) {
+    if ignoreComponents || !FileExists(files.Components.Filename) {
       modhmm_single_feature_plot_isolated(config, p, mixture, counts)
     } else {
-      k_fg, k_bg := ImportComponents(config, filenameComp.Filename, mixture.NComponents())
+      k_fg, k_bg := ImportComponents(config, files.Components.Filename, mixture.NComponents())
 
       modhmm_single_feature_plot_joined(config, p, mixture, counts, k_fg, k_bg)
     }

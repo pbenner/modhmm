@@ -22,7 +22,6 @@ import   "fmt"
 import   "log"
 import   "math"
 import   "os"
-import   "strings"
 
 import . "github.com/pbenner/ngstat/classification"
 import . "github.com/pbenner/ngstat/track"
@@ -44,106 +43,110 @@ import   "github.com/pborman/getopt"
 
 /* -------------------------------------------------------------------------- */
 
-func single_feature_eval(config ConfigModHmm, filenameModel, filenameComp, filenameData, filenameCnts, filenameResult1, filenameResult2 string, logScale bool) {
-  mixture := ImportMixtureDistribution(config, filenameModel)
-  k, r    := ImportComponents(config, filenameComp, mixture.NComponents())
-  counts  := ImportCounts(config, filenameCnts)
+func single_feature_import_and_normalize(config ConfigModHmm, filenameData, filenameCnts string, normalize bool) MutableTrack {
+  counts := ImportCounts(config, filenameCnts)
+  if track, err := ImportTrack(config.SessionConfig, filenameData); err != nil {
+    log.Fatal(err)
+    return nil
+  } else {
+    if normalize {
+      printStderr(config, 1, "Quantile normalizing track to reference distribution... ")
+      if err := (GenericMutableTrack{track}).QuantileNormalizeToCounts(counts.X, counts.Y); err != nil {
+        printStderr(config, 1, "failed\n")
+        log.Fatal(err)
+      }
+      printStderr(config, 1, "done\n")
+    }
+    return track
+  }
+}
+
+func single_feature_compute_h3k4me3o1(config ConfigModHmm, track1, track2 MutableTrack) MutableTrack {
+  config.BinSummaryStatistics = "mean"
+  config.BinOverlap = 1
+  n1 := int64(0)
+  n2 := int64(0)
+  if err := (GenericMutableTrack{}).MapList([]Track{track1, track2}, func(seqname string, position int, values ...float64) float64 {
+    n1 += int64(values[0])
+    n2 += int64(values[1])
+    return 0.0
+  }); err != nil {
+    log.Fatal(err)
+  }
+  z := float64(n1)/float64(n2)
+  if err := (GenericMutableTrack{track1}).MapList([]Track{track1, track2}, func(seqname string, position int, values ...float64) float64 {
+    x1 := values[0]
+    x2 := values[1]
+    // do not add a pseudocount to x2 so that if x1 and x2
+    // are both zero, also the result is zero
+    // (otherwise strange peaks appear in the distribution)
+    return math.Round(z*(x2+0.0)/(x1+1.0)*10)
+  }); err != nil {
+    log.Fatal(err)
+  }
+  return track1
+}
+
+func single_feature_import(config ConfigModHmm, files SingleFeatureFiles, normalize bool) Track {
+  if files.Feature == "h3k4me3o1" {
+    track1 := single_feature_import_and_normalize(config, files.Coverage[0].Filename, files.Counts[0].Filename, normalize)
+    track2 := single_feature_import_and_normalize(config, files.Coverage[1].Filename, files.Counts[1].Filename, normalize)
+    return single_feature_compute_h3k4me3o1(config, track1, track2)
+  } else {
+    return single_feature_import_and_normalize(config, files.Coverage[0].Filename, files.Counts[0].Filename, normalize)
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+
+func single_feature_eval(config ConfigModHmm, files SingleFeatureFiles, logScale bool) {
+  mixture := ImportMixtureDistribution(config, files.Model.Filename)
+  k, r    := ImportComponents(config, files.Components.Filename, mixture.NComponents())
 
   scalarClassifier1 := scalarClassifier.MixturePosterior{mixture, k}
   scalarClassifier2 := scalarClassifier.MixturePosterior{mixture, r}
   vectorClassifier1 := vectorClassifier.ScalarBatchIid{scalarClassifier1, 1}
   vectorClassifier2 := vectorClassifier.ScalarBatchIid{scalarClassifier2, 1}
 
-  if data, err := ImportTrack(config.SessionConfig, filenameData); err != nil {
+  data := single_feature_import(config, files, true)
+
+  // foreground
+  result1, err := BatchClassifySingleTrack(config.SessionConfig, vectorClassifier1, data); if err != nil {
     log.Fatal(err)
-  } else {
-    printStderr(config, 1, "Quantile normalizing track to reference distribution... ")
-    if err := (GenericMutableTrack{data}).QuantileNormalizeToCounts(counts.X, counts.Y); err != nil {
-      printStderr(config, 1, "failed\n")
-      log.Fatal(err)
-    }
-    printStderr(config, 1, "done\n")
-
-    result1, err := BatchClassifySingleTrack(config.SessionConfig, vectorClassifier1, data); if err != nil {
-      log.Fatal(err)
-    }
-    if !logScale {
-      if err := (GenericMutableTrack{result1}).Map(result1, func(seqname string, position int, value float64) float64 {
-        return math.Exp(value)
-      }); err != nil {
-        log.Fatal(err)
-      }
-    }
-    if err := ExportTrack(config.SessionConfig, result1, filenameResult1); err != nil {
-      log.Fatal(err)
-    }
-
-    result2, err := BatchClassifySingleTrack(config.SessionConfig, vectorClassifier2, data); if err != nil {
-      log.Fatal(err)
-    }
-    if !logScale {
-      if err := (GenericMutableTrack{result2}).Map(result2, func(seqname string, position int, value float64) float64 {
-        return math.Exp(value)
-      }); err != nil {
-        log.Fatal(err)
-      }
-    }
-    if err := ExportTrack(config.SessionConfig, result2, filenameResult2); err != nil {
+  }
+  if !logScale {
+    if err := (GenericMutableTrack{result1}).Map(result1, func(seqname string, position int, value float64) float64 {
+      return math.Exp(value)
+    }); err != nil {
       log.Fatal(err)
     }
   }
-}
-
-func single_feature_files(config ConfigModHmm, feature string, logScale bool) (TargetFile, TargetFile, TargetFile, TargetFile, TargetFile, TargetFile) {
-
-  if !SingleFeatureList.Contains(strings.ToLower(feature)) {
-    log.Fatalf("unknown feature: %s", feature)
+  if err := ExportTrack(config.SessionConfig, result1, files.Foreground.Filename); err != nil {
+    log.Fatal(err)
   }
-  filenameModel   := TargetFile{}
-  filenameComp    := TargetFile{}
-  filenameData    := TargetFile{}
-  filenameCnts    := TargetFile{}
-  filenameResult1 := TargetFile{}
-  filenameResult2 := TargetFile{}
-
-  switch strings.ToLower(feature) {
-  case "rna-low":
-    filenameData    = config.Coverage          .Rna
-    filenameCnts    = config.CoverageCnts      .Rna
-    filenameModel   = config.SingleFeatureModel.Rna
-    filenameComp    = config.SingleFeatureComp .Rna_low
-    if logScale {
-      filenameResult1 = config.SingleFeatureFg.Rna_low
-      filenameResult2 = config.SingleFeatureBg.Rna_low
-    } else {
-      filenameResult1 = config.SingleFeatureFgExp.Rna_low
-      filenameResult2 = config.SingleFeatureBgExp.Rna_low
-    }
-  default:
-    filenameData    = config.Coverage          .GetTargetFile(feature)
-    filenameCnts    = config.CoverageCnts      .GetTargetFile(feature)
-    filenameModel   = config.SingleFeatureModel.GetTargetFile(feature)
-    filenameComp    = config.SingleFeatureComp .GetTargetFile(feature)
-    if logScale {
-      filenameResult1 = config.SingleFeatureFg.GetTargetFile(feature)
-      filenameResult2 = config.SingleFeatureBg.GetTargetFile(feature)
-    } else {
-      filenameResult1 = config.SingleFeatureFgExp.GetTargetFile(feature)
-      filenameResult2 = config.SingleFeatureBgExp.GetTargetFile(feature)
+  // background
+  result2, err := BatchClassifySingleTrack(config.SessionConfig, vectorClassifier2, data); if err != nil {
+    log.Fatal(err)
+  }
+  if !logScale {
+    if err := (GenericMutableTrack{result2}).Map(result2, func(seqname string, position int, value float64) float64 {
+      return math.Exp(value)
+    }); err != nil {
+      log.Fatal(err)
     }
   }
-  return filenameModel, filenameComp, filenameData, filenameCnts, filenameResult1, filenameResult2
+  if err := ExportTrack(config.SessionConfig, result2, files.Background.Filename); err != nil {
+    log.Fatal(err)
+  }
 }
 
 func single_feature_filter_update(config ConfigModHmm, features []string, logScale bool) []string {
   r := []string{}
   for _, feature := range features {
-    feature = config.CoerceOpenChromatinAssay(feature)
-    filenameModel, filenameComp, filenameData, filenameCnts, filenameResult1, filenameResult2 :=
-      single_feature_files(config, feature, logScale)
-    if updateRequired(config, filenameResult1, filenameData.Filename, filenameCnts.Filename, filenameModel.Filename, filenameComp.Filename) ||
-      (updateRequired(config, filenameResult2, filenameData.Filename, filenameCnts.Filename, filenameModel.Filename, filenameComp.Filename)) {
-      r = append(r, feature)
+    files := config.SingleFeatureFiles(feature, logScale)
+    if updateRequired(config, files.Foreground, files.Dependencies()...) ||
+      (updateRequired(config, files.Background, files.Dependencies()...)) {
+      r = append(r, files.Feature)
     }
   }
   return r
@@ -153,25 +156,21 @@ func single_feature_filter_update(config ConfigModHmm, features []string, logSca
 
 func modhmm_single_feature_eval_dep(config ConfigModHmm) []string {
   r := []string{}
-  r  = append(r, config.Coverage.GetFilenames()...)
+  r  = append(r, config.Coverage          .GetFilenames()...)
   r  = append(r, config.SingleFeatureModel.GetFilenames()...)
-  r  = append(r, config.SingleFeatureComp.GetFilenames()...)
-  r  = append(r, config.CoverageCnts.GetFilenames()...)
+  r  = append(r, config.SingleFeatureComp .GetFilenames()...)
+  r  = append(r, config.CoverageCnts      .GetFilenames()...)
   return r
 }
 
 func modhmm_single_feature_eval(config ConfigModHmm, feature string, logScale bool) {
 
-  if !SingleFeatureList.Contains(strings.ToLower(feature)) {
-    log.Fatalf("unknown feature: %s", feature)
-  }
-  filenameModel, filenameComp, filenameData, filenameCnts, filenameResult1, filenameResult2 :=
-    single_feature_files(config, feature, logScale)
+  files := config.SingleFeatureFiles(feature, logScale)
 
   localConfig := config
   localConfig.BinSummaryStatistics = "discrete mean"
-  if updateRequired(config, filenameResult1, filenameData.Filename, filenameCnts.Filename, filenameModel.Filename, filenameComp.Filename) ||
-    (updateRequired(config, filenameResult2, filenameData.Filename, filenameCnts.Filename, filenameModel.Filename, filenameComp.Filename)) {
+  if updateRequired(config, files.Foreground, files.Dependencies()...) ||
+    (updateRequired(config, files.Background, files.Dependencies()...)) {
 
     // estimate single feature model if required
     // modhmm_single_feature_estimate_default(config, feature)
@@ -179,7 +178,7 @@ func modhmm_single_feature_eval(config ConfigModHmm, feature string, logScale bo
     //   modhmm_compute_counts(config, feature)
     // }
     printStderr(config, 1, "==> Evaluating Single-Feature Model (%s) <==\n", feature)
-    single_feature_eval(localConfig, filenameModel.Filename, filenameComp.Filename, filenameData.Filename, filenameCnts.Filename, filenameResult1.Filename, filenameResult2.Filename, logScale)
+    single_feature_eval(localConfig, files, logScale)
   }
 }
 

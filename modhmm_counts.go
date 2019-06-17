@@ -18,21 +18,16 @@ package main
 
 /* -------------------------------------------------------------------------- */
 
-import   "fmt"
+//import   "fmt"
 import   "io"
 import   "log"
 import   "math"
-import   "os"
 import   "sort"
-import   "strings"
 
 import . "github.com/pbenner/ngstat/config"
-import . "github.com/pbenner/ngstat/track"
 import . "github.com/pbenner/gonetics"
 import . "github.com/pbenner/autodiff"
 import . "github.com/pbenner/modhmm/config"
-
-import   "github.com/pborman/getopt"
 
 /* -------------------------------------------------------------------------- */
 
@@ -105,105 +100,32 @@ func (config *Counts) ExportFile(filename string) error {
 
 /* -------------------------------------------------------------------------- */
 
-func compute_counts(config ConfigModHmm, filenameIn, filenameOut string) {
+func compute_counts(config ConfigModHmm, track Track, filenameOut string) {
   config.BinSummaryStatistics = "discrete mean"
-  if track, err := ImportTrack(config.SessionConfig, filenameIn); err != nil {
+  m := make(map[float64]int)
+  if err := (GenericMutableTrack{}).Map(track, func(seqname string, position int, value float64) float64 {
+    if !math.IsNaN(value) {
+      m[value] += 1
+    }
+    return 0.0
+  }); err != nil {
     log.Fatal(err)
-  } else {
-    m := make(map[float64]int)
-    if err := (GenericMutableTrack{}).Map(track, func(seqname string, position int, value float64) float64 {
-      if !math.IsNaN(value) {
-        m[value] += 1
-      }
-      return 0.0
-    }); err != nil {
-      log.Fatal(err)
-    }
-    i  := 0
-    c  := Counts{}
-    c.X = make([]float64, len(m))
-    c.Y = make([]int,     len(m))
-    for k, v := range m {
-      c.X[i] = k
-      c.Y[i] = v
-      i++
-    }
-    sort.Sort(c)
-
-    printStderr(config, 1, "Exporting counts to `%s'... ", filenameOut)
-    if err := c.ExportFile(filenameOut); err != nil {
-      printStderr(config, 1, "failed\n")
-      log.Fatal(err)
-    }
-    printStderr(config, 1, "done\n")
   }
-}
-
-/* -------------------------------------------------------------------------- */
-
-func compute_counts_filter_update(config ConfigModHmm, features []string) []string {
-  r := []string{}
-  for _, feature := range features {
-    feature = config.CoerceOpenChromatinAssay(feature)
-
-    filenameIn  := config.Coverage    .GetTargetFile(feature)
-    filenameOut := config.CoverageCnts.GetTargetFile(feature)
-
-    if updateRequired(config, filenameOut, filenameIn.Filename) {
-      r = append(r, feature)
-    }
+  i  := 0
+  c  := Counts{}
+  c.X = make([]float64, len(m))
+  c.Y = make([]int,     len(m))
+  for k, v := range m {
+    c.X[i] = k
+    c.Y[i] = v
+    i++
   }
-  return r
-}
+  sort.Sort(c)
 
-func modhmm_compute_counts(config ConfigModHmm, feature string) {
-  if !CoverageList.Contains(strings.ToLower(feature)) {
-    log.Fatalf("unknown feature: %s", feature)
+  printStderr(config, 1, "Exporting counts to `%s'... ", filenameOut)
+  if err := c.ExportFile(filenameOut); err != nil {
+    printStderr(config, 1, "failed\n")
+    log.Fatal(err)
   }
-
-  filenameIn  := config.Coverage    .GetTargetFile(feature)
-  filenameOut := config.CoverageCnts.GetTargetFile(feature)
-
-  if updateRequired(config, filenameOut, filenameIn.Filename) {
-    compute_counts(config, filenameIn.Filename, filenameOut.Filename)
-  }
-}
-
-func modhmm_compute_counts_loop(config ConfigModHmm, features []string) {
-  // reduce list of features to those that require an update
-  features = compute_counts_filter_update(config, features)
-  // compute coverages here to make use of multi-threading
-  modhmm_coverage_loop(config, features)
-  // extract counts
-  for _, feature := range features {
-    modhmm_compute_counts(config, feature)
-  }
-}
-
-func modhmm_compute_counts_all(config ConfigModHmm) {
-  modhmm_compute_counts_loop(config, CoverageList)
-}
-
-/* -------------------------------------------------------------------------- */
-
-func modhmm_compute_counts_main(config ConfigModHmm, args []string) {
-
-  options := getopt.New()
-  options.SetProgram(fmt.Sprintf("%s compute-counts", os.Args[0]))
-  options.SetParameters("[FEATURE]...\n")
-
-  optHelp := options.BoolLong("help", 'h', "print help")
-
-  options.Parse(args)
-
-  // command options
-  if *optHelp {
-    options.PrintUsage(os.Stdout)
-    os.Exit(0)
-  }
-  if len(options.Args()) == 0 {
-    modhmm_compute_counts_all(config)
-  } else {
-    modhmm_compute_counts_loop(config, options.Args())
-  }
+  printStderr(config, 1, "done\n")
 }
