@@ -89,12 +89,12 @@ func single_feature_import(config ConfigModHmm, files SingleFeatureFiles, normal
   if files.Feature == "h3k4me3o1" {
     config.BinSummaryStatistics = "mean"
     config.BinOverlap = 1
-    track1 := single_feature_import_and_normalize(config, files.Coverage[0].Filename, files.Counts[0].Filename, normalize)
-    track2 := single_feature_import_and_normalize(config, files.Coverage[1].Filename, files.Counts[1].Filename, normalize)
+    track1 := single_feature_import_and_normalize(config, files.SrcCoverage[0].Filename, files.SrcCoverageCnts[0].Filename, normalize)
+    track2 := single_feature_import_and_normalize(config, files.SrcCoverage[1].Filename, files.SrcCoverageCnts[1].Filename, normalize)
     return single_feature_compute_h3k4me3o1(config, track1, track2)
   } else {
     config.BinSummaryStatistics = "discrete mean"
-    return single_feature_import_and_normalize(config, files.Coverage[0].Filename, files.Counts[0].Filename, normalize)
+    return single_feature_import_and_normalize(config, files.Coverage.Filename, files.CoverageCnts.Filename, normalize)
   }
 }
 

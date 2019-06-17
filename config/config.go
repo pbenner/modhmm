@@ -67,32 +67,38 @@ func (obj TargetFile) String() string {
 /* -------------------------------------------------------------------------- */
 
 type SingleFeatureFiles struct {
-  Feature      string
-  Foreground   TargetFile
-  Background   TargetFile
-  Model        TargetFile
-  Components   TargetFile
-  Coverage   []TargetFile
-  Counts     []TargetFile
+  Feature           string
+  Foreground        TargetFile
+  Background        TargetFile
+  Model             TargetFile
+  Components        TargetFile
+  Coverage          TargetFile
+  CoverageCnts      TargetFile
+  // H3K4me3 source coverage and counts files
+  SrcCoverage     []TargetFile
+  SrcCoverageCnts []TargetFile
 }
 
 func (obj SingleFeatureFiles) Dependencies() []string {
   filenames := []string{}
-  filenames  = append(filenames, obj.Model     .Filename)
-  filenames  = append(filenames, obj.Components.Filename)
-  for _, file := range obj.Coverage {
-    filenames = append(filenames, file.Filename)
-  }
-  for _, file := range obj.Counts {
-    filenames = append(filenames, file.Filename)
-  }
+  filenames  = append(filenames, obj.Model       .Filename)
+  filenames  = append(filenames, obj.CoverageCnts.Filename)
+  filenames  = append(filenames, obj.Components  .Filename)
   return filenames
 }
 
 func (obj SingleFeatureFiles) DependenciesModel() []string {
   filenames := []string{}
-  for _, file := range obj.Coverage {
-    filenames = append(filenames, file.Filename)
+  switch obj.Feature {
+  case "h3k4me3o1":
+    for _, file := range obj.SrcCoverage {
+      filenames = append(filenames, file.Filename)
+    }
+    for _, file := range obj.SrcCoverageCnts {
+      filenames = append(filenames, file.Filename)
+    }
+  default:
+    filenames = append(filenames, obj.Coverage.Filename)
   }
   return filenames
 }
@@ -597,10 +603,10 @@ func (config *ConfigModHmm) SingleFeatureFiles(feature string, logScale bool) Si
       files.Foreground = config.SingleFeatureFgExp.Rna_low
       files.Background = config.SingleFeatureBgExp.Rna_low
     }
-    files.Model      = config.SingleFeatureModel.Rna
-    files.Components = config.SingleFeatureComp .Rna_low
-    files.Coverage   = append(files.Coverage, config.Coverage    .Rna)
-    files.Counts     = append(files.Counts,   config.CoverageCnts.Rna)
+    files.Model        = config.SingleFeatureModel.Rna
+    files.Components   = config.SingleFeatureComp .Rna_low
+    files.Coverage     = config.Coverage    .Rna
+    files.CoverageCnts = config.CoverageCnts.Rna
   default:
     if logScale {
       files.Foreground = config.SingleFeatureFg.GetTargetFile(feature)
@@ -609,16 +615,16 @@ func (config *ConfigModHmm) SingleFeatureFiles(feature string, logScale bool) Si
       files.Foreground = config.SingleFeatureFgExp.GetTargetFile(feature)
       files.Background = config.SingleFeatureBgExp.GetTargetFile(feature)
     }
-    files.Model      = config.SingleFeatureModel.GetTargetFile(feature)
-    files.Components = config.SingleFeatureComp .GetTargetFile(feature)
+    files.Model        = config.SingleFeatureModel.GetTargetFile(feature)
+    files.Components   = config.SingleFeatureComp .GetTargetFile(feature)
+    files.CoverageCnts = config.CoverageCnts      .GetTargetFile(feature)
     if files.Feature == "h3k4me3o1" {
-      files.Coverage = append(files.Coverage, config.Coverage    .H3k4me1)
-      files.Coverage = append(files.Coverage, config.Coverage    .H3k4me3)
-      files.Counts   = append(files.Counts,   config.CoverageCnts.H3k4me1)
-      files.Counts   = append(files.Counts,   config.CoverageCnts.H3k4me3)
+      files.SrcCoverage     = append(files.SrcCoverage,     config.Coverage    .H3k4me1)
+      files.SrcCoverage     = append(files.SrcCoverage,     config.Coverage    .H3k4me3)
+      files.SrcCoverageCnts = append(files.SrcCoverageCnts, config.CoverageCnts.H3k4me1)
+      files.SrcCoverageCnts = append(files.SrcCoverageCnts, config.CoverageCnts.H3k4me3)
     } else {
-      files.Coverage = append(files.Coverage, config.Coverage    .GetTargetFile(feature))
-      files.Counts   = append(files.Counts,   config.CoverageCnts.GetTargetFile(feature))
+    files.Coverage = config.Coverage.GetTargetFile(feature)
     }
   }
   return files

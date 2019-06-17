@@ -153,11 +153,6 @@ func modhmm_single_feature_estimate(config ConfigModHmm, feature string, n []int
     log.Fatalf("unknown feature: %s", feature)
   }
   files := config.SingleFeatureFiles(feature, false)
-  // single feature model depends on coverage files
-  filenamesDep := []string{}
-  for _, file := range files.Coverage {
-    filenamesDep = append(filenamesDep, file.Filename)
-  }
   // check if h3k4me1 or h3k4me3 must be updated first
   if files.Feature == "h3k4me3o1" {
     files1 := config.SingleFeatureFiles("h3k4me1", false)
@@ -178,20 +173,11 @@ func modhmm_single_feature_estimate(config ConfigModHmm, feature string, n []int
     single_feature_estimate(config, track, estimator, files)
   }
   // update counts
-  if files.Feature == "h3k4me3o1" {
-    if force || updateRequired(config, config.CoverageCnts.H3k4me3o1, files.DependenciesModel()...) {
-      if track == nil {
-        track = single_feature_import(config, files, false)
-      }
-      compute_counts(config, track, config.CoverageCnts.H3k4me3o1.Filename)
+  if force || updateRequired(config, files.CoverageCnts, files.DependenciesModel()...) {
+    if track == nil {
+      track = single_feature_import(config, files, false)
     }
-  } else {
-    if force || updateRequired(config, files.Counts[0], files.DependenciesModel()...) {
-      if track == nil {
-        track = single_feature_import(config, files, false)
-      }
-      compute_counts(config, track, files.Counts[0].Filename)
-    }
+    compute_counts(config, track, files.CoverageCnts.Filename)
   }
 }
 
