@@ -162,25 +162,34 @@ func modhmm_single_feature_estimate(config ConfigModHmm, feature string, n []int
   if files.Feature == "h3k4me3o1" {
     files1 := config.SingleFeatureFiles("h3k4me1", false)
     files2 := config.SingleFeatureFiles("h3k4me3", false)
-    if updateRequired(config, files1.Model, files1.Coverage[0].Filename) ||
-      (updateRequired(config, files2.Model, files2.Coverage[0].Filename)) {
+    if updateRequired(config, files1.Model, files1.DependenciesModel()...) ||
+      (updateRequired(config, files2.Model, files2.DependenciesModel()...)) {
       log.Fatal("Please first update single-feature models of H3K4me1 and H3K4me3")
     }
   }
-  track := single_feature_import(config, files, false)
+  var track Track
   // update model
-  if force || updateRequired(config, files.Model, filenamesDep...) {
+  if force || updateRequired(config, files.Model, files.DependenciesModel()...) {
+    if track == nil {
+      track = single_feature_import(config, files, false)
+    }
     estimator = newEstimator(config, n[0], n[1], n[2])
 
     single_feature_estimate(config, track, estimator, files)
   }
   // update counts
   if files.Feature == "h3k4me3o1" {
-    if force || updateRequired(config, config.CoverageCnts.H3k4me3o1, files.Coverage[0].Filename, files.Coverage[1].Filename) {
+    if force || updateRequired(config, config.CoverageCnts.H3k4me3o1, files.DependenciesModel()...) {
+      if track == nil {
+        track = single_feature_import(config, files, false)
+      }
       compute_counts(config, track, config.CoverageCnts.H3k4me3o1.Filename)
     }
   } else {
-    if force || updateRequired(config, files.Counts[0], files.Coverage[0].Filename) {
+    if force || updateRequired(config, files.Counts[0], files.DependenciesModel()...) {
+      if track == nil {
+        track = single_feature_import(config, files, false)
+      }
       compute_counts(config, track, files.Counts[0].Filename)
     }
   }

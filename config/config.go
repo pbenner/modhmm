@@ -89,6 +89,14 @@ func (obj SingleFeatureFiles) Dependencies() []string {
   return filenames
 }
 
+func (obj SingleFeatureFiles) DependenciesModel() []string {
+  filenames := []string{}
+  for _, file := range obj.Coverage {
+    filenames = append(filenames, file.Filename)
+  }
+  return filenames
+}
+
 /* -------------------------------------------------------------------------- */
 
 func completePath(dir, prefix, mypath, def string) string {
@@ -252,7 +260,7 @@ type ConfigCountsPaths struct {
 
 func (config *ConfigCountsPaths) GetTargetFile(feature string) TargetFile {
   switch strings.ToLower(feature) {
-  case "h3K4me3o1": return config.H3k4me3o1
+  case "h3k4me3o1": return config.H3k4me3o1
   case "rna-low"  : return config.Rna_low
   default         : return config.ConfigCoveragePaths.GetTargetFile(feature)
   }
