@@ -36,7 +36,7 @@ var CoverageList = StringList{
 
 /* -------------------------------------------------------------------------- */
 
-var CountsList = StringList{
+var SingleFeatureModelList = StringList{
   "open", "h3k27ac", "h3k27me3", "h3k9me3", "h3k4me1", "h3k4me3", "h3k4me3o1", "rna", "control"}
 
 /* -------------------------------------------------------------------------- */
@@ -78,8 +78,6 @@ type SingleFeatureFiles struct {
 
 func (obj SingleFeatureFiles) Dependencies() []string {
   filenames := []string{}
-  filenames  = append(filenames, obj.Foreground.Filename)
-  filenames  = append(filenames, obj.Background.Filename)
   filenames  = append(filenames, obj.Model     .Filename)
   filenames  = append(filenames, obj.Components.Filename)
   for _, file := range obj.Coverage {
@@ -288,7 +286,7 @@ type ConfigSingleFeaturePaths struct {
 
 func (config *ConfigSingleFeaturePaths) GetTargetFile(feature string) TargetFile {
   switch strings.ToLower(feature) {
-  case "h3K4me3o1": return config.H3k4me3o1
+  case "h3k4me3o1": return config.H3k4me3o1
   case "rna_low"  : return config.Rna_low
   case "rna-low"  : return config.Rna_low
   default         : return config.ConfigCoveragePaths.GetTargetFile(feature)
@@ -374,7 +372,7 @@ type ConfigModHmm struct {
   CoverageCnts               ConfigCountsPaths        `json:"Coverage Counts Files"`
   CoverageMAPQ               int                      `json:"Coverage MAPQ"`
   SingleFeatureModelDir      string                   `json:"Single-Feature Model Directory"`
-  SingleFeatureModel         ConfigCoveragePaths      `json:"Single-Feature Model Files"`
+  SingleFeatureModel         ConfigSingleFeaturePaths `json:"Single-Feature Model Files"`
   SingleFeatureComp          ConfigSingleFeaturePaths `json:"Single-Feature Model Component Files"`
   SingleFeatureDir           string                   `json:"Single-Feature Directory"`
   SingleFeatureFg            ConfigSingleFeaturePaths `json:"Single-Feature Foreground"`

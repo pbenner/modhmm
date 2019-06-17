@@ -89,10 +89,12 @@ func single_feature_compute_h3k4me3o1(config ConfigModHmm, track1, track2 Mutabl
 
 func single_feature_import(config ConfigModHmm, files SingleFeatureFiles, normalize bool) Track {
   if files.Feature == "h3k4me3o1" {
+    config.BinSummaryStatistics = "mean"
     track1 := single_feature_import_and_normalize(config, files.Coverage[0].Filename, files.Counts[0].Filename, normalize)
     track2 := single_feature_import_and_normalize(config, files.Coverage[1].Filename, files.Counts[1].Filename, normalize)
     return single_feature_compute_h3k4me3o1(config, track1, track2)
   } else {
+    config.BinSummaryStatistics = "discrete mean"
     return single_feature_import_and_normalize(config, files.Coverage[0].Filename, files.Counts[0].Filename, normalize)
   }
 }
