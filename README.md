@@ -4,7 +4,7 @@ ModHMM is a highly modular genome segmentation method based on hidden Markov mod
 
 References:
 
-Philipp Benner and Martin Vingron. *ModHMM: A Modular Supra-Bayesian Genome Segmentation Method*. International Conference on Research in Computational Molecular Biology (RECOMB). Springer, Cham, 2019. S. 35-50. [Link](https://link.springer.com/chapter/10.1007/978-3-030-17083-7_3)
+Philipp Benner and Martin Vingron. *ModHMM: A Modular Supra-Bayesian Genome Segmentation Method*. International Conference on Research in Computational Molecular Biology (RECOMB). Springer, Cham, 2019. S. 35-50. [[Link]](https://link.springer.com/chapter/10.1007/978-3-030-17083-7_3)
 
 ### Installation
 
