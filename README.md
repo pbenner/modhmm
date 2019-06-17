@@ -67,7 +67,7 @@ ModHMM requires a configuration file in JSON format. The following is a simple e
     # replicates must be specified, any number of replicates is supported)
     "Bam Files"     : {
         "ATAC"      : [    "atac-rep1.bam",     "atac-rep2.bam"],
-        "DNase"     : [   "dnase-rep1.bam",    "dnase-rep2.bam"],
+        #"DNase"    : [   "dnase-rep1.bam",    "dnase-rep2.bam"],
         "H3K27ac"   : [ "h3k27ac-rep1.bam",  "h3k27ac-rep2.bam"],
         "H3K27me3"  : ["h3k27me3-rep1.bam", "h3k27me3-rep2.bam"],
         "H3K9me3"   : [ "h3k9me3-rep1.bam",  "h3k9me3-rep2.bam"],
@@ -88,6 +88,37 @@ ModHMM requires a configuration file in JSON format. The following is a simple e
 }
 ```
 
+The following configuration can be used if data instead is given as bigWig files:
+```R
+{
+    # Data is provided as bigWig files. Set all coverage files static!
+    "Coverage Files": {
+        "ATAC"   : {"Filename": "coverage-atac.bw",    "Static": true },
+        #"DNase" : {"Filename": "coverage-dnase.bw",   "Static": true },
+        "H3K27ac": {"Filename": "coverage-h3k27ac.bw", "Static": true },
+        "H3K4me1": {"Filename": "coverage-h3k4me1.bw", "Static": true },
+        "H3K4me3": {"Filename": "coverage-h3k4me3.bw", "Static": true },
+        "RNA"    : {"Filename": "coverage-rna.bw",     "Static": true },
+        "Control": {"Filename": "coverage-control.bw", "Static": true }
+    },
+    # Number of threads used for computing coverage bigWigs (memory intense!)
+    "Coverage Threads"                : 5,
+    # Directory containing all auxiliary files and the final segmentation
+    "Directory"                       : "mm10-liver-embryo-day12.5",
+    "Description"                     : "liver embryo day12.5",
+    # Number of threads used for evaluating classifiers and computing the segmentation
+    "Threads"                         : 20,
+    # Verbose level (0: no output, 1: low, 2: high)
+    "Verbose"                         : 1
+}
+Coverage bigWig files must be placed in the directory `mm10-liver-embryo-day12.5`. Setting the option `Static` to true tells ModHMM that the provided bigWig files are not automatically generated and should not be overwritten.
+
+ModHMM computes segmentations in several stages. At every stage the output is saved as a bigWig file, which can be inspected in a genome browser. The location and name of each bigWig file can be configured. A full set of all options is printed with `modhmm --genconf`.
+
+To execute ModHMM simply run (assuming the configuration file is named `config.json`):
+```sh
+  modhmm -c config.json segmentation
+```
 
 ### Example 1: Compute segmentation on ENCODE data from mouse embyonic liver at day 12.5
 
