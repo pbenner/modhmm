@@ -176,7 +176,7 @@ func modhmm_single_feature_estimate(config ConfigModHmm, feature string, n []int
     files2 := config.SingleFeatureFiles("h3k4me3", false)
     if updateRequired(config, files1.Model, files1.Dependencies()...) ||
       (updateRequired(config, files2.Model, files2.Dependencies()...)) {
-      log.Fatal("Please first update single-feature model of H3K4me1 and H3K4me3")
+      log.Fatal("Please first update single-feature models of H3K4me1 and H3K4me3")
     }
   }
   // update model
