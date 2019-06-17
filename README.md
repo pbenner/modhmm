@@ -1,35 +1,21 @@
 ## ModHMM
 
-ModHMM is a highly modular genome segmentation method that incorporates genome-wide predictions from a set of classifiers. In order to simplify usage, ModHMM implements a default set of classifiers, but also allows to use predictions from third party methods.
+ModHMM is a highly modular genome segmentation method based on hidden Markov models that incorporates genome-wide predictions from a set of classifiers. In order to simplify usage, ModHMM implements a default set of classifiers, but also allows to use predictions from third party methods.
 
 ### Installation
 
-ModHMM can be installed by either downloading a binary from the [binary repository](https://github.com/pbenner/modhmm-binary) or by compiling the program from source. To compile ModHMM you must first install the [Go compiler](https://golang.org/dl/), i.e.:
-```sh
-  wget https://dl.google.com/go/go1.12.2.linux-amd64.tar.gz
-  mkdir -p ~/.local/opt
-  tar -xvf go1.11.linux-amd64.tar.gz -C ~/.local/opt
-```
+ModHMM can be installed by either downloading a binary from the [binary repository](https://github.com/pbenner/modhmm-binary) or by compiling the program from source.
 
-Set environment variables:
-```sh
-  # golang compiler location
-  export GOROOT=$HOME/.local/opt/go
-  export PATH=$GOROOT/bin:$PATH
-  # golang workspace
-  export GOPATH=$HOME/go
-  export PATH=$GOPATH/bin:$PATH
-  mkdir -p $GOPATH
-```
-
-Afterwards, you may install ModHMM:
+To compile ModHMM you must first install the [Go compiler](https://golang.org/dl/). Afterwards, you may install ModHMM as follows:
 ```sh
   go get -v github.com/pbenner/modhmm
   cd $GOPATH/src/github.com/pbenner/modhmm
-  make
+  make install
 ```
 
-### Available segmentations and single-feature models
+### Available Segmentations
+
+ModHMM segmentations are available for several ENCODE data sets:
 
 Tissue                         | Single-feature model | Segmentation
 -------------------------------|----------------------|---------------
@@ -67,6 +53,10 @@ mm10 midbrain embryo day 13.5  | [Download](https://github.com/pbenner/modhmm-se
 mm10 midbrain embryo day 14.5  | [Download](https://github.com/pbenner/modhmm-segmentations/raw/master/mm10-midbrain-embryo-day14.5-models.tar.bz2)  | [Download](https://github.com/pbenner/modhmm-segmentations/raw/master/mm10-midbrain-embryo-day14.5/segmentation.bed.gz)  |
 mm10 midbrain embryo day 15.5  | [Download](https://github.com/pbenner/modhmm-segmentations/raw/master/mm10-midbrain-embryo-day15.5-models.tar.bz2)  | [Download](https://github.com/pbenner/modhmm-segmentations/raw/master/mm10-midbrain-embryo-day15.5/segmentation.bed.gz)  |
 mm10 midbrain embryo day 16.5  | [Download](https://github.com/pbenner/modhmm-segmentations/raw/master/mm10-midbrain-embryo-day16.5-models.tar.bz2)  | [Download](https://github.com/pbenner/modhmm-segmentations/raw/master/mm10-midbrain-embryo-day16.5/segmentation.bed.gz)  |
+
+### Computing ModHMM Segmentations
+
+Unlike most other genome segmentation methods, ModHMM so far depends on data from a fixed set of assays (ATAC/DNase, H3K27ac, H3K27me3, H3K4me1, H3K4me3, WCE/IgG, and RNA-seq). Preferentially, the data should be provided as BAM files, but it is also possible to use bigWig files as input. If BAM files are provided, ModHMM computes coverages and in case of single-end sequencing data automatically estimates the mean fragment length.
 
 ### Example 1: Compute segmentation on ENCODE data from mouse embyonic liver at day 12.5
 
