@@ -111,6 +111,7 @@ The following configuration can be used if data instead is given in bigWig forma
     # Verbose level (0: no output, 1: low, 2: high)
     "Verbose"                         : 1
 }
+```
 Coverage bigWig files must be placed in the directory `mm10-liver-embryo-day12.5`. Setting the option `Static` to true tells ModHMM that the provided bigWig files are not automatically generated and should not be overwritten.
 
 ModHMM computes segmentations in several stages. At every stage the output is saved as a bigWig file, which can be inspected in a genome browser. The location and name of each bigWig file can be configured. A full set of all options is printed with `modhmm --genconf`.
