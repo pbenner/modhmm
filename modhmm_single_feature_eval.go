@@ -44,12 +44,12 @@ import   "github.com/pborman/getopt"
 /* -------------------------------------------------------------------------- */
 
 func single_feature_import_and_normalize(config ConfigModHmm, filenameData, filenameCnts string, normalize bool) MutableTrack {
-  counts := ImportCounts(config, filenameCnts)
   if track, err := ImportTrack(config.SessionConfig, filenameData); err != nil {
     log.Fatal(err)
     return nil
   } else {
     if normalize {
+      counts := ImportCounts(config, filenameCnts)
       printStderr(config, 1, "Quantile normalizing track to reference distribution... ")
       if err := (GenericMutableTrack{track}).QuantileNormalizeToCounts(counts.X, counts.Y); err != nil {
         printStderr(config, 1, "failed\n")
