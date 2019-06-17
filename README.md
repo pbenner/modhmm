@@ -88,7 +88,7 @@ ModHMM requires a configuration file in JSON format. The following is a simple e
 }
 ```
 
-The following configuration can be used if data instead is given as bigWig files:
+The following configuration can be used if data instead is given in bigWig format:
 ```R
 {
     # Data is provided as bigWig files. Set all coverage files static!
