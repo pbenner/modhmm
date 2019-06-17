@@ -6,17 +6,6 @@ References:
 
 Philipp Benner and Martin Vingron. *ModHMM: A Modular Supra-Bayesian Genome Segmentation Method*. International Conference on Research in Computational Molecular Biology (RECOMB). Springer, Cham, 2019. S. 35-50. [[Link]](https://link.springer.com/chapter/10.1007/978-3-030-17083-7_3)
 
-### Installation
-
-ModHMM can be installed by either downloading a binary from the [binary repository](https://github.com/pbenner/modhmm-binary) or by compiling the program from source.
-
-To compile ModHMM you must first install the [Go compiler](https://golang.org/dl/). Afterwards, you may install ModHMM as follows:
-```sh
-  go get -v github.com/pbenner/modhmm
-  cd $GOPATH/src/github.com/pbenner/modhmm
-  make install
-```
-
 ### Available Segmentations
 
 ModHMM segmentations are available for several ENCODE data sets:
@@ -57,6 +46,17 @@ mm10 midbrain embryo day 13.5  | [Download](https://github.com/pbenner/modhmm-se
 mm10 midbrain embryo day 14.5  | [Download](https://github.com/pbenner/modhmm-segmentations/raw/master/mm10-midbrain-embryo-day14.5-models.tar.bz2)  | [Download](https://github.com/pbenner/modhmm-segmentations/raw/master/mm10-midbrain-embryo-day14.5/segmentation.bed.gz)  |
 mm10 midbrain embryo day 15.5  | [Download](https://github.com/pbenner/modhmm-segmentations/raw/master/mm10-midbrain-embryo-day15.5-models.tar.bz2)  | [Download](https://github.com/pbenner/modhmm-segmentations/raw/master/mm10-midbrain-embryo-day15.5/segmentation.bed.gz)  |
 mm10 midbrain embryo day 16.5  | [Download](https://github.com/pbenner/modhmm-segmentations/raw/master/mm10-midbrain-embryo-day16.5-models.tar.bz2)  | [Download](https://github.com/pbenner/modhmm-segmentations/raw/master/mm10-midbrain-embryo-day16.5/segmentation.bed.gz)  |
+
+### Installation
+
+ModHMM can be installed by either downloading a binary from the [binary repository](https://github.com/pbenner/modhmm-binary) or by compiling the program from source.
+
+To compile ModHMM you must first install the [Go compiler](https://golang.org/dl/). Afterwards, you may install ModHMM as follows:
+```sh
+  go get -v github.com/pbenner/modhmm
+  cd $GOPATH/src/github.com/pbenner/modhmm
+  make install
+```
 
 ### Computing ModHMM Segmentations
 
