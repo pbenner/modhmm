@@ -172,10 +172,9 @@ Create a configuration file named `mm10-liver-embryo-day12.5.json` (ModHMM accep
 }
 ```
 
-Create output directories
+Create output directory
 ```sh
   mkdir mm10-liver-embryo-day12.5
-  mkdir mm10-liver-embryo-day12.5:models
 ```
 
 Execute ModHMM:
@@ -183,71 +182,7 @@ Execute ModHMM:
   modhmm -c mm10-liver-embryo-day12.5.json segmentation
 ```
 
-### Example 2: Compute segmentation on ENCODE data from mouse embyonic forebrain at day 11.5 with single-feature models estimated on embryonic liver at day 12.5
-
-Download BAM files from ENCODE and store them in a directory called `.bam`:
-```sh
-  # DNase-seq
-  wget --directory-prefix=.bam http://www.encodeproject.org/files/ENCFF546SVK/@@download/ENCFF546SVK.bam
-  wget --directory-prefix=.bam http://www.encodeproject.org/files/ENCFF358BLW/@@download/ENCFF358BLW.bam
-  # H3K27ac
-  wget --directory-prefix=.bam http://www.encodeproject.org/files/ENCFF439HJF/@@download/ENCFF439HJF.bam
-  wget --directory-prefix=.bam http://www.encodeproject.org/files/ENCFF393PYK/@@download/ENCFF393PYK.bam
-  # H3K27me3
-  wget --directory-prefix=.bam http://www.encodeproject.org/files/ENCFF854DPK/@@download/ENCFF854DPK.bam
-  wget --directory-prefix=.bam http://www.encodeproject.org/files/ENCFF330LCP/@@download/ENCFF330LCP.bam
-  # H3K9me3
-  wget --directory-prefix=.bam http://www.encodeproject.org/files/ENCFF828ITY/@@download/ENCFF828ITY.bam
-  wget --directory-prefix=.bam http://www.encodeproject.org/files/ENCFF670JTV/@@download/ENCFF670JTV.bam
-  # H3K4me1
-  wget --directory-prefix=.bam http://www.encodeproject.org/files/ENCFF528ZVN/@@download/ENCFF528ZVN.bam
-  wget --directory-prefix=.bam http://www.encodeproject.org/files/ENCFF695PCS/@@download/ENCFF695PCS.bam
-  # H3K4me3
-  wget --directory-prefix=.bam http://www.encodeproject.org/files/ENCFF437KKV/@@download/ENCFF437KKV.bam
-  wget --directory-prefix=.bam http://www.encodeproject.org/files/ENCFF354JHH/@@download/ENCFF354JHH.bam
-  # RNA-seq
-  wget --directory-prefix=.bam http://www.encodeproject.org/files/ENCFF625THA/@@download/ENCFF625THA.bam
-  wget --directory-prefix=.bam http://www.encodeproject.org/files/ENCFF177AZU/@@download/ENCFF177AZU.bam
-  # Control
-  wget --directory-prefix=.bam http://www.encodeproject.org/files/ENCFF631YQS/@@download/ENCFF631YQS.bam
-  wget --directory-prefix=.bam http://www.encodeproject.org/files/ENCFF658BBR/@@download/ENCFF658BBR.bam
-```
-
-Create a configuration file named `mm10-forebrain-embryo-day11.5.json`:
-```R
-{
-    "Bam Directory" : ".bam",
-    "Bam Files"     : {
-        "ATAC"      : ["ENCFF426VDN.bam", "ENCFF275OKU.bam"],
-        #"DNase"    : ["ENCFF546SVK.bam", "ENCFF358BLW.bam"],
-        "H3K27ac"   : ["ENCFF439HJF.bam", "ENCFF393PYK.bam"],
-        "H3K27me3"  : ["ENCFF854DPK.bam", "ENCFF330LCP.bam"],
-        "H3K9me3"   : ["ENCFF828ITY.bam", "ENCFF670JTV.bam"],
-        "H3K4me1"   : ["ENCFF528ZVN.bam", "ENCFF695PCS.bam"],
-        "H3K4me3"   : ["ENCFF437KKV.bam", "ENCFF354JHH.bam"],
-        "RNA"       : ["ENCFF625THA.bam", "ENCFF177AZU.bam"],
-        "Control"   : ["ENCFF631YQS.bam", "ENCFF658BBR.bam"]
-    },
-    "Coverage Threads"                : 5,
-    "Directory"                       : "mm10-forebrain-embryo-day11.5",
-    "Description"                     : "forebrain embryo day11.5",
-    "Threads"                         : 20,
-    "Verbose"                         : 1
-}
-```
-
-Create output directories
-```sh
-  mkdir mm10-forebrain-embryo-day11.5
-  mkdir mm10-forebrain-embryo-day11.5:models
-```
-
-Execute ModHMM:
-```sh
-  modhmm -c mm10-forebrain-embryo-day11.5.json segmentation
-```
-
-### Example 3: Estimate custom single-feature models on ENCODE data from mouse embyonic forebrain at day 11.5
+### Example 2: Estimate custom single-feature models on ENCODE data from mouse embyonic forebrain at day 11.5
 
 Create a configuration file named `mm10-forebrain-embryo-day11.5.json` and set model files static to prevent automatic updates:
 ```R
