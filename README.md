@@ -178,7 +178,11 @@ If the mixture model of a feature, say H3K27ac, poorly separates signal from noi
 ```sh
   modhmm -c config.json estimate-single-feature --force h3k27ac 1 2 1
 ```
-This model would use a single delta distributions for all zero counts (first 1), two Poisson distributions (2), and a single geometric distribution (second 1). Which components are used to model the signal (foreground) is specified in the file `h3k27ac.components.json`.
+This model would use a single delta distributions for all zero counts (first 1), two Poisson distributions (2), and a single geometric distribution (second 1). Which components are used to model the signal (foreground) is specified in the file `h3k27ac.components.json`. To obtain a list of mixture components including the estimated parameters use
+```sh
+  modhmm -c config.json print-single-feature
+```
+
 
 ### Using ModHMM as a Peak Caller
 
