@@ -56,6 +56,8 @@ func main() {
   optVersion := options.   BoolLong("version",  0 ,     "print ModHMM version")
 
   options.SetParameters("<COMMAND>\n\n" +
+    " Default usage:\n" +
+    "     modhmm -c CONFIG.json segmentation\n\n" +
     " Commands:\n" +
     "     coverage                 [stage 1]   - compute single-feature coverages from bam files\n" +
     "     estimate-single-feature  [stage 1.1] - estimate mixture distribution for single-feature\n" +
