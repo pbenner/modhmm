@@ -233,6 +233,7 @@ Create a configuration file named `mm10-liver-embryo-day12.5.json` (ModHMM accep
         "Control"   : ["ENCFF865QGZ.bam", "ENCFF438RYK.bam"]
     },
     "Coverage Threads"                : 5,
+    "Single-Feature Model Fallback"   : "mm10",
     "Directory"                       : "mm10-liver-embryo-day12.5",
     "Description"                     : "liver embryo day12.5",
     "Threads"                         : 20,
