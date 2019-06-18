@@ -224,7 +224,6 @@ Create a configuration file named `mm10-forebrain-embryo-day11.5.json` and set m
         "Control"   : ["ENCFF631YQS.bam", "ENCFF658BBR.bam"]
     },
     "Coverage Threads"                : 5,
-    "Single-Feature Model Static"     : true,
     "Single-Feature Model Directory"  : "mm10-forebrain-embryo-day11.5:models",
     "Directory"                       : "mm10-forebrain-embryo-day11.5",
     "Description"                     : "forebrain embryo day11.5",
