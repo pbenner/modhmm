@@ -128,21 +128,21 @@ To execute ModHMM simply run (assuming the configuration file is named `config.j
 
 ModHMM states are not numbered but directly linked to known chromatin states. The following is a list of state abbreviations used in the resulting segmentation files
 
-State name | Description                             |
-------------------------------------------------------
-PA         | active promoter                         |
-EA         | active enhancer                         |
-BI         | bivalet region                          |
-PI         | primed region                           |
-EA:tr      | active enhancer in a transcribed region |
-BI:tr      | bivalet region in a transcribed region  |
-PI:tr      | primed region in a transcribed region   |
-TR         | transcribed region                      |
-TL         | low transcription                       |
-R1         | H3K27me3 repressed                      |
-R2         | H3K9me3 repressed                       |
-NS         | no signal                               |
-CL         | control signal                          |
+State name | Description
+-----------|------------------------------------------
+PA         | active promoter
+EA         | active enhancer
+BI         | bivalet region
+PI         | primed region
+EA:tr      | active enhancer in a transcribed region
+BI:tr      | bivalet region in a transcribed region
+PI:tr      | primed region in a transcribed region
+TR         | transcribed region
+TL         | low transcription
+R1         | H3K27me3 repressed
+R2         | H3K9me3 repressed
+NS         | no signal
+CL         | control signal
 
 ### Example 1: Compute segmentation on ENCODE data from mouse embyonic liver at day 12.5
 
