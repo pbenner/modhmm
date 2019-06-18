@@ -67,9 +67,11 @@ func main() {
     " ModHMM commands are structured in stages. Executing a command also executes all commands with\n" +
     " lower stage number. An exception is stages 1.1 that must be executed manually. By default,\n" +
     " stage 1.1 is bypassed and the default single-feature model is used.\n\n" +
-    " Plotting commands:\n" +
-    "     plot-single-feature                  - plot fitted single-feature mixture distribution used\n" +
+    " Plotting and printing commands:\n" +
+    "     plot-single-feature                  - plot fitted single-feature mixture distributions used\n" +
     "                                            for enrichment analysis\n" +
+    "     print-single-feature                 - print components and parameters of single-feature\n" +
+    "                                            mixture distributions\n" +
     " Peak calling commands:\n" +
     "     call-single-feature-peaks            - call peaks of single-feature enrichment analysis\n" +
     "     call-multi-feature-peaks             - call peaks of multi-feature classifications\n" +
@@ -130,6 +132,8 @@ func main() {
     modhmm_single_feature_estimate_main(config, options.Args())
   case "plot-single-feature":
     modhmm_single_feature_plot_main(config, options.Args())
+  case "print-single-feature":
+    modhmm_single_feature_print_main(config, options.Args())
   case "eval-single-feature":
     modhmm_single_feature_eval_main(config, options.Args())
   case "eval-multi-feature":

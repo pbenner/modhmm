@@ -31,11 +31,9 @@ import   "strconv"
 import   "strings"
 
 import . "github.com/pbenner/autodiff"
-import . "github.com/pbenner/autodiff/statistics"
 import   "github.com/pbenner/autodiff/statistics/scalarDistribution"
 
 import . "github.com/pbenner/modhmm/config"
-import . "github.com/pbenner/modhmm/utility"
 
 import   "github.com/pborman/getopt"
 
@@ -293,22 +291,17 @@ func modhmm_single_feature_plot(config ConfigModHmm, ignoreModel, ignoreComponen
   files  := config.SingleFeatureFiles(feature, false)
   counts := ImportCounts(config, files.CoverageCnts.Filename)
 
-  if ignoreModel || !FileExists(files.Model.Filename) {
+  if ignoreModel {
     modhmm_single_feature_plot_counts(config, p, counts)
   } else {
-    mixture := &scalarDistribution.Mixture{}
-    printStderr(config, 1, "Importing mixture model from `%s'... ", files.Model.Filename)
-    if err := ImportDistribution(files.Model.Filename, mixture, BareRealType); err != nil {
-      printStderr(config, 1, "failed\n")
-      log.Fatal(err)
-    }
-    printStderr(config, 1, "done\n")
-    if ignoreComponents || !FileExists(files.Components.Filename) {
+    mixture := ImportMixtureDistribution(config, files.Model.Filename)
+
+    if ignoreComponents {
       modhmm_single_feature_plot_isolated(config, p, mixture, counts)
     } else {
-      k_fg, k_bg := ImportComponents(config, files.Components.Filename, mixture.NComponents())
+      k, r := ImportComponents(config, files.Components.Filename, mixture.NComponents())
 
-      modhmm_single_feature_plot_joined(config, p, mixture, counts, k_fg, k_bg)
+      modhmm_single_feature_plot_joined(config, p, mixture, counts, k, r)
     }
   }
   return p

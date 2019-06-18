@@ -206,7 +206,7 @@ func modhmm_single_feature_estimate_default(config ConfigModHmm, feature string,
     case "dnase"    : n = []int{1, 1, 3}; components = []int{3, 4}
     case "h3k27ac"  : n = []int{1, 2, 2}; components = []int{4}
     case "h3k27me3" : n = []int{4, 4, 1}; components = []int{8}
-    case "h3k4me1"  : n = []int{1, 8, 0}; components = []int{5, 6, 7, 8}
+    case "h3k4me1"  : n = []int{1, 8, 0}; components = []int{4, 5, 6, 7, 8}
     case "h3k4me3"  : n = []int{1, 2, 1}; components = []int{3}
     case "h3k4me3o1": n = []int{0, 2, 1}; components = []int{2}
     case "h3k9me3"  : n = []int{2, 4, 1}; components = []int{5, 6}
