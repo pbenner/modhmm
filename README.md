@@ -124,6 +124,21 @@ To execute ModHMM simply run (assuming the configuration file is named `config.j
   modhmm -c config.json segmentation
 ```
 
+### State Glossary
+
+State name | Description
+------------------------
+PA         | active promoter
+EA         | active enhancer
+BI         | bivalet region
+PI         | primed region
+TR         | transcribed region
+TL         | low transcription
+R1         | H3K27me3 repressed
+R2         | H3K9me3 repressed
+NS         | no signal
+CL         | control signal
+
 ### Example 1: Compute segmentation on ENCODE data from mouse embyonic liver at day 12.5
 
 Download BAM files from ENCODE and store them in a directory called `.bam`:
