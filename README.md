@@ -162,6 +162,28 @@ ModHMM also implements a simple peak-finding algorithm that can be used to call 
 ```
 This command outputs tables with identified peaks, i.e. all regions with probabilities higher than the given threshold.
 
+### Estimating Single-Feature Models
+
+For detecting peaks, ModHMM by default uses a single-feature model that was estimated on either a mouse or human data set. It uses quantile-normalization to fit the provided data to the default model before evaluating genome-wide peak probabilities. This procedure allows to easily apply ModHMM to new data sets, but is less accurate than using a model that was estimated from the actual data at hand.
+
+The following command estimates a single-feature model for all features:
+```sh
+  modhmm -c config.json estimate-single-feature
+```
+It uses a default set of components for the mixture model of each feature and estimates the parameters from the observed coverages. The resulting estimates can be visualized using
+```sh
+  modhmm -c config.json plot-single-feature
+```
+If the mixture model of a feature, say H3K27ac, poorly separates signal from noise, it is possible to adapt the number of mixture components, i.e.
+```sh
+  modhmm -c config.json estimate-single-feature --force h3k27ac 1 2 1
+```
+This model would use a single delta distributions for all zero counts (first 1), two Poisson distributions (2), and a single geometric distribution (second 1). Which components are used to model the signal (foreground) is specified in the file `h3k27ac.components.json`.
+
+### Using ModHMM as a Peak Caller
+
+
+
 ### Example 1: Compute segmentation on ENCODE data from mouse embyonic liver at day 12.5
 
 Download BAM files from ENCODE and store them in a directory called `.bam`:
