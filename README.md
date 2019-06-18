@@ -152,6 +152,12 @@ Genome segmentations are discretized predictions of chromatin states. They do no
 ```
 This command will compute genome-wide probabilities for all chromatin states and export them as bigWig files named `posterior-marginal-STATE.bw`. By default, probabilities are on *log-scale*. With the option `--std-scale` ModHMM exports probabilities on standard scale. In this case, bigWig files are named `posterior-marginal-exp-STATE.bw`.
 
+ModHMM also implements a simple peak-finding algorithm that can be used to call high-probability regions in chromatin state probability tracks:
+```sh
+  modhmm -c config.json call-posterior-marginal-peaks --threshold=0.8
+```
+This command outputs tables with identified peaks, i.e. all regions with probabilities higher than the given threshold.
+
 ### Example 1: Compute segmentation on ENCODE data from mouse embyonic liver at day 12.5
 
 Download BAM files from ENCODE and store them in a directory called `.bam`:

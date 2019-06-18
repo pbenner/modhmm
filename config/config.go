@@ -582,7 +582,7 @@ func (config *ConfigModHmm) CompletePaths(prefix string) {
   config.MultiFeatureProbNormExp.CompletePaths(config.MultiFeatureDir, "multi-feature-norm-exp-", ".bw")
   config.Posterior              .CompletePaths(config.PosteriorDir, "posterior-marginal-", ".bw")
   config.PosteriorExp           .CompletePaths(config.PosteriorDir, "posterior-marginal-exp-", ".bw")
-  config.PosteriorPeak          .CompletePaths(config.PosteriorDir, "posterior-marginal-peaks-", ".bw")
+  config.PosteriorPeak          .CompletePaths(config.PosteriorDir, "posterior-marginal-peaks-", ".table")
   config.SetOpenChromatinAssay(config.DetectOpenChromatinAssay())
 }
 
