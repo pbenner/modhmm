@@ -82,6 +82,8 @@ ModHMM requires a configuration file in JSON format. The following is a simple e
     },
     # Number of threads used for computing coverage bigWigs (memory intense!)
     "Coverage Threads"                : 5,
+    # Single-feature model for detecting peaks ["mm10", "GRCh38"]
+    "Single-Feature Model Fallback"   : "mm10",
     # Directory containing all auxiliary files and the final segmentation
     "Directory"                       : "mm10-liver-embryo-day12.5",
     "Description"                     : "liver embryo day12.5",
@@ -106,6 +108,8 @@ ModHMM requires open chromatin information, which can be either provided as ATAC
     },
     # Number of threads used for computing coverage bigWigs (memory intense!)
     "Coverage Threads"                : 5,
+    # Single-feature model for detecting peaks ["mm10", "GRCh38"]
+    "Single-Feature Model Fallback"   : "mm10",
     # Directory containing all auxiliary files and the final segmentation
     "Directory"                       : "mm10-liver-embryo-day12.5",
     "Description"                     : "liver embryo day12.5",
