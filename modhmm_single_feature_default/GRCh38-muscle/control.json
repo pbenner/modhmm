@@ -1,0 +1,103 @@
+{
+  "Name": "scalar:mixture distribution",
+  "Parameters": [
+    0.12732746791916266,
+    0.09135441983803444,
+    0.17354920124942103,
+    0.20822171389247007,
+    0.1763502001990842,
+    0.11540912563929202,
+    0.06183653608499386,
+    0.03436830910059839,
+    0.011445240456251594,
+    0.000137785620691569
+  ],
+  "Distributions": [
+    {
+      "Name": "scalar:delta distribution",
+      "Parameters": [
+        0
+      ],
+      "Distributions": null
+    },
+    {
+      "Name": "scalar:delta distribution",
+      "Parameters": [
+        1
+      ],
+      "Distributions": null
+    },
+    {
+      "Name": "scalar:delta distribution",
+      "Parameters": [
+        2
+      ],
+      "Distributions": null
+    },
+    {
+      "Name": "scalar:delta distribution",
+      "Parameters": [
+        3
+      ],
+      "Distributions": null
+    },
+    {
+      "Name": "scalar:delta distribution",
+      "Parameters": [
+        4
+      ],
+      "Distributions": null
+    },
+    {
+      "Name": "scalar:delta distribution",
+      "Parameters": [
+        5
+      ],
+      "Distributions": null
+    },
+    {
+      "Name": "scalar:delta distribution",
+      "Parameters": [
+        6
+      ],
+      "Distributions": null
+    },
+    {
+      "Name": "scalar:pdf translation",
+      "Parameters": [
+        -7
+      ],
+      "Distributions": [
+        {
+          "Name": "scalar:poisson distribution",
+          "Parameters": [
+            0.2997701831306495
+          ],
+          "Distributions": null
+        }
+      ]
+    },
+    {
+      "Name": "scalar:pdf translation",
+      "Parameters": [
+        -7
+      ],
+      "Distributions": [
+        {
+          "Name": "scalar:poisson distribution",
+          "Parameters": [
+            1.4583907923777615
+          ],
+          "Distributions": null
+        }
+      ]
+    },
+    {
+      "Name": "scalar:geometric distribution",
+      "Parameters": [
+        0.032369380528206475
+      ],
+      "Distributions": null
+    }
+  ]
+}

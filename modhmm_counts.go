@@ -36,9 +36,12 @@ func ImportCounts(config ConfigModHmm, filename string) Counts {
   printStderr(config, 1, "Importing reference counts from `%s'... ", filename)
   if err := counts.ImportFile(filename); err != nil {
     printStderr(config, 1, "failed\n")
-    if err := counts.ImportDefaultFile(filename); err != nil {
+    printStderr(config, 1, "Importing counts from `%s' fallback model... ", config.SingleFeatureModelFallback)
+    if err := ImportDefaultFile(config, &counts, filename); err != nil {
+      printStderr(config, 1, "failed\n")
       log.Fatal(err)
     }
+    printStderr(config, 1, "done\n")
   } else {
     printStderr(config, 1, "done\n")
   }
@@ -75,13 +78,6 @@ func (config *Counts) Import(reader io.Reader, args... interface{}) error {
 
 func (config *Counts) Export(writer io.Writer) error {
   return JsonExport(writer, config)
-}
-
-func (config *Counts) ImportDefaultFile(filename string) error {
-  if err := ImportDefaultFile(config, filename, BareRealType); err != nil {
-    return err
-  }
-  return nil
 }
 
 func (config *Counts) ImportFile(filename string) error {

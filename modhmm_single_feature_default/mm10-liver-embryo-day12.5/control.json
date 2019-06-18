@@ -1,0 +1,103 @@
+{
+  "Name": "scalar:mixture distribution",
+  "Parameters": [
+    0.14248672201032747,
+    0.04009457062450708,
+    0.04272166504761267,
+    0.0492406337160096,
+    0.05902676630637881,
+    0.07149438774187145,
+    0.08527653203182792,
+    0.2102730970285055,
+    0.2990376031601231,
+    0.0003480223328342588
+  ],
+  "Distributions": [
+    {
+      "Name": "scalar:delta distribution",
+      "Parameters": [
+        0
+      ],
+      "Distributions": null
+    },
+    {
+      "Name": "scalar:delta distribution",
+      "Parameters": [
+        1
+      ],
+      "Distributions": null
+    },
+    {
+      "Name": "scalar:delta distribution",
+      "Parameters": [
+        2
+      ],
+      "Distributions": null
+    },
+    {
+      "Name": "scalar:delta distribution",
+      "Parameters": [
+        3
+      ],
+      "Distributions": null
+    },
+    {
+      "Name": "scalar:delta distribution",
+      "Parameters": [
+        4
+      ],
+      "Distributions": null
+    },
+    {
+      "Name": "scalar:delta distribution",
+      "Parameters": [
+        5
+      ],
+      "Distributions": null
+    },
+    {
+      "Name": "scalar:delta distribution",
+      "Parameters": [
+        6
+      ],
+      "Distributions": null
+    },
+    {
+      "Name": "scalar:pdf translation",
+      "Parameters": [
+        -7
+      ],
+      "Distributions": [
+        {
+          "Name": "scalar:poisson distribution",
+          "Parameters": [
+            0.9064845967741443
+          ],
+          "Distributions": null
+        }
+      ]
+    },
+    {
+      "Name": "scalar:pdf translation",
+      "Parameters": [
+        -7
+      ],
+      "Distributions": [
+        {
+          "Name": "scalar:poisson distribution",
+          "Parameters": [
+            3.6208593607423953
+          ],
+          "Distributions": null
+        }
+      ]
+    },
+    {
+      "Name": "scalar:geometric distribution",
+      "Parameters": [
+        0.026302440793886373
+      ],
+      "Distributions": null
+    }
+  ]
+}

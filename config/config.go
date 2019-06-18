@@ -385,6 +385,7 @@ type ConfigModHmm struct {
   Coverage                   ConfigCoveragePaths      `json:"Coverage Files"`
   CoverageCnts               ConfigCountsPaths        `json:"Coverage Counts Files"`
   CoverageMAPQ               int                      `json:"Coverage MAPQ"`
+  SingleFeatureModelFallback string                   `json:"Single-Feature Model Fallback"`
   SingleFeatureModelDir      string                   `json:"Single-Feature Model Directory"`
   SingleFeatureModel         ConfigSingleFeaturePaths `json:"Single-Feature Model Files"`
   SingleFeatureComp          ConfigSingleFeaturePaths `json:"Single-Feature Model Component Files"`
@@ -437,15 +438,16 @@ func (config *ConfigModHmm) ImportFile(filename string) error {
 func DefaultModHmmConfig() ConfigModHmm {
   config := ConfigModHmm{}
   // set default values
-  config.BinSize              = 200
-  config.BinSummaryStatistics = "mean"
-  config.CoverageThreads      = 1
-  config.CoverageBinSize      = 10
-  config.CoverageMAPQ         = 30
-  config.FontSize             = 12
-  config.OpenChromatinAssay   = ""
-  config.Threads              = 1
-  config.Verbose              = 0
+  config.BinSize                    = 200
+  config.BinSummaryStatistics       = "mean"
+  config.CoverageThreads            = 1
+  config.CoverageBinSize            = 10
+  config.CoverageMAPQ               = 30
+  config.SingleFeatureModelFallback = "mm10"
+  config.FontSize                   = 12
+  config.OpenChromatinAssay         = ""
+  config.Threads                    = 1
+  config.Verbose                    = 0
   return config
 }
 
@@ -630,6 +632,16 @@ func (config *ConfigModHmm) SingleFeatureFiles(feature string, logScale bool) Si
   return files
 }
 
+func (config ConfigModHmm) SingleFeatureModelFallbackPath() string {
+  switch strings.ToLower(config.SingleFeatureModelFallback) {
+  case "mm10"  : return "mm10-liver-embryo-day12.5/"
+  case "grch38": return "GRCh38-muscle/"
+  default:
+    log.Fatalf("invalid single-feature model fallback `%s'", config.SingleFeatureModelFallback)
+    panic("internal error")
+  }
+}
+
 /* -------------------------------------------------------------------------- */
 
 func (config ConfigBam) String(openChromatinAssay string) string {
@@ -719,8 +731,9 @@ func (config ConfigModHmm) String() string {
 
   if config.Verbose > 0 {
     fmt.Fprintf(&buffer, "%v", config.SessionConfig.String())
-    fmt.Fprintf(&buffer, " -> Open Chromatin Assay   : %s\n", config.OpenChromatinAssay)
+    fmt.Fprintf(&buffer, " -> Open Chromatin Assay   : %s\n"  , config.OpenChromatinAssay)
     fmt.Fprintf(&buffer, " -> Coverage Bin Size      : %d\n\n", config.CoverageBinSize)
+    fmt.Fprintf(&buffer, " -> Single Feature Fallback: %d\n\n", config.SingleFeatureModelFallback)
     fmt.Fprintf(&buffer, "Alignment files (BAM):\n")
     fmt.Fprintf(&buffer, "%v\n", config.Bam.String(config.OpenChromatinAssay))
     fmt.Fprintf(&buffer, "Coverage files (bigWig):\n")

@@ -37,11 +37,12 @@ import . "github.com/pbenner/modhmm/config"
 
 /* -------------------------------------------------------------------------- */
 
-func ImportDefaultFile(object Serializable, filename string, args... interface{}) error {
+func ImportDefaultFile(config ConfigModHmm, object Serializable, filename string, args... interface{}) error {
   // remove directory from filename
   _, filename = path.Split(filename)
+  filename = path.Join(config.SingleFeatureModelFallbackPath(), filename)
 
-  f, err := Assets.Open(filename)
+  f, err := assets.Open(filename)
   if err != nil {
     return err
   }
@@ -52,20 +53,21 @@ func ImportDefaultFile(object Serializable, filename string, args... interface{}
   return object.Import(bytes.NewReader(str), args...)
 }
 
-func ImportDefaultDistribution(filename string, distribution BasicDistribution, t ScalarType) error {
+func ImportDefaultDistribution(config ConfigModHmm, filename string, distribution BasicDistribution, t ScalarType) error {
   // remove directory from filename
   _, filename = path.Split(filename)
+  filename = path.Join(config.SingleFeatureModelFallbackPath(), filename)
 
-  config := ConfigDistribution{}
+  cfg := ConfigDistribution{}
 
-  f, err := Assets.Open(filename)
+  f, err := assets.Open(filename)
   if err != nil {
     return err
   }
-  if err := config.ReadJson(f); err != nil {
+  if err := cfg.ReadJson(f); err != nil {
     return err
   }
-  if err := distribution.ImportConfig(config, t); err != nil {
+  if err := distribution.ImportConfig(cfg, t); err != nil {
     return err
   }
   return nil
@@ -76,8 +78,8 @@ func ImportMixtureDistribution(config ConfigModHmm, filename string) *scalarDist
   printStderr(config, 1, "Importing mixture model from `%s'... ", filename)
   if err := ImportDistribution(filename, mixture, BareRealType); err != nil {
     printStderr(config, 1, "failed\n")
-    printStderr(config, 1, "Importing default mixture model... ")
-    if err := ImportDefaultDistribution(filename, mixture, BareRealType); err != nil {
+    printStderr(config, 1, "Importing `%s' fallback mixture model... ", config.SingleFeatureModelFallback)
+    if err := ImportDefaultDistribution(config, filename, mixture, BareRealType); err != nil {
       printStderr(config, 1, "failed\n")
       log.Fatal(err)
     }
@@ -136,8 +138,8 @@ func ImportComponents(config ConfigModHmm, filename string, n int) ([]int, []int
   printStderr(config, 1, "Importing foreground components from `%s'... ", filename)
   if err := ImportFile(&k, filename); err != nil {
     printStderr(config, 1, "failed\n")
-    printStderr(config, 1, "Importing default foreground components... ")
-    if err := ImportDefaultFile(&k, filename); err != nil {
+    printStderr(config, 1, "Importing foreground components from `%s' fallback model... ", config.SingleFeatureModelFallback)
+    if err := ImportDefaultFile(config, &k, filename); err != nil {
       printStderr(config, 1, "failed\n")
       log.Fatal(err)
     }

@@ -39,7 +39,7 @@ import   "github.com/pborman/getopt"
 /* default single-feature-model
  * -------------------------------------------------------------------------- */
 
-//go:generate go run modhmm_single_feature_default.gen.go
+//go:generate go run modhmm_single_feature_default_gen.go
 
 /* -------------------------------------------------------------------------- */
 
