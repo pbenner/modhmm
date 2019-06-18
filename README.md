@@ -183,12 +183,15 @@ This model would use a single delta distributions for all zero counts (first 1),
   modhmm -c config.json print-single-feature
 ```
 
-
 ### Using ModHMM as a Peak Caller
 
+Most peak callers use a single pre-defined model for computing enrichment probabilities and detecting peaks. In most cases there is a strong model misfit, because of the strong heterogeneity of ChIP-seq data. ModHMM instead allows to fit a mixture distribution (single-feature model) to the observed coverage values with a user-defined set of components. The following command calls ATAC-seq peaks using the estimated single-feature model, if available (see previous section):
+```sh
+  modhmm -c config.json call-single-feature-peaks atac
+```
 
-
-### Example 1: Compute segmentation on ENCODE data from mouse embyonic liver at day 12.5
+### Use Cases
+#### Example 1: Compute segmentation on ENCODE data from mouse embyonic liver at day 12.5
 
 Download BAM files from ENCODE and store them in a directory called `.bam`:
 ```sh
@@ -251,7 +254,7 @@ Execute ModHMM:
   modhmm -c mm10-liver-embryo-day12.5.json segmentation
 ```
 
-### Example 2: Estimate custom single-feature models on ENCODE data from mouse embyonic forebrain at day 11.5
+#### Example 2: Estimate custom single-feature models on ENCODE data from mouse embyonic forebrain at day 11.5
 
 Create a configuration file named `mm10-forebrain-embryo-day11.5.json` and set model files static to prevent automatic updates:
 ```R
