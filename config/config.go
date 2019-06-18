@@ -733,7 +733,7 @@ func (config ConfigModHmm) String() string {
     fmt.Fprintf(&buffer, "%v", config.SessionConfig.String())
     fmt.Fprintf(&buffer, " -> Open Chromatin Assay   : %s\n"  , config.OpenChromatinAssay)
     fmt.Fprintf(&buffer, " -> Coverage Bin Size      : %d\n\n", config.CoverageBinSize)
-    fmt.Fprintf(&buffer, " -> Single Feature Fallback: %d\n\n", config.SingleFeatureModelFallback)
+    fmt.Fprintf(&buffer, " -> Single Feature Fallback: %s\n\n", config.SingleFeatureModelFallback)
     fmt.Fprintf(&buffer, "Alignment files (BAM):\n")
     fmt.Fprintf(&buffer, "%v\n", config.Bam.String(config.OpenChromatinAssay))
     fmt.Fprintf(&buffer, "Coverage files (bigWig):\n")
