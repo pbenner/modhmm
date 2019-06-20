@@ -84,7 +84,10 @@ ModHMM requires a configuration file in JSON format. The following is a simple e
     },
     # Number of threads used for computing coverage bigWigs (memory intense!)
     "Coverage Threads"                : 5,
-    # Fallback model ["mm10", "GRCh38"]
+    # ModHMM has several parameters that must be estimated, the single-feature mixture
+    # and the HMM transition parameters. By default ModHMM won't estimate these parameters,
+    # but use a fallback model with pre-estimated parameter. This option selects the type
+    # of fallback model ["mm10", "GRCh38"]
     "Model Fallback"                  : "mm10",
     # Directory containing all auxiliary files and the final segmentation
     "Directory"                       : "mm10-liver-embryo-day12.5",
@@ -110,7 +113,10 @@ The following configuration can be used if data instead is given in bigWig forma
     },
     # Number of threads used for computing coverage bigWigs (memory intense!)
     "Coverage Threads"                : 5,
-    # Fallback model ["mm10", "GRCh38"]
+    # ModHMM has several parameters that must be estimated, the single-feature mixture
+    # and the HMM transition parameters. By default ModHMM won't estimate these parameters,
+    # but use a fallback model with pre-estimated parameter. This option selects the type
+    # of fallback model ["mm10", "GRCh38"]
     "Model Fallback"                  : "mm10",
     # Directory containing all auxiliary files and the final segmentation
     "Directory"                       : "mm10-liver-embryo-day12.5",
