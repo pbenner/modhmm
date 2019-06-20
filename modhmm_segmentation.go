@@ -131,9 +131,9 @@ func modhmm_segmentation_dep(config ConfigModHmm) []string {
 func modhmm_segmentation(config ConfigModHmm, model string) {
 
   dependencies := []string{}
-  dependencies  = append(dependencies, modhmm_single_feature_eval_dep(config)...)
-  dependencies  = append(dependencies, modhmm_multi_feature_eval_dep(config)...)
   dependencies  = append(dependencies, modhmm_segmentation_dep(config)...)
+  dependencies  = append(dependencies, modhmm_multi_feature_eval_dep(config)...)
+  dependencies  = append(dependencies, modhmm_single_feature_eval_dep(config)...)
 
   trackFiles := modhmm_segmentation_dep(config)
 
