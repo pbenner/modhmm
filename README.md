@@ -84,8 +84,8 @@ ModHMM requires a configuration file in JSON format. The following is a simple e
     },
     # Number of threads used for computing coverage bigWigs (memory intense!)
     "Coverage Threads"                : 5,
-    # Single-feature model for detecting peaks ["mm10", "GRCh38"]
-    "Single-Feature Model Fallback"   : "mm10",
+    # Fallback model ["mm10", "GRCh38"]
+    "Model Fallback"                  : "mm10",
     # Directory containing all auxiliary files and the final segmentation
     "Directory"                       : "mm10-liver-embryo-day12.5",
     "Description"                     : "liver embryo day12.5",
@@ -110,8 +110,8 @@ The following configuration can be used if data instead is given in bigWig forma
     },
     # Number of threads used for computing coverage bigWigs (memory intense!)
     "Coverage Threads"                : 5,
-    # Single-feature model for detecting peaks ["mm10", "GRCh38"]
-    "Single-Feature Model Fallback"   : "mm10",
+    # Fallback model ["mm10", "GRCh38"]
+    "Model Fallback"                  : "mm10",
     # Directory containing all auxiliary files and the final segmentation
     "Directory"                       : "mm10-liver-embryo-day12.5",
     "Description"                     : "liver embryo day12.5",
@@ -240,7 +240,7 @@ Create a configuration file named `mm10-liver-embryo-day12.5.json` (ModHMM accep
         "Control"   : ["ENCFF865QGZ.bam", "ENCFF438RYK.bam"]
     },
     "Coverage Threads"                : 5,
-    "Single-Feature Model Fallback"   : "mm10",
+    "Model Fallback"                  : "mm10",
     "Directory"                       : "mm10-liver-embryo-day12.5",
     "Description"                     : "liver embryo day12.5",
     "Threads"                         : 20,
