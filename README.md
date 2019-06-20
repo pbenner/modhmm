@@ -185,7 +185,7 @@ This model would use a single delta distributions for all zero counts (first 1),
   modhmm -c config.json print-single-feature
 ```
 
-<img src="https://raw.githubusercontent.com/pbenner/modhmm/master/README_fg.png" alt="ModHMM SF" />
+<img src="https://raw.githubusercontent.com/pbenner/modhmm/master/README_fg.png" alt="ModHMM SF" width="790" height="262" />
 
 ### Using ModHMM as a Peak Caller
 
