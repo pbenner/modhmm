@@ -42,6 +42,7 @@ func updateRequired(config ConfigModHmm, target TargetFile, deps ...string) bool
       if s2, err := os.Stat(dep); err == nil {
         if s1.ModTime().Before(s2.ModTime()) {
           printStderr(config, 2, "Target `%s' requires update...\n", target)
+          printStderr(config, 3, " -> `%s' has more recent timestamp\n", dep)
           return true
         }
       }
