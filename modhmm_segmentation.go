@@ -37,6 +37,19 @@ import   "github.com/pborman/getopt"
 
 /* -------------------------------------------------------------------------- */
 
+func ImportHMM(config ConfigModHmm) ModHmm {
+  modhmm := ModHmm{}
+  printStderr(config, 1, "Importing model from `%s'... ", config.Model.Filename)
+  if err := ImportDistribution(config.Model.Filename, &modhmm, BareRealType); err != nil {
+    log.Fatal(err)
+    printStderr(config, 1, "failed\n")
+  }
+  printStderr(config, 1, "done\n")
+  return modhmm
+}
+
+/* -------------------------------------------------------------------------- */
+
 func estimate(config ConfigModHmm, trackFiles []string, model string) {
   var estimator  *matrixEstimator.HmmEstimator
   var stateNames []string
@@ -72,13 +85,7 @@ func estimate(config ConfigModHmm, trackFiles []string, model string) {
 /* -------------------------------------------------------------------------- */
 
 func segment(config ConfigModHmm, trackFiles []string) {
-  modhmm := ModHmm{}
-  printStderr(config, 1, "Importing model from `%s'... ", config.Model.Filename)
-  if err := ImportDistribution(config.Model.Filename, &modhmm, BareRealType); err != nil {
-    log.Fatal(err)
-    printStderr(config, 1, "failed\n")
-  }
-  printStderr(config, 1, "done\n")
+  modhmm := ImportHMM(config)
 
   if result, err := ImportAndClassifyMultiTrack(config.SessionConfig, matrixClassifier.HmmClassifier{&modhmm.Hmm}, trackFiles, true); err != nil {
     log.Fatal(err)

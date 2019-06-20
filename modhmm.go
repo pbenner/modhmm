@@ -74,6 +74,7 @@ func main() {
     "                                            for enrichment analysis\n" +
     "     print-single-feature                 - print components and parameters of single-feature\n" +
     "                                            mixture distributions\n" +
+    "     print-transition-matrix              - print estimated transition rates\n" +
     " Peak calling commands:\n" +
     "     call-single-feature-peaks            - call peaks of single-feature enrichment analysis\n" +
     "     call-multi-feature-peaks             - call peaks of multi-feature classifications\n" +
@@ -136,6 +137,8 @@ func main() {
     modhmm_single_feature_plot_main(config, options.Args())
   case "print-single-feature":
     modhmm_single_feature_print_main(config, options.Args())
+  case "print-transition-matrix":
+    modhmm_transition_matrix_print_main(config, options.Args())
   case "eval-single-feature":
     modhmm_single_feature_eval_main(config, options.Args())
   case "eval-multi-feature":
