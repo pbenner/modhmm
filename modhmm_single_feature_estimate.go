@@ -153,15 +153,6 @@ func modhmm_single_feature_estimate(config ConfigModHmm, feature string, n []int
     log.Fatalf("unknown feature: %s", feature)
   }
   files := config.SingleFeatureFiles(feature, false)
-  // check if h3k4me1 or h3k4me3 must be updated first
-  if files.Feature == "h3k4me3o1" {
-    files1 := config.SingleFeatureFiles("h3k4me1", false)
-    files2 := config.SingleFeatureFiles("h3k4me3", false)
-    if updateRequired(config, files1.Model, files1.DependenciesModel()...) ||
-      (updateRequired(config, files2.Model, files2.DependenciesModel()...)) {
-      log.Fatal("Please first update single-feature models of H3K4me1 and H3K4me3")
-    }
-  }
   var track Track
   // update model
   if force || updateRequired(config, files.Model, files.DependenciesModel()...) {

@@ -82,6 +82,14 @@ func single_feature_compute_h3k4me3o1(config ConfigModHmm, track1, track2 Mutabl
 
 func single_feature_import(config ConfigModHmm, files SingleFeatureFiles, normalize bool) Track {
   if files.Feature == "h3k4me3o1" {
+    { // check if h3k4me1 or h3k4me3 must be updated first
+      files1 := config.SingleFeatureFiles("h3k4me1", false)
+      files2 := config.SingleFeatureFiles("h3k4me3", false)
+      if updateRequired(config, files1.Model, files1.DependenciesModel()...) ||
+        (updateRequired(config, files2.Model, files2.DependenciesModel()...)) {
+        log.Fatal("Please first update single-feature models of H3K4me1 and H3K4me3")
+      }
+    }
     config.BinSummaryStatistics = "mean"
     config.BinOverlap = 1
     track1 := single_feature_import_and_normalize(config, files.SrcCoverage[0].Filename, files.SrcCoverageCnts[0].Filename, normalize)
