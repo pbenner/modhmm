@@ -738,12 +738,16 @@ func (config ConfigModHmm) String() string {
     fmt.Fprintf(&buffer, "%v\n", config.Bam.String(config.OpenChromatinAssay))
     fmt.Fprintf(&buffer, "Coverage files (bigWig):\n")
     fmt.Fprintf(&buffer, "%v\n", config.Coverage.String(config.OpenChromatinAssay))
+  }
+  if config.Verbose > 1 {
     fmt.Fprintf(&buffer, "Single-feature mixture distributions:\n")
     fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureModel.String(config.OpenChromatinAssay))
     fmt.Fprintf(&buffer, "Single-feature count statistics:\n")
     fmt.Fprintf(&buffer, "%v\n", config.CoverageCnts.String(config.OpenChromatinAssay))
     fmt.Fprintf(&buffer, "Single-feature foreground mixture components:\n")
     fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureComp.String(config.OpenChromatinAssay))
+  }
+  if config.Verbose > 0 {
     fmt.Fprintf(&buffer, "Single-feature foreground probabilities (log-scale):\n")
     fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureFg.String(config.OpenChromatinAssay))
     fmt.Fprintf(&buffer, "Single-feature background probabilities (log-scale):\n")
