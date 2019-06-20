@@ -185,6 +185,8 @@ This model would use a single delta distributions for all zero counts (first 1),
   modhmm -c config.json print-single-feature
 ```
 
+<img src="https://raw.githubusercontent.com/pbenner/modhmm/master/README_fg.png" alt="ModHMM SF" />
+
 ### Using ModHMM as a Peak Caller
 
 Most peak callers use a single pre-defined model for computing enrichment probabilities and detecting peaks. In most cases there is a strong model misfit, because of the strong heterogeneity of ChIP-seq data. ModHMM instead allows to fit a mixture distribution (single-feature model) to the observed coverage values with a user-defined set of components. The following command calls ATAC-seq peaks using the estimated single-feature model, if available (see previous section):
