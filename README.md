@@ -172,9 +172,9 @@ This command outputs tables with identified peaks, i.e. all regions with probabi
 
 ### Estimating Single-Feature Models
 
-For detecting peaks, ModHMM by default uses a single-feature model that was estimated on either a mouse or human data set. It uses quantile-normalization to fit the provided data to the default model before evaluating genome-wide peak probabilities. This procedure allows to easily apply ModHMM to new data sets, but is less accurate than using a model that was estimated from the actual data at hand.
+For detecting peaks, i.e. for separating signal from noise, ModHMM by default uses a single-feature mixture model that was estimated on either a mouse or human data set. It uses quantile-normalization to fit the provided data to the default model before evaluating genome-wide peak probabilities. This procedure allows to easily apply ModHMM to new data sets, but is less accurate than using a model that was estimated from the actual data at hand.
 
-The following command estimates a single-feature model for all features:
+The following command estimates a new single-feature model for all features:
 ```sh
   modhmm -c config.json estimate-single-feature
 ```
@@ -186,12 +186,14 @@ If the mixture model of a feature, say H3K27ac, poorly separates signal from noi
 ```sh
   modhmm -c config.json estimate-single-feature --force h3k27ac 1 2 1
 ```
-This model would use a single delta distributions for all zero counts (first 1), two Poisson distributions (2), and a single geometric distribution (second 1). Which components are used to model the signal (foreground) is specified in the file `h3k27ac.components.json`. To obtain a list of mixture components including the estimated parameters use
+This model would use a single delta distributions for all zero counts (first 1), two Poisson distributions (2), and a single geometric distribution (second 1). Which components are used to model the signal (foreground) is specified in the file `h3k27ac.components.json`. The result should look similar to the mixture model in the Figure below.
+
+<img src="https://raw.githubusercontent.com/pbenner/modhmm/master/README_sf.png" alt="ModHMM SF" width="790" height="262" />
+
+To obtain a list of mixture components including the estimated parameters use
 ```sh
   modhmm -c config.json print-single-feature
 ```
-
-<img src="https://raw.githubusercontent.com/pbenner/modhmm/master/README_sf.png" alt="ModHMM SF" width="790" height="262" />
 
 ### Using ModHMM as a Peak Caller
 
