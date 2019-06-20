@@ -1,15 +1,18 @@
 {
   "Name": "scalar:mixture distribution",
   "Parameters": [
-    0.11763452757941335,
-    0.0636713130128966,
-    0.11308904694642169,
-    0.14455920380421292,
-    0.14640611424175712,
-    0.26949677083199824,
-    0.10016204447637161,
-    0.00801831063306994,
-    0.03696266847386153
+    0.12196382415603518,
+    0.06749353560376165,
+    0.11646358718086297,
+    0.1475384970135196,
+    0.1730861278118258,
+    0.28453280241376494,
+    0.07808591533723429,
+    0.008209418072567956,
+    0.0021361753358521917,
+    0.00047505900394468497,
+    0.000009811552902298587,
+    0.000005246517731581441
   ],
   "Distributions": [
     {
@@ -49,7 +52,7 @@
         {
           "Name": "scalar:poisson distribution",
           "Parameters": [
-            0.38061018207763514
+            0.44112974807453115
           ],
           "Distributions": null
         }
@@ -64,7 +67,7 @@
         {
           "Name": "scalar:poisson distribution",
           "Parameters": [
-            1.7821516182482184
+            2.0194771801402966
           ],
           "Distributions": null
         }
@@ -79,7 +82,7 @@
         {
           "Name": "scalar:poisson distribution",
           "Parameters": [
-            4.032321832255197
+            4.759752479421449
           ],
           "Distributions": null
         }
@@ -94,18 +97,71 @@
         {
           "Name": "scalar:poisson distribution",
           "Parameters": [
-            8.341579854034329
+            10.953162621701185
           ],
           "Distributions": null
         }
       ]
     },
     {
-      "Name": "scalar:geometric distribution",
+      "Name": "scalar:pdf translation",
       "Parameters": [
-        0.11712618330588861
+        -4
       ],
-      "Distributions": null
+      "Distributions": [
+        {
+          "Name": "scalar:poisson distribution",
+          "Parameters": [
+            20.84034101047439
+          ],
+          "Distributions": null
+        }
+      ]
+    },
+    {
+      "Name": "scalar:pdf translation",
+      "Parameters": [
+        -4
+      ],
+      "Distributions": [
+        {
+          "Name": "scalar:poisson distribution",
+          "Parameters": [
+            34.54483491603831
+          ],
+          "Distributions": null
+        }
+      ]
+    },
+    {
+      "Name": "scalar:pdf translation",
+      "Parameters": [
+        -4
+      ],
+      "Distributions": [
+        {
+          "Name": "scalar:poisson distribution",
+          "Parameters": [
+            103.55479982533308
+          ],
+          "Distributions": null
+        }
+      ]
+    },
+    {
+      "Name": "scalar:pdf translation",
+      "Parameters": [
+        -4
+      ],
+      "Distributions": [
+        {
+          "Name": "scalar:poisson distribution",
+          "Parameters": [
+            297.79138637991076
+          ],
+          "Distributions": null
+        }
+      ]
     }
   ]
 }
