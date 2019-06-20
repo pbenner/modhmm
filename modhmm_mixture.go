@@ -40,7 +40,7 @@ import . "github.com/pbenner/modhmm/config"
 func ImportDefaultFile(config ConfigModHmm, object Serializable, filename string, args... interface{}) error {
   // remove directory from filename
   _, filename = path.Split(filename)
-  filename = path.Join(config.SingleFeatureModelFallbackPath(), filename)
+  filename = path.Join(config.ModelFallbackPath(), filename)
 
   f, err := assets.Open(filename)
   if err != nil {
@@ -54,10 +54,6 @@ func ImportDefaultFile(config ConfigModHmm, object Serializable, filename string
 }
 
 func ImportDefaultDistribution(config ConfigModHmm, filename string, distribution BasicDistribution, t ScalarType) error {
-  // remove directory from filename
-  _, filename = path.Split(filename)
-  filename = path.Join(config.SingleFeatureModelFallbackPath(), filename)
-
   cfg := ConfigDistribution{}
 
   f, err := assets.Open(filename)
@@ -78,7 +74,10 @@ func ImportMixtureDistribution(config ConfigModHmm, filename string) *scalarDist
   printStderr(config, 1, "Importing mixture model from `%s'... ", filename)
   if err := ImportDistribution(filename, mixture, BareRealType); err != nil {
     printStderr(config, 1, "failed\n")
-    printStderr(config, 1, "Importing `%s' fallback mixture model... ", config.SingleFeatureModelFallback)
+    // remove directory from filename
+    _, filename = path.Split(filename)
+    filename = path.Join(config.ModelFallbackPath(), filename)
+    printStderr(config, 1, "Importing `%s' fallback mixture model... ", config.ModelFallback)
     if err := ImportDefaultDistribution(config, filename, mixture, BareRealType); err != nil {
       printStderr(config, 1, "failed\n")
       log.Fatal(err)
@@ -138,7 +137,7 @@ func ImportComponents(config ConfigModHmm, filename string, n int) ([]int, []int
   printStderr(config, 1, "Importing foreground components from `%s'... ", filename)
   if err := ImportFile(&k, filename); err != nil {
     printStderr(config, 1, "failed\n")
-    printStderr(config, 1, "Importing foreground components from `%s' fallback model... ", config.SingleFeatureModelFallback)
+    printStderr(config, 1, "Importing foreground components from `%s' fallback model... ", config.ModelFallback)
     if err := ImportDefaultFile(config, &k, filename); err != nil {
       printStderr(config, 1, "failed\n")
       log.Fatal(err)

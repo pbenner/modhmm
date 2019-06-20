@@ -22,6 +22,7 @@ package main
 import   "io"
 import   "log"
 import   "math"
+import   "path"
 import   "sort"
 
 import . "github.com/pbenner/ngstat/config"
@@ -36,7 +37,10 @@ func ImportCounts(config ConfigModHmm, filename string) Counts {
   printStderr(config, 1, "Importing reference counts from `%s'... ", filename)
   if err := counts.ImportFile(filename); err != nil {
     printStderr(config, 1, "failed\n")
-    printStderr(config, 1, "Importing counts from `%s' fallback model... ", config.SingleFeatureModelFallback)
+    // remove directory from filename
+    _, filename = path.Split(filename)
+    filename = path.Join(config.ModelFallbackPath(), filename)
+    printStderr(config, 1, "Importing counts from `%s' fallback model... ", config.ModelFallback)
     if err := ImportDefaultFile(config, &counts, filename); err != nil {
       printStderr(config, 1, "failed\n")
       log.Fatal(err)

@@ -41,6 +41,11 @@ func printVersion(writer io.Writer) {
   fmt.Fprintf(writer, " - Git Hash  : %s\n", GitHash)
 }
 
+/* default model
+ * -------------------------------------------------------------------------- */
+
+//go:generate go run modhmm_default_gen.go
+
 /* -------------------------------------------------------------------------- */
 
 func main() {

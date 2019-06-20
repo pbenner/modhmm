@@ -36,11 +36,6 @@ import . "github.com/pbenner/modhmm/utility"
 
 import   "github.com/pborman/getopt"
 
-/* default single-feature-model
- * -------------------------------------------------------------------------- */
-
-//go:generate go run modhmm_single_feature_default_gen.go
-
 /* -------------------------------------------------------------------------- */
 
 func single_feature_import_and_normalize(config ConfigModHmm, filenameData, filenameCnts string, normalize bool) MutableTrack {

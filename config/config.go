@@ -385,7 +385,6 @@ type ConfigModHmm struct {
   Coverage                   ConfigCoveragePaths      `json:"Coverage Files"`
   CoverageCnts               ConfigCountsPaths        `json:"Coverage Counts Files"`
   CoverageMAPQ               int                      `json:"Coverage MAPQ"`
-  SingleFeatureModelFallback string                   `json:"Single-Feature Model Fallback"`
   SingleFeatureModelDir      string                   `json:"Single-Feature Model Directory"`
   SingleFeatureModel         ConfigSingleFeaturePaths `json:"Single-Feature Model Files"`
   SingleFeatureComp          ConfigSingleFeaturePaths `json:"Single-Feature Model Component Files"`
@@ -405,6 +404,8 @@ type ConfigModHmm struct {
   PosteriorExp               ConfigMultiFeaturePaths  `json:"Posterior Marginals [exp]"`
   PosteriorPeak              ConfigMultiFeaturePaths  `json:"Posterior Marginals Peaks"`
   PosteriorDir               string                   `json:"Posterior Marginals Directory"`
+  ModelEstimate              bool                     `json:"Model Estimate"`
+  ModelFallback              string                   `json:"Model Fallback"`
   ModelUnconstrained         bool                     `json:"Model Unconstrained"`
   Model                      TargetFile               `json:"Model File"`
   ModelDir                   string                   `json:"Model Directory"`
@@ -443,7 +444,7 @@ func DefaultModHmmConfig() ConfigModHmm {
   config.CoverageThreads            = 1
   config.CoverageBinSize            = 10
   config.CoverageMAPQ               = 30
-  config.SingleFeatureModelFallback = "mm10"
+  config.ModelFallback              = "mm10"
   config.FontSize                   = 12
   config.OpenChromatinAssay         = ""
   config.Threads                    = 1
@@ -632,12 +633,12 @@ func (config *ConfigModHmm) SingleFeatureFiles(feature string, logScale bool) Si
   return files
 }
 
-func (config ConfigModHmm) SingleFeatureModelFallbackPath() string {
-  switch strings.ToLower(config.SingleFeatureModelFallback) {
-  case "mm10"  : return "mm10-liver-embryo-day12.5/"
-  case "grch38": return "GRCh38-muscle/"
+func (config ConfigModHmm) ModelFallbackPath() string {
+  switch strings.ToLower(config.ModelFallback) {
+  case "mm10"  : return "mm10-liver-embryo-day12.5"
+  case "grch38": return "GRCh38-muscle"
   default:
-    log.Fatalf("invalid single-feature model fallback `%s'", config.SingleFeatureModelFallback)
+    log.Fatalf("invalid single-feature model fallback `%s'", config.ModelFallback)
     panic("internal error")
   }
 }
@@ -733,7 +734,6 @@ func (config ConfigModHmm) String() string {
     fmt.Fprintf(&buffer, "%v", config.SessionConfig.String())
     fmt.Fprintf(&buffer, " -> Open Chromatin Assay   : %s\n"  , config.OpenChromatinAssay)
     fmt.Fprintf(&buffer, " -> Coverage Bin Size      : %d\n\n", config.CoverageBinSize)
-    fmt.Fprintf(&buffer, " -> Single Feature Fallback: %s\n\n", config.SingleFeatureModelFallback)
     fmt.Fprintf(&buffer, "Alignment files (BAM):\n")
     fmt.Fprintf(&buffer, "%v\n", config.Bam.String(config.OpenChromatinAssay))
     fmt.Fprintf(&buffer, "Coverage files (bigWig):\n")
@@ -787,6 +787,7 @@ func (config ConfigModHmm) String() string {
     fmt.Fprintf(&buffer, " ->  Directory                    : %v\n", config.Directory)
     fmt.Fprintf(&buffer, " ->  ModHmm Model File            : %v\n", config.Model)
     fmt.Fprintf(&buffer, " ->  ModHmm Model Directory       : %v\n", config.ModelDir)
+    fmt.Fprintf(&buffer, " ->  ModHMM Model Fallback        : %s\n", config.ModelFallback)
     fmt.Fprintf(&buffer, " ->  ModHmm Segmentation File     : %v\n", config.Segmentation)
     fmt.Fprintf(&buffer, " ->  ModHmm Segmentation Directory: %v\n", config.SegmentationDir)
   }

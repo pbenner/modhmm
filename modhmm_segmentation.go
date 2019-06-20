@@ -20,6 +20,7 @@ package main
 
 import   "fmt"
 import   "log"
+import   "path"
 import   "os"
 
 import . "github.com/pbenner/ngstat/classification"
@@ -38,13 +39,23 @@ import   "github.com/pborman/getopt"
 /* -------------------------------------------------------------------------- */
 
 func ImportHMM(config ConfigModHmm) ModHmm {
-  modhmm := ModHmm{}
+  modhmm   := ModHmm{}
+  filename := config.Model.Filename
   printStderr(config, 1, "Importing model from `%s'... ", config.Model.Filename)
-  if err := ImportDistribution(config.Model.Filename, &modhmm, BareRealType); err != nil {
-    log.Fatal(err)
+  if err := ImportDistribution(filename, &modhmm, BareRealType); err != nil {
     printStderr(config, 1, "failed\n")
+    // remove directory from filename
+    _, filename = path.Split(filename)
+    filename = fmt.Sprintf("%s.json", config.ModelFallbackPath())
+    printStderr(config, 1, "Importing `%s' fallback model... ", config.ModelFallback)
+    if err := ImportDefaultDistribution(config, filename, &modhmm, BareRealType); err != nil {
+      printStderr(config, 1, "failed\n")
+      log.Fatal(err)
+    }
+    printStderr(config, 1, "done\n")
+  } else {
+    printStderr(config, 1, "done\n")
   }
-  printStderr(config, 1, "done\n")
   return modhmm
 }
 
@@ -132,8 +143,10 @@ func modhmm_segmentation(config ConfigModHmm, model string) {
   if updateRequired(config, filenameModel, dependencies...) {
     modhmm_multi_feature_eval_all(config, true)
 
-    printStderr(config, 1, "==> Estimating ModHmm transition parameters <==\n")
-    estimate(config, trackFiles, model)
+    if config.ModelEstimate {
+      printStderr(config, 1, "==> Estimating ModHmm transition parameters <==\n")
+      estimate(config, trackFiles, model)
+    }
   }
   if updateRequired(config, filenameSegmentation, append(dependencies, filenameModel.Filename)...) {
     printStderr(config, 1, "==> Computing Segmentation <==\n")

@@ -27,13 +27,13 @@ import   "github.com/shurcooL/vfsgen"
 
 /* -------------------------------------------------------------------------- */
 
-var Model http.FileSystem = http.Dir("modhmm_single_feature_default")
+var Model http.FileSystem = http.Dir("modhmm_default")
 
 /* -------------------------------------------------------------------------- */
 
 func main() {
   if err := vfsgen.Generate(Model, vfsgen.Options{
-    Filename    : "modhmm_single_feature_default.go",
+    Filename    : "modhmm_default.go",
     PackageName : "main",
     VariableName: "assets" }); err != nil {
     log.Fatalln(err)
