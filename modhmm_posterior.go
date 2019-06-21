@@ -64,7 +64,7 @@ func posterior(config ConfigModHmm, state string, trackFiles []string, tracks []
     }
   }
   modhmm := ModHmm{}
-  printStderr(config, 1, "Importing model from `%s'... ", config.Model)
+  printStderr(config, 1, "Importing model from `%s'... ", config.Model.Filename)
   if err := ImportDistribution(config.Model.Filename, &modhmm, BareRealType); err != nil {
     log.Fatal(err)
     printStderr(config, 1, "failed\n")

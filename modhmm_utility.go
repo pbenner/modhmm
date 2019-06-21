@@ -31,7 +31,7 @@ func updateRequired(config ConfigModHmm, target TargetFile, deps ...string) bool
     if target.Static {
       log.Fatalf("Target `%s' is marked static but does not exist\n", target)
     }
-    printStderr(config, 2, "Target `%s' does not exist...\n", target)
+    printStderr(config, 2, "Target `%s' does not exist...\n", target.Filename)
     return true
   } else {
     if target.Static {
@@ -41,13 +41,13 @@ func updateRequired(config ConfigModHmm, target TargetFile, deps ...string) bool
     for _, dep := range deps {
       if s2, err := os.Stat(dep); err == nil {
         if s1.ModTime().Before(s2.ModTime()) {
-          printStderr(config, 2, "Target `%s' requires update...\n", target)
+          printStderr(config, 2, "Target `%s' requires update...\n", target.Filename)
           printStderr(config, 3, " -> `%s' has more recent timestamp\n", dep)
           return true
         }
       }
     }
   }
-  printStderr(config, 2, "Target `%s' is up to date...\n", target)
+  printStderr(config, 2, "Target `%s' is up to date...\n", target.Filename)
   return false
 }
