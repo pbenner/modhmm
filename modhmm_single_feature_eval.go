@@ -97,7 +97,7 @@ func single_feature_import(config ConfigModHmm, files SingleFeatureFiles, normal
     return single_feature_compute_h3k4me3o1(config, track1, track2)
   } else {
     // check if single feature model must be updated
-    if FileExists(files.Model.Filename) && updateRequired(config, files.Model, files.DependenciesModel()...) {
+    if normalize && FileExists(files.Model.Filename) && updateRequired(config, files.Model, files.DependenciesModel()...) {
       log.Fatalf("Please first update single-feature model for %s", files.Feature)
     }
     config.BinSummaryStatistics = "discrete mean"
