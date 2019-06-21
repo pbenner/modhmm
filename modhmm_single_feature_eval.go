@@ -87,7 +87,7 @@ func single_feature_import(config ConfigModHmm, files SingleFeatureFiles, normal
       files2 := config.SingleFeatureFiles("h3k4me3", false)
       if updateRequired(config, files1.Model, files1.DependenciesModel()...) ||
         (updateRequired(config, files2.Model, files2.DependenciesModel()...)) {
-        log.Fatal("Please first update single-feature models of H3K4me1 and H3K4me3")
+        log.Fatalf("Please first update single-feature models of h3k4me1 and h3k4me3")
       }
     }
     config.BinSummaryStatistics = "mean"
@@ -96,6 +96,10 @@ func single_feature_import(config ConfigModHmm, files SingleFeatureFiles, normal
     track2 := single_feature_import_and_normalize(config, files.SrcCoverage[1].Filename, files.SrcCoverageCnts[1].Filename, normalize)
     return single_feature_compute_h3k4me3o1(config, track1, track2)
   } else {
+    // check if single feature model must be updated
+    if FileExists(files.Model.Filename) && updateRequired(config, files.Model, files.DependenciesModel()...) {
+      log.Fatalf("Please first update single-feature model for %s", files.Feature)
+    }
     config.BinSummaryStatistics = "discrete mean"
     return single_feature_import_and_normalize(config, files.Coverage.Filename, files.CoverageCnts.Filename, normalize)
   }
