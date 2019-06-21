@@ -140,15 +140,18 @@ func modhmm_segmentation(config ConfigModHmm, model string) {
   filenameModel        := config.Model
   filenameSegmentation := config.Segmentation
 
-  if updateRequired(config, filenameModel, dependencies...) {
+  if config.ModelEstimate && updateRequired(config, filenameModel, dependencies...) {
     modhmm_multi_feature_eval_all(config, true)
 
-    if config.ModelEstimate {
-      printStderr(config, 1, "==> Estimating ModHmm transition parameters <==\n")
-      estimate(config, trackFiles, model)
-    }
+    printStderr(config, 1, "==> Estimating ModHmm transition parameters <==\n")
+    estimate(config, trackFiles, model)
   }
-  if updateRequired(config, filenameSegmentation, append(dependencies, filenameModel.Filename)...) {
+  if config.ModelEstimate {
+    dependencies = append(dependencies, filenameModel.Filename)
+  }
+  if updateRequired(config, filenameSegmentation, dependencies...) {
+    modhmm_multi_feature_eval_all(config, true)
+
     printStderr(config, 1, "==> Computing Segmentation <==\n")
     segment(config, trackFiles)
   }

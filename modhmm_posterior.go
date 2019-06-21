@@ -103,8 +103,9 @@ func modhmm_posterior(config ConfigModHmm, state string, tracks []Track, logScal
   dependencies  = append(dependencies, modhmm_single_feature_eval_dep(config)...)
   dependencies  = append(dependencies, modhmm_multi_feature_eval_dep(config)...)
   dependencies  = append(dependencies, modhmm_segmentation_dep(config)...)
-  dependencies  = append(dependencies, config.Model.Filename)
-
+  if config.ModelEstimate {
+    dependencies  = append(dependencies, config.Model.Filename)
+  }
   trackFiles     := modhmm_posterior_tracks(config)
   filenameResult := TargetFile{}
   if logScale {
