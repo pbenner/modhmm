@@ -82,6 +82,7 @@ type SingleFeatureFiles struct {
 func (obj SingleFeatureFiles) Dependencies() []string {
   filenames := []string{}
   filenames  = append(filenames, obj.Model       .Filename)
+  filenames  = append(filenames, obj.Coverage    .Filename)
   filenames  = append(filenames, obj.CoverageCnts.Filename)
   filenames  = append(filenames, obj.Components  .Filename)
   return filenames
