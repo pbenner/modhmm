@@ -155,8 +155,16 @@ func modhmm_export_h3k4me3o1(config ConfigModHmm) error {
 
 /* -------------------------------------------------------------------------- */
 
-func modhmm_coverage_dep(config ConfigModHmm) []string {
-  return config.Bam.GetFilenames()
+func modhmm_coverage_dep(config ConfigModHmm, features ...string) []string {
+  if len(features) == 0 {
+    return config.Bam.GetFilenames()
+  } else {
+    dependencies := []string{}
+    for _, feature := range features {
+      dependencies = append(dependencies, config.Bam.GetTargetFiles(feature)...)
+    }
+    return dependencies
+  }
 }
 
 func coverage(config ConfigModHmm, feature string, filenameBam []string, filenameData string, optionsList []interface{}) error {
