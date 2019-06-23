@@ -155,6 +155,10 @@ func modhmm_export_h3k4me3o1(config ConfigModHmm) error {
 
 /* -------------------------------------------------------------------------- */
 
+func modhmm_coverage_dep(config ConfigModHmm) []string {
+  return config.Bam.GetFilenames()
+}
+
 func coverage(config ConfigModHmm, feature string, filenameBam []string, filenameData string, optionsList []interface{}) error {
   fraglen := make([]int, len(filenameBam))
 
@@ -237,8 +241,8 @@ func modhmm_coverage(config ConfigModHmm, feature string) error {
     filenameBam  = config.Bam.Rna
     filenameData = config.Coverage.Rna
   default:
-    filenameBam  = config.Bam     .GetFilenames (feature)
-    filenameData = config.Coverage.GetTargetFile(feature)
+    filenameBam  = config.Bam     .GetTargetFiles(feature)
+    filenameData = config.Coverage.GetTargetFile (feature)
     optionsList = append(optionsList, OptionEstimateFraglen{true})
     optionsList = append(optionsList, OptionFraglenRange{[2]int{100,300}})
     optionsList = append(optionsList, OptionFraglenBinSize{10})

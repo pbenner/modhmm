@@ -129,8 +129,9 @@ type ConfigBam struct {
   Control    []string `json:"Control"`
 }
 
-func (config *ConfigBam) GetFilenames(feature string) []string {
+func (config *ConfigBam) GetTargetFiles(feature string) []string {
   switch strings.ToLower(feature) {
+  case "open"     : return append(config.Atac, config.Dnase...)
   case "atac"     : return config.Atac
   case "dnase"    : return config.Dnase
   case "h3k27ac"  : return config.H3k27ac
@@ -143,6 +144,14 @@ func (config *ConfigBam) GetFilenames(feature string) []string {
   default:
     panic("internal error")
   }
+}
+
+func (config *ConfigBam) GetFilenames() []string {
+  filenames := []string{}
+  for _, feature := range CoverageList {
+    filenames = append(filenames, config.GetTargetFiles(feature)...)
+  }
+  return filenames
 }
 
 func (config *ConfigBam) CompletePaths(dir, prefix, suffix string) {

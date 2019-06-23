@@ -109,7 +109,7 @@ func segment(config ConfigModHmm, trackFiles []string) {
       name = fmt.Sprintf("ModHMM [%s]", config.Description)
       desc = fmt.Sprintf("Segmentation ModHMM [%s]", config.Description)
     }
-    printStderr(config, 1, "Writing genome segmentation to `%s'... ", config.Segmentation)
+    printStderr(config, 1, "Writing genome segmentation to `%s'... ", config.Segmentation.Filename)
     if err := ExportTrackSegmentation(config.SessionConfig, result, config.Segmentation.Filename, name, desc, true, modhmm.StateNames, nil); err != nil {
       printStderr(config, 1, "failed\n")
       log.Fatal(err)
@@ -134,6 +134,7 @@ func modhmm_segmentation(config ConfigModHmm, model string) {
   dependencies  = append(dependencies, modhmm_segmentation_dep(config)...)
   dependencies  = append(dependencies, modhmm_multi_feature_eval_dep(config)...)
   dependencies  = append(dependencies, modhmm_single_feature_eval_dep(config)...)
+  dependencies  = append(dependencies, modhmm_coverage_dep(config)...)
 
   trackFiles := modhmm_segmentation_dep(config)
 
