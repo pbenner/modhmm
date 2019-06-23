@@ -2,7 +2,7 @@
 
 ModHMM is a highly modular genome segmentation method based on a hidden Markov model that incorporates genome-wide predictions from a set of classifiers. In order to simplify usage, ModHMM implements a default set of classifiers, but also allows to use predictions from third party methods.
 
-<img src="https://raw.githubusercontent.com/pbenner/modhmm/master/README_hmm.png" alt="ModHMM" width="854" height="284" />
+<center><img src="https://raw.githubusercontent.com/pbenner/modhmm/master/README_example1.png" alt="ModHMM" width="720" height="429" /></center>
 
 References:
 
