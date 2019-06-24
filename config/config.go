@@ -610,8 +610,12 @@ func (config *ConfigModHmm) SingleFeatureFiles(feature string, logScale bool) Si
 
 func (config ConfigModHmm) ModelFallbackPath() string {
   switch strings.ToLower(config.ModelFallback) {
-  case "mm10"  : return "mm10-liver-embryo-day12.5"
-  case "grch38": return "GRCh38-muscle"
+  case "mm10"  :
+    return "mm10-forebrain-embryo-day11.5"
+  case "mm10-liver-embryo-day12.5":
+    return "mm10-liver-embryo-day12.5"
+  case "grch38":
+    return "GRCh38-muscle"
   default:
     log.Fatalf("invalid single-feature model fallback `%s'", config.ModelFallback)
     panic("internal error")
