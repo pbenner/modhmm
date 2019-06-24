@@ -615,7 +615,7 @@ func (config ConfigModHmm) ModelFallbackPath() string {
   case "mm10-liver-embryo-day12.5":
     return "mm10-liver-embryo-day12.5"
   case "grch38":
-    return "GRCh38-muscle"
+    return "GRCh38-gastrocnemius-medialis"
   default:
     log.Fatalf("invalid single-feature model fallback `%s'", config.ModelFallback)
     panic("internal error")
