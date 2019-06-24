@@ -85,8 +85,8 @@ func single_feature_import(config ConfigModHmm, files SingleFeatureFiles, normal
     { // check if h3k4me1 or h3k4me3 must be updated first
       files1 := config.SingleFeatureFiles("h3k4me1", false)
       files2 := config.SingleFeatureFiles("h3k4me3", false)
-      if updateRequired(config, files1.Model, files1.DependenciesModel()...) ||
-        (updateRequired(config, files2.Model, files2.DependenciesModel()...)) {
+      if (FileExists(files1.Model.Filename) && updateRequired(config, files1.Model, files1.DependenciesModel()...)) ||
+        ((FileExists(files2.Model.Filename) && updateRequired(config, files2.Model, files2.DependenciesModel()...))) {
         log.Fatalf("Please first update single-feature models of h3k4me1 and h3k4me3")
       }
     }
