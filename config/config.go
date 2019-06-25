@@ -364,6 +364,7 @@ type ConfigModHmm struct {
   SingleFeatureModelDir      string                   `json:"Single-Feature Model Directory"`
   SingleFeatureModel         ConfigSingleFeaturePaths `json:"Single-Feature Model Files"`
   SingleFeatureComp          ConfigSingleFeaturePaths `json:"Single-Feature Model Component Files"`
+  SingleFeatureModelStatic   bool                     `json:"Single-Feature Model Static"`
   SingleFeatureDir           string                   `json:"Single-Feature Directory"`
   SingleFeatureFg            ConfigSingleFeaturePaths `json:"Single-Feature Foreground"`
   SingleFeatureBg            ConfigSingleFeaturePaths `json:"Single-Feature Background"`
@@ -563,6 +564,11 @@ func (config *ConfigModHmm) CompletePaths(prefix string) {
   config.PosteriorExp           .CompletePaths(config.PosteriorDir, "posterior-marginal-exp-", ".bw")
   config.PosteriorPeak          .CompletePaths(config.PosteriorDir, "posterior-marginal-peaks-", ".table")
   config.SetOpenChromatinAssay(config.DetectOpenChromatinAssay())
+  if config.SingleFeatureModelStatic {
+    config.CoverageCnts      .SetStatic(true)
+    config.SingleFeatureModel.SetStatic(true)
+    config.SingleFeatureComp .SetStatic(true)
+  }
 }
 
 func (config *ConfigModHmm) SingleFeatureFiles(feature string, logScale bool) SingleFeatureFiles {
