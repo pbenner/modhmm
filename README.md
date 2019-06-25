@@ -2,11 +2,11 @@
 
 ModHMM is a highly modular genome segmentation method based on a hidden Markov model that incorporates genome-wide predictions from a set of classifiers. In order to simplify usage, ModHMM implements a default set of classifiers, but also allows to use predictions from third party methods.
 
-<center><img src="https://raw.githubusercontent.com/pbenner/modhmm/master/README_example1.png" alt="ModHMM" width="720" height="429" /></center>
-
 References:
 
 Philipp Benner and Martin Vingron. *ModHMM: A Modular Supra-Bayesian Genome Segmentation Method*. International Conference on Research in Computational Molecular Biology (RECOMB). Springer, Cham, 2019. S. 35-50. [[Link]](https://link.springer.com/chapter/10.1007/978-3-030-17083-7_3)
+
+<center><img src="https://raw.githubusercontent.com/pbenner/modhmm/master/README_example1.png" alt="ModHMM" width="720" height="429" /></center>
 
 ### Available Segmentations
 
@@ -121,8 +121,6 @@ The following configuration can be used if data instead is given in bigWig forma
         "RNA"    : {"Filename": "coverage-rna.bw",     "Static": true },
         "Control": {"Filename": "coverage-control.bw", "Static": true }
     },
-    # Number of threads used for computing coverage bigWigs (memory intense!)
-    "Coverage Threads"                : 5,
     # ModHMM has several parameters that must be estimated, the single-feature mixture
     # and the HMM transition parameters. By default ModHMM won't estimate these parameters,
     # but use a fallback model with pre-estimated parameter. This option selects the type
@@ -182,7 +180,7 @@ This command outputs tables with identified peaks, i.e. all regions with probabi
 
 ### Estimating Single-Feature Models
 
-For detecting peaks, i.e. for separating signal from noise, ModHMM by default uses a single-feature mixture model that was estimated on either a mouse or human data set. It uses quantile-normalization to fit the provided data to the default model before evaluating genome-wide peak probabilities. This procedure allows to easily apply ModHMM to new data sets, but is less accurate than using a model that was estimated from the actual data at hand.
+For detecting peaks, i.e. for separating signal from noise, ModHMM by default uses a single-feature mixture model that was estimated on either a mouse or human data set. It uses quantile-normalization to fit the provided data to the default model before evaluating genome-wide peak probabilities. This procedure allows to easily apply ModHMM to new data sets, but might be less accurate than using a model that was estimated from the actual data at hand.
 
 The following command estimates a new single-feature model for all features:
 ```sh
