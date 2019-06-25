@@ -180,7 +180,7 @@ This command outputs tables with identified peaks, i.e. all regions with probabi
 
 ### Estimating Single-Feature Models
 
-For detecting peaks, i.e. for separating signal from noise, ModHMM by default uses a single-feature mixture model that was estimated on either a mouse or human data set. It uses quantile-normalization to fit the provided data to the default model before evaluating genome-wide peak probabilities. This procedure allows to easily apply ModHMM to new data sets, but is less accurate than using a model that was estimated from the actual data at hand.
+For detecting peaks, i.e. for separating signal from noise, ModHMM by default uses a single-feature mixture model that was estimated on either a mouse or human data set. It uses quantile-normalization to fit the provided data to the default model before evaluating genome-wide peak probabilities. This procedure allows to easily apply ModHMM to new data sets, but might be less accurate than using a model that was estimated from the actual data at hand.
 
 The following command estimates a new single-feature model for all features:
 ```sh
