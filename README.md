@@ -121,8 +121,6 @@ The following configuration can be used if data instead is given in bigWig forma
         "RNA"    : {"Filename": "coverage-rna.bw",     "Static": true },
         "Control": {"Filename": "coverage-control.bw", "Static": true }
     },
-    # Number of threads used for computing coverage bigWigs (memory intense!)
-    "Coverage Threads"                : 5,
     # ModHMM has several parameters that must be estimated, the single-feature mixture
     # and the HMM transition parameters. By default ModHMM won't estimate these parameters,
     # but use a fallback model with pre-estimated parameter. This option selects the type
