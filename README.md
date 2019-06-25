@@ -63,7 +63,7 @@ mm10 midbrain embryo day16.5 | 2019-06-23 | [Segmentation](https://github.com/pb
 
 ModHMM can be installed by either downloading a binary from the [binary repository](https://github.com/pbenner/modhmm-binary) or by compiling the program from source.
 
-To compile ModHMM you must first install the [Go compiler](https://golang.org/dl/). Afterwards, you may install ModHMM as follows:
+To compile ModHMM you must first install the [Go compiler](https://golang.org/dl/). Afterwards, ModHMM can be installed as follows:
 ```sh
   go get -v github.com/pbenner/modhmm
   cd $GOPATH/src/github.com/pbenner/modhmm
