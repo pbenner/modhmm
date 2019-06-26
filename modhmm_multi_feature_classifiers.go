@@ -295,7 +295,7 @@ func (obj ClassifierTR) Eval(s Scalar, x ConstMatrix) error {
     r += obj.NoPeakAll(x, jOpen)
   }
   { // no h3k4me1 peak at center
-    r += obj.NoPeakAll(x, jH3k4me1)
+    //r += obj.NoPeakAll(x, jH3k4me1)
   }
   { // no h3k4me3 peak at center
     r += obj.NoPeakAll(x, jH3k4me3)
@@ -327,7 +327,7 @@ func (obj ClassifierTL) Eval(s Scalar, x ConstMatrix) error {
     r += obj.NoPeakAll(x, jOpen)
   }
   { // no h3k4me1 peak at center
-    r += obj.NoPeakAll(x, jH3k4me1)
+    //r += obj.NoPeakAll(x, jH3k4me1)
   }
   { // no h3k4me3 peak at center
     r += obj.NoPeakAll(x, jH3k4me3)

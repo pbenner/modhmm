@@ -82,6 +82,7 @@ type SingleFeatureFiles struct {
 func (obj SingleFeatureFiles) Dependencies() []string {
   filenames := []string{}
   filenames  = append(filenames, obj.Model       .Filename)
+  filenames  = append(filenames, obj.Coverage    .Filename)
   filenames  = append(filenames, obj.CoverageCnts.Filename)
   filenames  = append(filenames, obj.Components  .Filename)
   return filenames
@@ -129,8 +130,9 @@ type ConfigBam struct {
   Control    []string `json:"Control"`
 }
 
-func (config *ConfigBam) GetFilenames(feature string) []string {
+func (config *ConfigBam) GetTargetFiles(feature string) []string {
   switch strings.ToLower(feature) {
+  case "open"     : return append(config.Atac, config.Dnase...)
   case "atac"     : return config.Atac
   case "dnase"    : return config.Dnase
   case "h3k27ac"  : return config.H3k27ac
@@ -143,6 +145,14 @@ func (config *ConfigBam) GetFilenames(feature string) []string {
   default:
     panic("internal error")
   }
+}
+
+func (config *ConfigBam) GetFilenames() []string {
+  filenames := []string{}
+  for _, feature := range CoverageList {
+    filenames = append(filenames, config.GetTargetFiles(feature)...)
+  }
+  return filenames
 }
 
 func (config *ConfigBam) CompletePaths(dir, prefix, suffix string) {
@@ -354,6 +364,7 @@ type ConfigModHmm struct {
   SingleFeatureModelDir      string                   `json:"Single-Feature Model Directory"`
   SingleFeatureModel         ConfigSingleFeaturePaths `json:"Single-Feature Model Files"`
   SingleFeatureComp          ConfigSingleFeaturePaths `json:"Single-Feature Model Component Files"`
+  SingleFeatureModelStatic   bool                     `json:"Single-Feature Model Static"`
   SingleFeatureDir           string                   `json:"Single-Feature Directory"`
   SingleFeatureFg            ConfigSingleFeaturePaths `json:"Single-Feature Foreground"`
   SingleFeatureBg            ConfigSingleFeaturePaths `json:"Single-Feature Background"`
@@ -553,6 +564,11 @@ func (config *ConfigModHmm) CompletePaths(prefix string) {
   config.PosteriorExp           .CompletePaths(config.PosteriorDir, "posterior-marginal-exp-", ".bw")
   config.PosteriorPeak          .CompletePaths(config.PosteriorDir, "posterior-marginal-peaks-", ".table")
   config.SetOpenChromatinAssay(config.DetectOpenChromatinAssay())
+  if config.SingleFeatureModelStatic {
+    config.CoverageCnts      .SetStatic(true)
+    config.SingleFeatureModel.SetStatic(true)
+    config.SingleFeatureComp .SetStatic(true)
+  }
 }
 
 func (config *ConfigModHmm) SingleFeatureFiles(feature string, logScale bool) SingleFeatureFiles {
@@ -600,8 +616,12 @@ func (config *ConfigModHmm) SingleFeatureFiles(feature string, logScale bool) Si
 
 func (config ConfigModHmm) ModelFallbackPath() string {
   switch strings.ToLower(config.ModelFallback) {
-  case "mm10"  : return "mm10-liver-embryo-day12.5"
-  case "grch38": return "GRCh38-muscle"
+  case "mm10"  :
+    return "mm10-forebrain-embryo-day11.5"
+  case "mm10-liver-embryo-day12.5":
+    return "mm10-liver-embryo-day12.5"
+  case "grch38":
+    return "GRCh38-gastrocnemius-medialis"
   default:
     log.Fatalf("invalid single-feature model fallback `%s'", config.ModelFallback)
     panic("internal error")

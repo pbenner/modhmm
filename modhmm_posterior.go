@@ -26,8 +26,6 @@ import   "strings"
 import . "github.com/pbenner/ngstat/classification"
 import . "github.com/pbenner/ngstat/track"
 
-import . "github.com/pbenner/autodiff"
-import . "github.com/pbenner/autodiff/statistics"
 import   "github.com/pbenner/autodiff/statistics/matrixClassifier"
 
 import . "github.com/pbenner/gonetics"
@@ -63,13 +61,7 @@ func posterior(config ConfigModHmm, state string, trackFiles []string, tracks []
       }
     }
   }
-  modhmm := ModHmm{}
-  printStderr(config, 1, "Importing model from `%s'... ", config.Model.Filename)
-  if err := ImportDistribution(config.Model.Filename, &modhmm, BareRealType); err != nil {
-    log.Fatal(err)
-    printStderr(config, 1, "failed\n")
-  }
-  printStderr(config, 1, "done\n")
+  modhmm := ImportHMM(config)
 
   states := getStateIndices(modhmm, state)
   printStderr(config, 2, "State %s maps to state indices %v\n", strings.ToUpper(state), states)
@@ -100,12 +92,14 @@ func modhmm_posterior(config ConfigModHmm, state string, tracks []Track, logScal
   }
 
   dependencies := []string{}
-  dependencies  = append(dependencies, modhmm_single_feature_eval_dep(config)...)
-  dependencies  = append(dependencies, modhmm_multi_feature_eval_dep(config)...)
-  dependencies  = append(dependencies, modhmm_segmentation_dep(config)...)
   if config.ModelEstimate {
     dependencies  = append(dependencies, config.Model.Filename)
   }
+  dependencies  = append(dependencies, modhmm_segmentation_dep(config)...)
+  dependencies  = append(dependencies, modhmm_multi_feature_eval_dep(config)...)
+  dependencies  = append(dependencies, modhmm_single_feature_eval_dep(config)...)
+  dependencies  = append(dependencies, modhmm_coverage_dep(config)...)
+
   trackFiles     := modhmm_posterior_tracks(config)
   filenameResult := TargetFile{}
   if logScale {

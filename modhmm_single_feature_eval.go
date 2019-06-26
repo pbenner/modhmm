@@ -85,8 +85,8 @@ func single_feature_import(config ConfigModHmm, files SingleFeatureFiles, normal
     { // check if h3k4me1 or h3k4me3 must be updated first
       files1 := config.SingleFeatureFiles("h3k4me1", false)
       files2 := config.SingleFeatureFiles("h3k4me3", false)
-      if updateRequired(config, files1.Model, files1.DependenciesModel()...) ||
-        (updateRequired(config, files2.Model, files2.DependenciesModel()...)) {
+      if (FileExists(files1.Model.Filename) && updateRequired(config, files1.Model, files1.DependenciesModel()...)) ||
+        ((FileExists(files2.Model.Filename) && updateRequired(config, files2.Model, files2.DependenciesModel()...))) {
         log.Fatalf("Please first update single-feature models of h3k4me1 and h3k4me3")
       }
     }
@@ -154,8 +154,21 @@ func single_feature_filter_update(config ConfigModHmm, features []string, logSca
     feature = config.CoerceOpenChromatinAssay(feature)
 
     files := config.SingleFeatureFiles(feature, logScale)
-    if updateRequired(config, files.Foreground, files.Dependencies()...) ||
-      (updateRequired(config, files.Background, files.Dependencies()...)) {
+
+    dependencies := []string{}
+    dependencies  = append(dependencies, files.Dependencies()...)
+
+    switch files.Feature {
+    case "h3k4me3o1":
+      dependencies  = append(dependencies, modhmm_coverage_dep(config, "h3k4me1", "h3k4me3")...)
+    case "rna-low":
+      dependencies  = append(dependencies, modhmm_coverage_dep(config, "rna")...)
+    default:
+      dependencies  = append(dependencies, modhmm_coverage_dep(config, files.Feature)...)
+    }
+
+    if updateRequired(config, files.Foreground, dependencies...) ||
+      (updateRequired(config, files.Background, dependencies...)) {
       r = append(r, files.Feature)
     }
   }
