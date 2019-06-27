@@ -69,11 +69,11 @@ func main() {
     "                                            enrichment analysis\n" +
     "     eval-single-feature      [stage 2]   - evaluate single-feature models\n" +
     "     eval-multi-feature       [stage 3]   - evaluate  multi-feature models\n" +
+    "     segmentation             [stage 4]   - compute genome segmentation\n" +
     "     eval-posterior-marginals [stage 5]   - compute posterior marginals of hidden states\n\n" +
-    "     segmentation             [stage 4]   - compute genome segmentation\n\n" +
     " ModHMM commands are structured in stages. Executing a command also executes all commands with\n" +
     " lower stage number. An exception is stage 1.1 that must be executed manually. By default,\n" +
-    " stage 1.1 is bypassed and the default single-feature model is used.\n\n" +
+    " stage 1.1 is bypassed and a default single-feature model is used.\n\n" +
     " Plotting and printing commands:\n" +
     "     plot-single-feature                  - plot fitted single-feature mixture distributions used\n" +
     "                                            for enrichment analysis\n" +
