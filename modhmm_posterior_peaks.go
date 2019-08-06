@@ -33,9 +33,9 @@ import   "github.com/pborman/getopt"
 /* -------------------------------------------------------------------------- */
 
 func modhmm_call_posterior_peaks(config ConfigModHmm, state string, threshold float64) {
-  printStderr(config, 1, "==> Calling Multi-Feature Peaks (%s) <==\n", state)
-  filenameIn  := config.MultiFeatureProb.GetTargetFile(state).Filename
-  filenameOut := config.MultiFeaturePeak.GetTargetFile(state)
+  printStderr(config, 1, "==> Calling Posterior-Marginal Peaks (%s) <==\n", state)
+  filenameIn  := config.Posterior    .GetTargetFile(state).Filename
+  filenameOut := config.PosteriorPeak.GetTargetFile(state)
 
   if !updateRequired(config, filenameOut, filenameIn) {
     return
