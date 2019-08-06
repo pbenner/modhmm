@@ -35,7 +35,7 @@ var BuildTime string
 var GitHash   string
 
 func printVersion(writer io.Writer) {
-  fmt.Fprintf(writer, "ModHMM (https://github.com/pbenner/autodiff)\n")
+  fmt.Fprintf(writer, "ModHMM (https://github.com/pbenner/modhmm)\n")
   fmt.Fprintf(writer, " - Version   : %s\n", Version)
   fmt.Fprintf(writer, " - Build time: %s\n", BuildTime)
   fmt.Fprintf(writer, " - Git Hash  : %s\n", GitHash)
