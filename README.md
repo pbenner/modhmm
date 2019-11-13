@@ -123,8 +123,10 @@ The following configuration can be used if data instead is given in bigWig forma
     },
     # ModHMM has several parameters that must be estimated, the single-feature mixture
     # and the HMM transition parameters. By default ModHMM won't estimate these parameters,
-    # but use a fallback model with pre-estimated parameter. This option selects the type
-    # of fallback model ["mm10", "GRCh38"]
+    # but use a fallback model with pre-estimated parameters. This option selects the type
+    # of fallback model ["mm10", "GRCh38"]. The version of the reference genome should
+    # generally not be important for the choice of the single-feature model, i.e. the
+    # GRCh38 model can be used with data mapped to hg19.
     "Model Fallback"                  : "mm10",
     # Directory containing all auxiliary files and the final segmentation
     "Directory"                       : "mm10-liver-embryo-day12.5",
