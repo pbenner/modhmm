@@ -193,7 +193,7 @@ type ConfigCoveragePaths struct {
   Dnase      TargetFile `json:"DNase"`
   H3k27ac    TargetFile `json:"H3K27ac"`
   H3k27me3   TargetFile `json:"H3K27me3"`
-  H3k9me3    TargetFile `json:"H3K27me3"`
+  H3k9me3    TargetFile `json:"H3K9me3"`
   H3k4me1    TargetFile `json:"H3K4me1"`
   H3k4me3    TargetFile `json:"H3K4me3"`
   H3k4me3o1  TargetFile `json:"H3K4me3o1"`
