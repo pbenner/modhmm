@@ -157,10 +157,10 @@ State name | Description
 PA         | active promoter
 EA         | active enhancer
 BI         | bivalet region
-PI         | primed region
+PR         | primed region
 EA:tr      | active enhancer in a transcribed region
 BI:tr      | bivalet region in a transcribed region
-PI:tr      | primed region in a transcribed region
+PR:tr      | primed region in a transcribed region
 TR         | transcribed region
 TL         | low transcription
 R1         | H3K27me3 repressed
