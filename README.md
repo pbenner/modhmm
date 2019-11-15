@@ -214,6 +214,10 @@ Most peak callers use a single pre-defined model for computing enrichment probab
   modhmm -c config.json call-single-feature-peaks atac
 ```
 
+### Troubleshooting
+#### Fragment length estimation is failing
+In case the estimation of the fragment length is failing, it is possible to manually set the fragment length. The fragment length estimate for each `BASENAME.bam` is written to a file called `BASENAME.fraglen.txt`. This file can be created manually, however the time stamp must be newer than that of the corresponding BAM file. The fragment length is estimated by cross-correlating the forwarnd and reverse strand reads. The cross-correlation is written to `BASENAME.fraglen.table` and a plot to `BASENAME.fraglen.pdf`, which both may help to identify a reasonable fragment length estimate.
+
 ### Use Cases
 #### Example 1: Compute segmentation on ENCODE data from mouse embyonic liver at day 12.5
 
