@@ -20,6 +20,7 @@ package main
 
 import   "fmt"
 import   "bufio"
+import   "errors"
 import   "log"
 import   "path/filepath"
 import   "strconv"
@@ -267,7 +268,16 @@ func modhmm_coverage(config ConfigModHmm, feature string) error {
     if len(filenameBam) == 0 {
       return fmt.Errorf("ERROR: no bam files specified for feature `%s'", logPrefix)
     }
-    return coverage(config, feature, filenameBam, filenameData.Filename, optionsList)
+    if err := coverage(config, feature, filenameBam, filenameData.Filename, optionsList); err != nil {
+      if errors.Is(err, ErrFraglenEstimate) {
+        return fmt.Errorf("%w\n" +
+          "This error can be resolved by manually setting the fragment length for the\n"  +
+          "respective BAM file. Create a file called `[BAM_BASENAME].fraglen.txt' that\n" +
+          "contains the fragment length as a single integer value.", err)
+      } else {
+        return err
+      }
+    }
   }
   return nil
 }

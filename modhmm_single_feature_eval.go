@@ -87,7 +87,12 @@ func single_feature_import(config ConfigModHmm, files SingleFeatureFiles, normal
       files2 := config.SingleFeatureFiles("h3k4me3", false)
       if (FileExists(files1.Model.Filename) && updateRequired(config, files1.Model, files1.DependenciesModel()...)) ||
         ((FileExists(files2.Model.Filename) && updateRequired(config, files2.Model, files2.DependenciesModel()...))) {
-        log.Fatalf("Please first update single-feature models of h3k4me1 and h3k4me3")
+        log.Fatalf("ERROR: Please first update single-feature models for `h3k4me1' and `h3k4me3'.\n" +
+          "Custom single-feature models are being used. This error occurs because the\n" +
+          "time-stamp of coverage files is newer than those of the single-feature model\n" +
+          "files. Please make sure that the models are up to date. Use\n" +
+          "\t\"Single-Feature Model Static\": true\n" +
+          "in the config file prevent this check.")
       }
     }
     config.BinSummaryStatistics = "mean"
@@ -98,7 +103,12 @@ func single_feature_import(config ConfigModHmm, files SingleFeatureFiles, normal
   } else {
     // check if single feature model must be updated
     if normalize && FileExists(files.Model.Filename) && updateRequired(config, files.Model, files.DependenciesModel()...) {
-      log.Fatalf("Please first update single-feature model for %s", files.Feature)
+      log.Fatalf("ERROR: Please first update single-feature model for `%s'.\n" +
+          "Custom single-feature models are being used. This error occurs because the\n" +
+          "time-stamp of coverage files is newer than those of the single-feature model\n" +
+          "files. Please make sure that the models are up to date. Use\n" +
+          "\t\"Single-Feature Model Static\": true\n" +
+          "in the config file prevent this check.", files.Feature)
     }
     config.BinSummaryStatistics = "discrete mean"
     return single_feature_import_and_normalize(config, files.Coverage.Filename, files.CoverageCnts.Filename, normalize)
