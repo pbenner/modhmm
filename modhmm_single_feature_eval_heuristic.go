@@ -32,7 +32,7 @@ import . "github.com/pbenner/modhmm/utility"
 
 /* -------------------------------------------------------------------------- */
 
-func single_feature_eval_heuristic_loop(config ConfigModHmm, files SingleFeatureFiles) MutableTrack {
+func single_feature_eval_heuristic_loop(config ConfigModHmm, files SingleFeatureFiles, window_size int, c_n float64) MutableTrack {
   config.BinSummaryStatistics = "max"
   data   := single_feature_import(config, files, false)
   result := AllocSimpleTrack("classification", data.GetGenome(), data.GetBinSize())
@@ -44,10 +44,8 @@ func single_feature_eval_heuristic_loop(config ConfigModHmm, files SingleFeature
   for _, length := range data.GetGenome().Lengths {
     L += length/config.BinSize
   }
-  window_size := 100*config.BinSize
   offset1 := DivIntUp  (window_size, 2)
   offset2 := DivIntDown(window_size, 2)
-  c_n := 3.0
 
   pool  := threadpool.New(config.Threads, 10000)
   group := pool.NewJobGroup()
@@ -67,14 +65,27 @@ func single_feature_eval_heuristic_loop(config ConfigModHmm, files SingleFeature
       nbins := seq2.NBins()
 
       // compute initial mean
-      for i := 0; i < window_size; i++ {
-        if i >= nbins {
-          break
+      if window_size == 0 {
+        for i := 0; i < nbins; i++ {
+          slidingMed.Insert(seq1.AtBin(i))
         }
-        slidingMed.Insert(seq1.AtBin(i))
+      } else {
+        for i := 0; i < window_size; i++ {
+          if i >= nbins {
+            break
+          }
+          slidingMed.Insert(seq1.AtBin(i))
+        }
       }
-      {
-        // compute initial variance
+      // compute initial variance
+      if window_size == 0 {
+        m := slidingMed.Median()
+        for i := 0; i < nbins; i++ {
+          if x := seq1.AtBin(i); x > m {
+            slidingStd.Insert(x-m)
+          }
+        }
+      } else {
         m := slidingMed.Median()
         for i := 0; i < window_size; i++ {
           if i >= nbins {
@@ -88,7 +99,7 @@ func single_feature_eval_heuristic_loop(config ConfigModHmm, files SingleFeature
       // loop over sequence
       for i := 0; i < nbins; i++ {
         // update mean and variance
-        if i > offset1 && i < nbins-offset2 {
+        if window_size != 0 && i > offset1 && i < nbins-offset2 {
           x1 := seq1.AtBin(i-offset1)
           x2 := seq1.AtBin(i+offset2)
           m1 := slidingMed.Median()
@@ -142,8 +153,15 @@ func single_feature_eval_heuristic_loop(config ConfigModHmm, files SingleFeature
 }
 
 func single_feature_eval_heuristic(config ConfigModHmm, files SingleFeatureFiles, logScale bool) {
-
-  result := single_feature_eval_heuristic_loop(config, files)
+  // default parameters
+  w_s := 100*config.BinSize
+  c_n := 3.0
+  // update parameters
+  switch files.Feature {
+  case "rna"    : w_s = 0; c_n = 0.5
+  case "rna-low": w_s = 0; c_n = 0.1
+  }
+  result := single_feature_eval_heuristic_loop(config, files, w_s, c_n)
 
   if !logScale {
     if err := (GenericMutableTrack{result}).Map(result, func(seqname string, position int, value float64) float64 {
