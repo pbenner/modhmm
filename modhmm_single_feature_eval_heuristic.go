@@ -44,12 +44,10 @@ func single_feature_eval_heuristic_loop(config ConfigModHmm, files SingleFeature
   for _, length := range data.GetGenome().Lengths {
     L += length/config.BinSize
   }
-  window_size := 10000
+  window_size := 100*config.BinSize
   offset1 := DivIntUp  (window_size, 2)
   offset2 := DivIntDown(window_size, 2)
-
-  //w_n := float64(window_size)
-  // c_n := 1.0
+  c_n := 3.0
 
   pool  := threadpool.New(config.Threads, 10000)
   group := pool.NewJobGroup()
@@ -121,11 +119,14 @@ func single_feature_eval_heuristic_loop(config ConfigModHmm, files SingleFeature
         m := slidingMed.Median()
         v := slidingStd.Median()
         if x > m {
-          seq2.SetBin(i, (x - m)/(3.0*v))
+          // deviation from median normalized by c standard deviations
+          seq2.SetBin(i, (x - m)/(c_n*v))
+          // apply logistic function
           seq2.SetBin(i, 2.0/(1.0 + math.Exp(-seq2.AtBin(i))) - 1.0)
         } else {
           seq2.SetBin(i, 1e-8)
         }
+        // convert to log
         seq2.SetBin(i, math.Log(seq2.AtBin(i)))
       }
       if config.Verbose > 0 {
