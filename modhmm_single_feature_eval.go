@@ -23,12 +23,7 @@ import   "log"
 import   "math"
 import   "os"
 
-import . "github.com/pbenner/ngstat/classification"
 import . "github.com/pbenner/ngstat/track"
-
-import   "github.com/pbenner/autodiff/statistics/scalarClassifier"
-import   "github.com/pbenner/autodiff/statistics/vectorClassifier"
-
 import . "github.com/pbenner/gonetics"
 
 import . "github.com/pbenner/modhmm/config"
@@ -118,44 +113,7 @@ func single_feature_import(config ConfigModHmm, files SingleFeatureFiles, normal
 /* -------------------------------------------------------------------------- */
 
 func single_feature_eval(config ConfigModHmm, files SingleFeatureFiles, logScale bool) {
-  mixture := ImportMixtureDistribution(config, files.Model.Filename)
-  k, r    := ImportComponents(config, files.Components.Filename, mixture.NComponents())
-
-  scalarClassifier1 := scalarClassifier.MixturePosterior{mixture, k}
-  scalarClassifier2 := scalarClassifier.MixturePosterior{mixture, r}
-  vectorClassifier1 := vectorClassifier.ScalarBatchIid{scalarClassifier1, 1}
-  vectorClassifier2 := vectorClassifier.ScalarBatchIid{scalarClassifier2, 1}
-
-  data := single_feature_import(config, files, true)
-
-  // foreground
-  result1, err := BatchClassifySingleTrack(config.SessionConfig, vectorClassifier1, data); if err != nil {
-    log.Fatal(err)
-  }
-  if !logScale {
-    if err := (GenericMutableTrack{result1}).Map(result1, func(seqname string, position int, value float64) float64 {
-      return math.Exp(value)
-    }); err != nil {
-      log.Fatal(err)
-    }
-  }
-  if err := ExportTrack(config.SessionConfig, result1, files.Foreground.Filename); err != nil {
-    log.Fatal(err)
-  }
-  // background
-  result2, err := BatchClassifySingleTrack(config.SessionConfig, vectorClassifier2, data); if err != nil {
-    log.Fatal(err)
-  }
-  if !logScale {
-    if err := (GenericMutableTrack{result2}).Map(result2, func(seqname string, position int, value float64) float64 {
-      return math.Exp(value)
-    }); err != nil {
-      log.Fatal(err)
-    }
-  }
-  if err := ExportTrack(config.SessionConfig, result2, files.Background.Filename); err != nil {
-    log.Fatal(err)
-  }
+  single_feature_eval_classifier(config, files, logScale)
 }
 
 func single_feature_filter_update(config ConfigModHmm, features []string, logScale bool) []string {

@@ -359,7 +359,7 @@ func (obj ClassifierR1) Eval(s Scalar, x ConstMatrix) error {
     r += obj.PeakAny(x, jH3k27me3)
   }
   { // no h3k4me1 peak at all positions
-    r += obj.NoPeakAll(x, jH3k4me1)
+    //r += obj.NoPeakAll(x, jH3k4me1)
   }
   { // no h3k4me3 peak at all positions
     r += obj.NoPeakAll(x, jH3k4me3)
@@ -391,7 +391,7 @@ func (obj ClassifierR2) Eval(s Scalar, x ConstMatrix) error {
     r += obj.PeakAny(x, jH3k9me3)
   }
   { // no h3k4me1 peak at all positions
-    r += obj.NoPeakAll(x, jH3k4me1)
+    //r += obj.NoPeakAll(x, jH3k4me1)
   }
   { // no h3k4me3 peak at all positions
     r += obj.NoPeakAll(x, jH3k4me3)
@@ -432,7 +432,7 @@ func (obj ClassifierNS) Eval(s Scalar, x ConstMatrix) error {
     r += obj.NoPeakAll(x, jH3k9me3)
   }
   { // no h3k4me1 peak at all positions
-    r += obj.NoPeakAll(x, jH3k4me1)
+    //r += obj.NoPeakAll(x, jH3k4me1)
   }
   { // no h3k4me3 peak at all positions
     r += obj.NoPeakAll(x, jH3k4me3)
