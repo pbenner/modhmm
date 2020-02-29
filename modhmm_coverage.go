@@ -252,9 +252,11 @@ func modhmm_coverage(config ConfigModHmm, feature string) error {
   default:
     filenameBam  = config.Bam     .GetTargetFiles(feature)
     filenameData = config.Coverage.GetTargetFile (feature)
-    optionsList = append(optionsList, OptionEstimateFraglen{true})
-    optionsList = append(optionsList, OptionFraglenRange{[2]int{100,300}})
-    optionsList = append(optionsList, OptionFraglenBinSize{10})
+    if config.CoverageFraglen {
+      optionsList = append(optionsList, OptionEstimateFraglen{true})
+      optionsList = append(optionsList, OptionFraglenRange{[2]int{100,300}})
+      optionsList = append(optionsList, OptionFraglenBinSize{10})
+    }
   }
   if config.Verbose > 0 {
     optionsList = append(optionsList, OptionLogger{log.New(os.Stderr, fmt.Sprintf("[%s] ", logPrefix), 0)})
