@@ -161,52 +161,6 @@ func single_feature_eval_heuristic_loop(config ConfigModHmm, result MutableTrack
   pool.Wait(group)
 }
 
-func single_feature_eval_heuristic_rna_low(config ConfigModHmm, rnaProb MutableTrack, rnaData Track, logScale bool) {
-  files  := config.SingleFeatureFiles("rna-low", logScale)
-  result := rnaProb.CloneMutableTrack()
-
-  if logScale {
-    if err := (GenericMutableTrack{result}).MapList([]Track{rnaProb, rnaData}, func(seqname string, position int, value... float64) float64 {
-      if value[1] > 0.0 {
-        return utility.LogSub(0.0, value[0])
-      } else {
-        return math.Log(1e-8)
-      }
-    }); err != nil {
-      log.Fatal(err)
-    }
-  } else {
-    if err := (GenericMutableTrack{result}).MapList([]Track{rnaProb, rnaData}, func(seqname string, position int, value... float64) float64 {
-      if value[1] > 0.0 {
-        return math.Exp(utility.LogSub(0.0, value[0]))
-      } else {
-        return 1e-8
-      }
-    }); err != nil {
-      log.Fatal(err)
-    }
-  }
-  if err := ExportTrack(config.SessionConfig, result, files.Foreground.Filename); err != nil {
-    log.Fatal(err)
-  }
-  if !logScale {
-    if err := (GenericMutableTrack{result}).Map(result, func(seqname string, position int, value float64) float64 {
-      return 1.0 - value
-    }); err != nil {
-      log.Fatal(err)
-    }
-  } else {
-    if err := (GenericMutableTrack{result}).Map(result, func(seqname string, position int, value float64) float64 {
-      return utility.LogSub(0.0, value)
-    }); err != nil {
-      log.Fatal(err)
-    }
-  }
-  if err := ExportTrack(config.SessionConfig, result, files.Background.Filename); err != nil {
-    log.Fatal(err)
-  }
-}
-
 func single_feature_eval_heuristic(config ConfigModHmm, files SingleFeatureFiles, logScale bool) {
   // default parameters
   w_s := 100*config.BinSize
@@ -222,7 +176,7 @@ func single_feature_eval_heuristic(config ConfigModHmm, files SingleFeatureFiles
 
   // rna-low is a special case
   if files.Feature == "rna" {
-    single_feature_eval_heuristic_rna_low(config, result, data, logScale)
+    single_feature_eval_rna_low(config, result, data, logScale)
   }
   if !logScale {
     if err := (GenericMutableTrack{result}).Map(result, func(seqname string, position int, value float64) float64 {

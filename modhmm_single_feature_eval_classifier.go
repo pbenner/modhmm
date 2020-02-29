@@ -86,6 +86,10 @@ func single_feature_eval_classifier(config ConfigModHmm, files SingleFeatureFile
   result1, err := BatchClassifySingleTrack(config.SessionConfig, vectorClassifier1, data); if err != nil {
     log.Fatal(err)
   }
+  // rna-low is a special case
+  if files.Feature == "rna" {
+    single_feature_eval_rna_low(config, result1, data, logScale)
+  }
   if !logScale {
     if err := (GenericMutableTrack{result1}).Map(result1, func(seqname string, position int, value float64) float64 {
       return math.Exp(value)

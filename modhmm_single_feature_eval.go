@@ -24,6 +24,7 @@ import   "math"
 import   "os"
 import   "strings"
 
+import . "github.com/pbenner/autodiff/logarithmetic"
 import . "github.com/pbenner/ngstat/track"
 import . "github.com/pbenner/gonetics"
 
@@ -52,6 +53,8 @@ func single_feature_import_and_normalize(config ConfigModHmm, filenameData, file
   }
 }
 
+/* -------------------------------------------------------------------------- */
+
 func single_feature_compute_h3k4me3o1(config ConfigModHmm, track1, track2 MutableTrack) MutableTrack {
   n1 := int64(0)
   n2 := int64(0)
@@ -74,6 +77,52 @@ func single_feature_compute_h3k4me3o1(config ConfigModHmm, track1, track2 Mutabl
     log.Fatal(err)
   }
   return track1
+}
+
+func single_feature_eval_rna_low(config ConfigModHmm, rnaProb MutableTrack, rnaData Track, logScale bool) {
+  files  := config.SingleFeatureFiles("rna-low", logScale)
+  result := rnaProb.CloneMutableTrack()
+
+  if logScale {
+    if err := (GenericMutableTrack{result}).MapList([]Track{rnaProb, rnaData}, func(seqname string, position int, value... float64) float64 {
+      if value[1] > 0.0 {
+        return LogSub(0.0, value[0])
+      } else {
+        return math.Log(1e-8)
+      }
+    }); err != nil {
+      log.Fatal(err)
+    }
+  } else {
+    if err := (GenericMutableTrack{result}).MapList([]Track{rnaProb, rnaData}, func(seqname string, position int, value... float64) float64 {
+      if value[1] > 0.0 {
+        return math.Exp(LogSub(0.0, value[0]))
+      } else {
+        return 1e-8
+      }
+    }); err != nil {
+      log.Fatal(err)
+    }
+  }
+  if err := ExportTrack(config.SessionConfig, result, files.Foreground.Filename); err != nil {
+    log.Fatal(err)
+  }
+  if !logScale {
+    if err := (GenericMutableTrack{result}).Map(result, func(seqname string, position int, value float64) float64 {
+      return 1.0 - value
+    }); err != nil {
+      log.Fatal(err)
+    }
+  } else {
+    if err := (GenericMutableTrack{result}).Map(result, func(seqname string, position int, value float64) float64 {
+      return LogSub(0.0, value)
+    }); err != nil {
+      log.Fatal(err)
+    }
+  }
+  if err := ExportTrack(config.SessionConfig, result, files.Background.Filename); err != nil {
+    log.Fatal(err)
+  }
 }
 
 /* -------------------------------------------------------------------------- */
