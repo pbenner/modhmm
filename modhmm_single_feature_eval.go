@@ -22,6 +22,7 @@ import   "fmt"
 import   "log"
 import   "math"
 import   "os"
+import   "strings"
 
 import . "github.com/pbenner/ngstat/track"
 import . "github.com/pbenner/gonetics"
@@ -75,45 +76,26 @@ func single_feature_compute_h3k4me3o1(config ConfigModHmm, track1, track2 Mutabl
   return track1
 }
 
+/* -------------------------------------------------------------------------- */
+
 func single_feature_import(config ConfigModHmm, files SingleFeatureFiles, normalize bool) Track {
-  if files.Feature == "h3k4me3o1" {
-    { // check if h3k4me1 or h3k4me3 must be updated first
-      files1 := config.SingleFeatureFiles("h3k4me1", false)
-      files2 := config.SingleFeatureFiles("h3k4me3", false)
-      if (FileExists(files1.Model.Filename) && updateRequired(config, files1.Model, files1.DependenciesModel()...)) ||
-        ((FileExists(files2.Model.Filename) && updateRequired(config, files2.Model, files2.DependenciesModel()...))) {
-        log.Fatalf("ERROR: Please first update single-feature models for `h3k4me1' and `h3k4me3'.\n" +
-          "Custom single-feature models are being used. This error occurs because the\n" +
-          "time-stamp of coverage files is newer than those of the single-feature model\n" +
-          "files. Please make sure that the models are up to date. Use\n" +
-          "\t\"Single-Feature Model Static\": true\n" +
-          "in the config file prevent this check.")
-      }
-    }
-    config.BinSummaryStatistics = "mean"
-    config.BinOverlap = 1
-    track1 := single_feature_import_and_normalize(config, files.SrcCoverage[0].Filename, files.SrcCoverageCnts[0].Filename, normalize)
-    track2 := single_feature_import_and_normalize(config, files.SrcCoverage[1].Filename, files.SrcCoverageCnts[1].Filename, normalize)
-    return single_feature_compute_h3k4me3o1(config, track1, track2)
-  } else {
-    // check if single feature model must be updated
-    if normalize && FileExists(files.Model.Filename) && updateRequired(config, files.Model, files.DependenciesModel()...) {
-      log.Fatalf("ERROR: Please first update single-feature model for `%s'.\n" +
-          "Custom single-feature models are being used. This error occurs because the\n" +
-          "time-stamp of coverage files is newer than those of the single-feature model\n" +
-          "files. Please make sure that the models are up to date. Use\n" +
-          "\t\"Single-Feature Model Static\": true\n" +
-          "in the config file prevent this check.", files.Feature)
-    }
-    config.BinSummaryStatistics = "discrete mean"
-    return single_feature_import_and_normalize(config, files.Coverage.Filename, files.CoverageCnts.Filename, normalize)
+  switch strings.ToLower(config.SingleFeatureMethod) {
+  case "model"    : return single_feature_import_model    (config, files, normalize)
+  case "heuristic": return single_feature_import_heuristic(config, files)
+  default:
+    log.Fatal("invalid single-feature method")
+    panic("internal error")
   }
 }
 
-/* -------------------------------------------------------------------------- */
-
 func single_feature_eval(config ConfigModHmm, files SingleFeatureFiles, logScale bool) {
-  single_feature_eval_classifier(config, files, logScale)
+  switch strings.ToLower(config.SingleFeatureMethod) {
+  case "model"    : single_feature_eval_classifier(config, files, logScale)
+  case "heuristic": single_feature_eval_heuristic (config, files, logScale)
+  default:
+    log.Fatal("invalid single-feature method")
+    panic("internal error")
+  }
 }
 
 func single_feature_filter_update(config ConfigModHmm, features []string, logScale bool) []string {
@@ -134,13 +116,16 @@ func single_feature_filter_update(config ConfigModHmm, features []string, logSca
     default:
       dependencies  = append(dependencies, modhmm_coverage_dep(config, files.Feature)...)
     }
-
     if updateRequired(config, files.Foreground, dependencies...) ||
       (updateRequired(config, files.Background, dependencies...)) {
-      r = append(r, files.Feature)
+      if files.Feature == "rna-low" {
+        r = append(r, "rna")
+      } else {
+        r = append(r, files.Feature)
+      }
     }
   }
-  return r
+  return uniqueStrings(r)
 }
 
 /* -------------------------------------------------------------------------- */

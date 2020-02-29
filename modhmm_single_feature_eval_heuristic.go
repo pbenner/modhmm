@@ -32,11 +32,22 @@ import . "github.com/pbenner/modhmm/utility"
 
 /* -------------------------------------------------------------------------- */
 
-func single_feature_eval_heuristic_loop(config ConfigModHmm, files SingleFeatureFiles, window_size int, c_n float64) MutableTrack {
-  config.BinSummaryStatistics = "max"
-  data   := single_feature_import(config, files, false)
-  result := AllocSimpleTrack("classification", data.GetGenome(), data.GetBinSize())
+func single_feature_import_heuristic(config ConfigModHmm, files SingleFeatureFiles) Track {
+  if files.Feature == "h3k4me3o1" {
+    config.BinSummaryStatistics = "max"
+    config.BinOverlap = 1
+    track1 := single_feature_import_and_normalize(config, files.SrcCoverage[0].Filename, files.SrcCoverageCnts[0].Filename, false)
+    track2 := single_feature_import_and_normalize(config, files.SrcCoverage[1].Filename, files.SrcCoverageCnts[1].Filename, false)
+    return single_feature_compute_h3k4me3o1(config, track1, track2)
+  } else {
+    config.BinSummaryStatistics = "max"
+    return single_feature_import_and_normalize(config, files.Coverage.Filename, files.CoverageCnts.Filename, false)
+  }
+}
 
+/* -------------------------------------------------------------------------- */
+
+func single_feature_eval_heuristic_loop(config ConfigModHmm, result MutableTrack, data Track, window_size int, c_n float64) {
   // counter
   l := 0
   // total track length
@@ -148,8 +159,52 @@ func single_feature_eval_heuristic_loop(config ConfigModHmm, files SingleFeature
     })
   }
   pool.Wait(group)
+}
 
-  return result
+func single_feature_eval_heuristic_rna_low(config ConfigModHmm, rnaProb MutableTrack, rnaData Track, logScale bool) {
+  files  := config.SingleFeatureFiles("rna-low", logScale)
+  result := rnaProb.CloneMutableTrack()
+
+  if logScale {
+    if err := (GenericMutableTrack{result}).MapList([]Track{rnaProb, rnaData}, func(seqname string, position int, value... float64) float64 {
+      if value[1] > 0.0 {
+        return utility.LogSub(0.0, value[0])
+      } else {
+        return math.Log(1e-8)
+      }
+    }); err != nil {
+      log.Fatal(err)
+    }
+  } else {
+    if err := (GenericMutableTrack{result}).MapList([]Track{rnaProb, rnaData}, func(seqname string, position int, value... float64) float64 {
+      if value[1] > 0.0 {
+        return math.Exp(utility.LogSub(0.0, value[0]))
+      } else {
+        return 1e-8
+      }
+    }); err != nil {
+      log.Fatal(err)
+    }
+  }
+  if err := ExportTrack(config.SessionConfig, result, files.Foreground.Filename); err != nil {
+    log.Fatal(err)
+  }
+  if !logScale {
+    if err := (GenericMutableTrack{result}).Map(result, func(seqname string, position int, value float64) float64 {
+      return 1.0 - value
+    }); err != nil {
+      log.Fatal(err)
+    }
+  } else {
+    if err := (GenericMutableTrack{result}).Map(result, func(seqname string, position int, value float64) float64 {
+      return utility.LogSub(0.0, value)
+    }); err != nil {
+      log.Fatal(err)
+    }
+  }
+  if err := ExportTrack(config.SessionConfig, result, files.Background.Filename); err != nil {
+    log.Fatal(err)
+  }
 }
 
 func single_feature_eval_heuristic(config ConfigModHmm, files SingleFeatureFiles, logScale bool) {
@@ -158,11 +213,17 @@ func single_feature_eval_heuristic(config ConfigModHmm, files SingleFeatureFiles
   c_n := 3.0
   // update parameters
   switch files.Feature {
-  case "rna"    : w_s = 0; c_n = 0.5
-  case "rna-low": w_s = 0; c_n = 0.1
+  case "rna": w_s = 0; c_n = 0.5
   }
-  result := single_feature_eval_heuristic_loop(config, files, w_s, c_n)
+  data   := single_feature_import_heuristic(config, files)
+  result := AllocSimpleTrack("classification", data.GetGenome(), data.GetBinSize())
+  // compute probabilities
+  single_feature_eval_heuristic_loop(config, result, data, w_s, c_n)
 
+  // rna-low is a special case
+  if files.Feature == "rna" {
+    single_feature_eval_heuristic_rna_low(config, result, data, logScale)
+  }
   if !logScale {
     if err := (GenericMutableTrack{result}).Map(result, func(seqname string, position int, value float64) float64 {
       return math.Exp(value)

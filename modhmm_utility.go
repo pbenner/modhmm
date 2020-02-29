@@ -51,3 +51,18 @@ func updateRequired(config ConfigModHmm, target TargetFile, deps ...string) bool
   printStderr(config, 2, "Target `%s' is up to date...\n", target.Filename)
   return false
 }
+
+/* string slice utilities
+ * -------------------------------------------------------------------------- */
+
+func uniqueStrings(a []string) []string {
+  m := make(map[string]struct{})
+  r := []string{}
+  for _, s := range a {
+    m[s] = struct{}{}
+  }
+  for k, _ := range m {
+    r = append(r, k)
+  }
+  return r
+}

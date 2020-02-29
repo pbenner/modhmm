@@ -361,6 +361,7 @@ type ConfigModHmm struct {
   Coverage                   ConfigCoveragePaths      `json:"Coverage Files"`
   CoverageCnts               ConfigCoveragePaths      `json:"Coverage Counts Files"`
   CoverageMAPQ               int                      `json:"Coverage MAPQ"`
+  SingleFeatureMethod        string                   `json:"Single-Feature Method"`
   SingleFeatureModelDir      string                   `json:"Single-Feature Model Directory"`
   SingleFeatureModel         ConfigSingleFeaturePaths `json:"Single-Feature Model Files"`
   SingleFeatureComp          ConfigSingleFeaturePaths `json:"Single-Feature Model Component Files"`
@@ -424,6 +425,7 @@ func DefaultModHmmConfig() ConfigModHmm {
   config.ModelFallback              = "mm10"
   config.FontSize                   = 12
   config.OpenChromatinAssay         = ""
+  config.SingleFeatureMethod        = "model"
   config.Threads                    = 1
   config.Verbose                    = 0
   return config

@@ -157,7 +157,7 @@ func modhmm_single_feature_estimate(config ConfigModHmm, feature string, n []int
   // update model
   if force || updateRequired(config, files.Model, files.DependenciesModel()...) {
     if track == nil {
-      track = single_feature_import(config, files, false)
+      track = single_feature_import_model(config, files, false)
     }
     estimator = newEstimator(config, n[0], n[1], n[2])
 
@@ -166,7 +166,7 @@ func modhmm_single_feature_estimate(config ConfigModHmm, feature string, n []int
   // update counts
   if force || updateRequired(config, files.CoverageCnts, files.DependenciesModel()...) {
     if track == nil {
-      track = single_feature_import(config, files, false)
+      track = single_feature_import_model(config, files, false)
     }
     compute_counts(config, track, files.CoverageCnts.Filename)
   }
