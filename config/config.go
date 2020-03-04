@@ -51,6 +51,17 @@ var MultiFeatureList = StringList{
 
 /* -------------------------------------------------------------------------- */
 
+func SingleFeatureIsOptional(feature string) bool {
+  switch strings.ToLower(feature) {
+  case "h3k27me3": return true
+  case "h3k9me3" : return true
+  case "control" : return true
+  default        : return false
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+
 type TargetFile struct {
   Filename string
   Static   bool

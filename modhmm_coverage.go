@@ -268,16 +268,23 @@ func modhmm_coverage(config ConfigModHmm, feature string) error {
 
   if updateRequired(config, filenameData, filenameBam...) {
     if len(filenameBam) == 0 {
-      return fmt.Errorf("ERROR: no bam files specified for feature `%s'", logPrefix)
-    }
-    if err := coverage(config, feature, filenameBam, filenameData.Filename, optionsList); err != nil {
-      if errors.Is(err, ErrFraglenEstimate) {
-        return fmt.Errorf("%w\n" +
-          "This error can be resolved by manually setting the fragment length for the\n"  +
-          "respective BAM file. Create a file called `[BAM_BASENAME].fraglen.txt' that\n" +
-          "contains the fragment length as a single integer value.", err)
+      if SingleFeatureIsOptional(feature) {
+        // these features are optional
+        printStderr(config, 1, "Warning: no bam files specified for optional feature `%s'. This feature will be ignored.\n", logPrefix)
+        return nil
       } else {
-        return err
+        return fmt.Errorf("ERROR: no bam files specified for feature `%s'", logPrefix)
+      }
+    } else {
+      if err := coverage(config, feature, filenameBam, filenameData.Filename, optionsList); err != nil {
+        if errors.Is(err, ErrFraglenEstimate) {
+          return fmt.Errorf("%w\n" +
+            "This error can be resolved by manually setting the fragment length for the\n"  +
+            "respective BAM file. Create a file called `[BAM_BASENAME].fraglen.txt' that\n" +
+            "contains the fragment length as a single integer value.", err)
+        } else {
+          return err
+        }
       }
     }
   }

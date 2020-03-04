@@ -30,6 +30,7 @@ import . "github.com/pbenner/autodiff/statistics"
 import . "github.com/pbenner/gonetics"
 
 import . "github.com/pbenner/modhmm/config"
+import . "github.com/pbenner/modhmm/utility"
 
 import   "github.com/pborman/getopt"
 
@@ -57,11 +58,24 @@ func get_multi_feature_model(config ConfigModHmm, state string) MatrixBatchClass
 
 func multi_feature_eval(config ConfigModHmm, classifier MatrixBatchClassifier, trackFiles []string, tracks []Track, filenameResult string) []Track {
   if len(tracks) != len(trackFiles) {
-    tracks = make([]Track, len(trackFiles))
+    tracks  = make([]Track, len(trackFiles))
+    genome := Genome{}
+    empty  := []int{}
     for i, filename := range trackFiles {
+      if filename == "" {
+        empty = append(empty, i)
+        continue
+      }
       if t, err := ImportTrack(config.SessionConfig, filename); err != nil {
         log.Fatal(err)
       } else {
+        tracks[i] = t
+        genome    = t.GetGenome()
+      }
+    }
+    if len(empty) > 0 {
+      t := AllocSimpleTrack("classification", genome, config.BinSize)
+      for _, i := range empty {
         tracks[i] = t
       }
     }
@@ -80,7 +94,11 @@ func multi_feature_eval(config ConfigModHmm, classifier MatrixBatchClassifier, t
 func modhmm_multi_feature_eval_dep(config ConfigModHmm) []string {
   files := []string{}
   for _, feature := range SingleFeatureList {
-    files = append(files, config.SingleFeatureProb.GetTargetFile(feature).Filename)
+    if filename := config.SingleFeatureProb.GetTargetFile(feature).Filename; SingleFeatureIsOptional(feature) && !FileExists(filename) {
+      files = append(files, "")
+    } else {
+      files = append(files, filename)
+    }
   }
   return files
 }
@@ -130,7 +148,7 @@ func modhmm_multi_feature_eval_main(config ConfigModHmm, args []string) {
   options.SetProgram(fmt.Sprintf("%s eval-multi-feature", os.Args[0]))
   options.SetParameters("[STATE]...\n")
 
-  optHelp := options.BoolLong("help",      'h',  "print help")
+  optHelp := options.BoolLong("help", 'h', "print help")
 
   options.Parse(args)
 

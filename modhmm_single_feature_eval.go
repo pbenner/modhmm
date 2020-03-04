@@ -164,6 +164,9 @@ func modhmm_single_feature_eval(config ConfigModHmm, feature string) {
 
   if updateRequired(config, files.Probabilities, files.Dependencies()...) {
 
+    if SingleFeatureIsOptional(files.Feature) && !FileExists(files.Probabilities.Filename) {
+      return
+    }
     printStderr(config, 1, "==> Evaluating Single-Feature Model (%s) <==\n", feature)
     single_feature_eval(config, files)
   }
@@ -192,7 +195,7 @@ func modhmm_single_feature_eval_main(config ConfigModHmm, args []string) {
   options.SetProgram(fmt.Sprintf("%s eval-single-feature", os.Args[0]))
   options.SetParameters("[FEATURE]...\n")
 
-  optHelp     := options.BoolLong("help",      'h',  "print help")
+  optHelp := options.BoolLong("help", 'h', "print help")
 
   options.Parse(args)
 
