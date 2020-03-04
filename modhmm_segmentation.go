@@ -41,13 +41,13 @@ import   "github.com/pborman/getopt"
 func ImportHMM(config ConfigModHmm) ModHmm {
   modhmm   := ModHmm{}
   filename := config.Model.Filename
-  printStderr(config, 1, "Importing model from `%s'... ", config.Model.Filename)
+  printStderr(config, 1, "Importing HMM model from `%s'... ", config.Model.Filename)
   if err := ImportDistribution(filename, &modhmm, BareRealType); err != nil {
     printStderr(config, 1, "failed\n")
     // remove directory from filename
     _, filename = path.Split(filename)
     filename = fmt.Sprintf("%s.json", config.ModelFallbackPath())
-    printStderr(config, 1, "Importing `%s' fallback model... ", config.ModelFallback)
+    printStderr(config, 1, "Importing HMM fallback model (%s)... ", config.ModelFallback)
     if err := ImportDefaultDistribution(config, filename, &modhmm, BareRealType); err != nil {
       printStderr(config, 1, "failed\n")
       log.Fatal(err)

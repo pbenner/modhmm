@@ -706,7 +706,7 @@ func (config ConfigModHmm) String() string {
     fmt.Fprintf(&buffer, "Coverage files (bigWig):\n")
     fmt.Fprintf(&buffer, "%v\n", config.Coverage.String(config.OpenChromatinAssay))
   }
-  if config.Verbose > 1 {
+  if config.Verbose > 1 && config.SingleFeatureMethod == "model" {
     fmt.Fprintf(&buffer, "Single-feature mixture distributions:\n")
     fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureModel.String(config.OpenChromatinAssay))
     fmt.Fprintf(&buffer, "Single-feature count statistics:\n")
