@@ -18,6 +18,8 @@ package utility
 
 /* -------------------------------------------------------------------------- */
 
+import "io"
+import "net/http"
 import "os"
 
 /* -------------------------------------------------------------------------- */
@@ -36,4 +38,21 @@ func FileCheckMark(filename string) string {
   } else {
     return "\xE2\x9C\x93"
   }
+}
+
+func DownloadFile(filepath string, url string) error {
+  resp, err := http.Get(url)
+  if err != nil {
+    return err
+  }
+  defer resp.Body.Close()
+
+  out, err := os.Create(filepath)
+  if err != nil {
+    return err
+  }
+  defer out.Close()
+
+  _, err = io.Copy(out, resp.Body)
+  return err
 }

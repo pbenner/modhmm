@@ -22,10 +22,11 @@ import   "fmt"
 import   "bufio"
 import   "errors"
 import   "log"
+import   "os"
 import   "path/filepath"
+import   "regexp"
 import   "strconv"
 import   "strings"
-import   "os"
 
 import . "github.com/pbenner/ngstat/track"
 
@@ -33,11 +34,29 @@ import   "github.com/pborman/getopt"
 import . "github.com/pbenner/gonetics"
 import   "github.com/pbenner/threadpool"
 import . "github.com/pbenner/modhmm/config"
+import . "github.com/pbenner/modhmm/utility"
 
 import   "gonum.org/v1/plot"
 import   "gonum.org/v1/plot/plotter"
 import   "gonum.org/v1/plot/plotutil"
 import   "gonum.org/v1/plot/vg"
+
+/* -------------------------------------------------------------------------- */
+
+func bam_download(config ConfigModHmm, path string) {
+  _, filename := filepath.Split(path)
+  if r, _ := regexp.Compile("(ENC[0-9A-Z]{8})\\.bam"); r.MatchString(filename) {
+    // probably ENCODE file, trying to download...
+    accession := r.FindStringSubmatch(filename)[1]
+    url       := fmt.Sprintf("https://www.encodeproject.org/files/%s/@@download/%s.bam", accession, accession)
+    printStderr(config, 1, "Attempting to download BAM file `%s' from ENCODE... ", path)
+    if err := DownloadFile(path, url); err != nil {
+      printStderr(config, 1, "failed\n")
+    } else {
+      printStderr(config, 1, "done\n")
+    }
+  }
+}
 
 /* fragment length estimation
  * -------------------------------------------------------------------------- */
@@ -171,6 +190,12 @@ func modhmm_coverage_dep(config ConfigModHmm, features ...string) []string {
 func coverage(config ConfigModHmm, feature string, filenameBam []string, filenameData string, optionsList []interface{}) error {
   fraglen := make([]int, len(filenameBam))
 
+  // download bams that do not exist
+  for _, filename := range filenameBam {
+    if !FileExists(filename) {
+      bam_download(config, filename)
+    }
+  }
   // import fragment length
   for i, filename := range filenameBam {
     fraglen[i] = importFraglen(config, feature, filename)
@@ -269,7 +294,6 @@ func modhmm_coverage(config ConfigModHmm, feature string) error {
   if updateRequired(config, filenameData, filenameBam...) {
     if len(filenameBam) == 0 {
       if SingleFeatureIsOptional(feature) {
-        // these features are optional
         printStderr(config, 1, "Warning: no bam files specified for optional feature `%s'. This feature will be ignored.\n", logPrefix)
         return nil
       } else {
