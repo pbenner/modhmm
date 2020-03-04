@@ -72,7 +72,7 @@ func modhmm_single_feature_print(config ConfigModHmm, feature string) {
     log.Fatalf("unknown feature: %s", feature)
   }
 
-  files   := config.SingleFeatureFiles(feature, false)
+  files   := config.SingleFeatureFiles(feature)
   mixture := ImportMixtureDistribution(config, files.Model.Filename)
   k, _    := ImportComponents(config, files.Components.Filename, mixture.NComponents())
 

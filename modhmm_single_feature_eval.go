@@ -24,7 +24,6 @@ import   "math"
 import   "os"
 import   "strings"
 
-import . "github.com/pbenner/autodiff/logarithmetic"
 import . "github.com/pbenner/ngstat/track"
 import . "github.com/pbenner/gonetics"
 
@@ -79,48 +78,20 @@ func single_feature_compute_h3k4me3o1(config ConfigModHmm, track1, track2 Mutabl
   return track1
 }
 
-func single_feature_eval_rna_low(config ConfigModHmm, rnaProb MutableTrack, rnaData Track, logScale bool) {
-  files  := config.SingleFeatureFiles("rna-low", logScale)
+func single_feature_eval_rna_low(config ConfigModHmm, rnaProb MutableTrack, rnaData Track) {
+  files  := config.SingleFeatureFiles("rna-low")
   result := rnaProb.CloneMutableTrack()
 
-  if logScale {
-    if err := (GenericMutableTrack{result}).MapList([]Track{rnaProb, rnaData}, func(seqname string, position int, value... float64) float64 {
-      if value[1] > 0.0 {
-        return LogSub(0.0, value[0])
-      } else {
-        return math.Log(1e-8)
-      }
-    }); err != nil {
-      log.Fatal(err)
+  if err := (GenericMutableTrack{result}).MapList([]Track{rnaProb, rnaData}, func(seqname string, position int, value... float64) float64 {
+    if value[1] > 0.0 {
+      return 1.0 - value[0]
+    } else {
+      return 1e-8
     }
-  } else {
-    if err := (GenericMutableTrack{result}).MapList([]Track{rnaProb, rnaData}, func(seqname string, position int, value... float64) float64 {
-      if value[1] > 0.0 {
-        return math.Exp(LogSub(0.0, value[0]))
-      } else {
-        return 1e-8
-      }
-    }); err != nil {
-      log.Fatal(err)
-    }
-  }
-  if err := ExportTrack(config.SessionConfig, result, files.Foreground.Filename); err != nil {
+  }); err != nil {
     log.Fatal(err)
   }
-  if !logScale {
-    if err := (GenericMutableTrack{result}).Map(result, func(seqname string, position int, value float64) float64 {
-      return 1.0 - value
-    }); err != nil {
-      log.Fatal(err)
-    }
-  } else {
-    if err := (GenericMutableTrack{result}).Map(result, func(seqname string, position int, value float64) float64 {
-      return LogSub(0.0, value)
-    }); err != nil {
-      log.Fatal(err)
-    }
-  }
-  if err := ExportTrack(config.SessionConfig, result, files.Background.Filename); err != nil {
+  if err := ExportTrack(config.SessionConfig, result, files.Probabilities.Filename); err != nil {
     log.Fatal(err)
   }
 }
@@ -137,22 +108,22 @@ func single_feature_import(config ConfigModHmm, files SingleFeatureFiles, normal
   }
 }
 
-func single_feature_eval(config ConfigModHmm, files SingleFeatureFiles, logScale bool) {
+func single_feature_eval(config ConfigModHmm, files SingleFeatureFiles) {
   switch strings.ToLower(config.SingleFeatureMethod) {
-  case "model"    : single_feature_eval_classifier(config, files, logScale)
-  case "heuristic": single_feature_eval_heuristic (config, files, logScale)
+  case "model"    : single_feature_eval_classifier(config, files)
+  case "heuristic": single_feature_eval_heuristic (config, files)
   default:
     log.Fatal("invalid single-feature method")
     panic("internal error")
   }
 }
 
-func single_feature_filter_update(config ConfigModHmm, features []string, logScale bool) []string {
+func single_feature_filter_update(config ConfigModHmm, features []string) []string {
   r := []string{}
   for _, feature := range features {
     feature = config.CoerceOpenChromatinAssay(feature)
 
-    files := config.SingleFeatureFiles(feature, logScale)
+    files := config.SingleFeatureFiles(feature)
 
     dependencies := []string{}
     dependencies  = append(dependencies, files.Dependencies()...)
@@ -165,8 +136,7 @@ func single_feature_filter_update(config ConfigModHmm, features []string, logSca
     default:
       dependencies  = append(dependencies, modhmm_coverage_dep(config, files.Feature)...)
     }
-    if updateRequired(config, files.Foreground, dependencies...) ||
-      (updateRequired(config, files.Background, dependencies...)) {
+    if updateRequired(config, files.Probabilities, dependencies...) {
       if files.Feature == "rna-low" {
         r = append(r, "rna")
       } else {
@@ -188,31 +158,30 @@ func modhmm_single_feature_eval_dep(config ConfigModHmm) []string {
   return r
 }
 
-func modhmm_single_feature_eval(config ConfigModHmm, feature string, logScale bool) {
+func modhmm_single_feature_eval(config ConfigModHmm, feature string) {
 
-  files := config.SingleFeatureFiles(feature, logScale)
+  files := config.SingleFeatureFiles(feature)
 
-  if updateRequired(config, files.Foreground, files.Dependencies()...) ||
-    (updateRequired(config, files.Background, files.Dependencies()...)) {
+  if updateRequired(config, files.Probabilities, files.Dependencies()...) {
 
     printStderr(config, 1, "==> Evaluating Single-Feature Model (%s) <==\n", feature)
-    single_feature_eval(config, files, logScale)
+    single_feature_eval(config, files)
   }
 }
 
-func modhmm_single_feature_eval_loop(config ConfigModHmm, features []string, logScale bool) {
+func modhmm_single_feature_eval_loop(config ConfigModHmm, features []string) {
   // reduce list of features to those that require an update
-  features = single_feature_filter_update(config, features, logScale)
+  features = single_feature_filter_update(config, features)
   // compute coverages here to make use of multi-threading
   modhmm_coverage_loop(config, InsensitiveStringList(features).Intersection(CoverageList))
   // eval single features
   for _, feature := range features {
-    modhmm_single_feature_eval(config, feature, logScale)
+    modhmm_single_feature_eval(config, feature)
   }
 }
 
-func modhmm_single_feature_eval_all(config ConfigModHmm, logScale bool) {
-  modhmm_single_feature_eval_loop(config, SingleFeatureList, logScale)
+func modhmm_single_feature_eval_all(config ConfigModHmm) {
+  modhmm_single_feature_eval_loop(config, SingleFeatureList)
 }
 
 /* -------------------------------------------------------------------------- */
@@ -223,7 +192,6 @@ func modhmm_single_feature_eval_main(config ConfigModHmm, args []string) {
   options.SetProgram(fmt.Sprintf("%s eval-single-feature", os.Args[0]))
   options.SetParameters("[FEATURE]...\n")
 
-  optStdScale := options.BoolLong("std-scale",  0 ,  "single-feature output on standard scale")
   optHelp     := options.BoolLong("help",      'h',  "print help")
 
   options.Parse(args)
@@ -234,8 +202,8 @@ func modhmm_single_feature_eval_main(config ConfigModHmm, args []string) {
     os.Exit(0)
   }
   if len(options.Args()) == 0 {
-    modhmm_single_feature_eval_all(config, !*optStdScale)
+    modhmm_single_feature_eval_all(config)
   } else {
-    modhmm_single_feature_eval_loop(config, options.Args(), !*optStdScale)
+    modhmm_single_feature_eval_loop(config, options.Args())
   }
 }

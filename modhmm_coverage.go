@@ -144,7 +144,7 @@ func importFraglen(config ConfigModHmm, feature, filename string) int {
 /* -------------------------------------------------------------------------- */
 
 func modhmm_export_h3k4me3o1(config ConfigModHmm) error {
-  files := config.SingleFeatureFiles("h3k4me3o1", true)
+  files := config.SingleFeatureFiles("h3k4me3o1")
   if updateRequired(config, files.Coverage, files.DependenciesModel()...) {
     track := single_feature_import(config, files, true)
     if err := ExportTrack(config.SessionConfig, track, files.Coverage.Filename); err != nil {

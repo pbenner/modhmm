@@ -21,7 +21,6 @@ package main
 import   "fmt"
 import   "log"
 import   "io"
-import   "math"
 import   "os"
 import   "path"
 import   "strconv"
@@ -115,12 +114,12 @@ func diffMarkovModel(config Config, config1, config2 ConfigModHmm) {
   posterior2 := make([]SimpleTrack, len(invertNames))
 
   for state, i := range invertNames {
-    if t, err := ImportTrack(config1.SessionConfig, config1.Posterior.GetTargetFile(state).Filename); err != nil {
+    if t, err := ImportTrack(config1.SessionConfig, config1.PosteriorProb.GetTargetFile(state).Filename); err != nil {
       log.Fatal(err)
     } else {
       posterior1[i] = t
     }
-    if t, err := ImportTrack(config2.SessionConfig, config2.Posterior.GetTargetFile(state).Filename); err != nil {
+    if t, err := ImportTrack(config2.SessionConfig, config2.PosteriorProb.GetTargetFile(state).Filename); err != nil {
       log.Fatal(err)
     } else {
       posterior2[i] = t
@@ -158,7 +157,7 @@ func diffMarkovModel(config Config, config1, config2 ConfigModHmm) {
         }
         p1 := t1.AtBin(i)
         p2 := t2.AtBin(i)
-        if math.Exp(p1) > config.Threshold && math.Exp(p2) > config.Threshold {
+        if p1 > config.Threshold && p2 > config.Threshold {
           result[r1][r2]++
         } else {
           result[r1][r1]++

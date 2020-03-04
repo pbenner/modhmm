@@ -68,8 +68,7 @@ func (obj TargetFile) String() string {
 
 type SingleFeatureFiles struct {
   Feature           string
-  Foreground        TargetFile
-  Background        TargetFile
+  Probabilities     TargetFile
   Model             TargetFile
   Components        TargetFile
   Coverage          TargetFile
@@ -368,19 +367,12 @@ type ConfigModHmm struct {
   SingleFeatureComp          ConfigSingleFeaturePaths `json:"Single-Feature Model Component Files"`
   SingleFeatureModelStatic   bool                     `json:"Single-Feature Model Static"`
   SingleFeatureDir           string                   `json:"Single-Feature Directory"`
-  SingleFeatureFg            ConfigSingleFeaturePaths `json:"Single-Feature Foreground"`
-  SingleFeatureBg            ConfigSingleFeaturePaths `json:"Single-Feature Background"`
-  SingleFeatureFgExp         ConfigSingleFeaturePaths `json:"Single-Feature Foreground [exp]"`
-  SingleFeatureBgExp         ConfigSingleFeaturePaths `json:"Single-Feature Background [exp]"`
+  SingleFeatureProb          ConfigSingleFeaturePaths `json:"Single-Feature Probabilities"`
   SingleFeaturePeak          ConfigSingleFeaturePaths `json:"Single-Feature Peaks"`
   MultiFeatureDir            string                   `json:"Multi-Feature Directory"`
   MultiFeatureProb           ConfigMultiFeaturePaths  `json:"Multi-Feature Probabilities"`
   MultiFeaturePeak           ConfigMultiFeaturePaths  `json:"Multi-Feature Peaks"`
-  MultiFeatureProbExp        ConfigMultiFeaturePaths  `json:"Multi-Feature Probabilities [exp]"`
-  MultiFeatureProbNorm       ConfigMultiFeaturePaths  `json:"Normalized Multi-Feature Probabilities"`
-  MultiFeatureProbNormExp    ConfigMultiFeaturePaths  `json:"Normalized Multi-Feature Probabilities [exp]"`
-  Posterior                  ConfigMultiFeaturePaths  `json:"Posterior Marginals"`
-  PosteriorExp               ConfigMultiFeaturePaths  `json:"Posterior Marginals [exp]"`
+  PosteriorProb              ConfigMultiFeaturePaths  `json:"Posterior Marginals"`
   PosteriorPeak              ConfigMultiFeaturePaths  `json:"Posterior Marginals Peaks"`
   PosteriorDir               string                   `json:"Posterior Marginals Directory"`
   ModelEstimate              bool                     `json:"Model Estimate"`
@@ -495,15 +487,15 @@ func (config *ConfigModHmm) DetectOpenChromatinAssay() string {
   if config.Coverage.Dnase.Filename != "" && FileExists(config.Coverage.Dnase.Filename) {
     return "dnase"
   }
-  if config.SingleFeatureFg.Atac.Filename != "" && config.SingleFeatureFg.Dnase.Filename != "" {
-    if FileExists(config.SingleFeatureFg.Atac.Filename) && FileExists(config.SingleFeatureFg.Dnase.Filename) {
-      log.Fatal("SingleFeatureFg bigWig files exist for both ATAC- and DNase-seq. Please select a single open chromatin assay.")
+  if config.SingleFeatureProb.Atac.Filename != "" && config.SingleFeatureProb.Dnase.Filename != "" {
+    if FileExists(config.SingleFeatureProb.Atac.Filename) && FileExists(config.SingleFeatureProb.Dnase.Filename) {
+      log.Fatal("SingleFeatureProb bigWig files exist for both ATAC- and DNase-seq. Please select a single open chromatin assay.")
     }
   }
-  if config.SingleFeatureFg.Atac.Filename != "" && FileExists(config.SingleFeatureFg.Atac.Filename) {
+  if config.SingleFeatureProb.Atac.Filename != "" && FileExists(config.SingleFeatureProb.Atac.Filename) {
     return "atac"
   }
-  if config.SingleFeatureFg.Dnase.Filename != "" && FileExists(config.SingleFeatureFg.Dnase.Filename) {
+  if config.SingleFeatureProb.Dnase.Filename != "" && FileExists(config.SingleFeatureProb.Dnase.Filename) {
     return "dnase"
   }
   // return default assay
@@ -518,20 +510,14 @@ func (config *ConfigModHmm) SetOpenChromatinAssay(assay string) {
     config.SingleFeatureModel.Open = config.SingleFeatureModel.Atac
     config.SingleFeatureComp .Open = config.SingleFeatureComp .Atac
     config.SingleFeaturePeak .Open = config.SingleFeaturePeak .Atac
-    config.SingleFeatureFg   .Open = config.SingleFeatureFg   .Atac
-    config.SingleFeatureFgExp.Open = config.SingleFeatureFgExp.Atac
-    config.SingleFeatureBg   .Open = config.SingleFeatureBg   .Atac
-    config.SingleFeatureBgExp.Open = config.SingleFeatureBgExp.Atac
+    config.SingleFeatureProb .Open = config.SingleFeatureProb .Atac
   case "dnase":
     config.Coverage          .Open = config.Coverage          .Dnase
     config.CoverageCnts      .Open = config.CoverageCnts      .Dnase
     config.SingleFeatureModel.Open = config.SingleFeatureModel.Dnase
     config.SingleFeatureComp .Open = config.SingleFeatureComp .Dnase
     config.SingleFeaturePeak .Open = config.SingleFeaturePeak .Dnase
-    config.SingleFeatureFg   .Open = config.SingleFeatureFg   .Dnase
-    config.SingleFeatureFgExp.Open = config.SingleFeatureFgExp.Dnase
-    config.SingleFeatureBg   .Open = config.SingleFeatureBg   .Dnase
-    config.SingleFeatureBgExp.Open = config.SingleFeatureBgExp.Dnase
+    config.SingleFeatureProb .Open = config.SingleFeatureProb .Dnase
   default:
     log.Fatalf("invalid open chromatin assay `%s'", assay)
   }
@@ -555,17 +541,10 @@ func (config *ConfigModHmm) CompletePaths(prefix string) {
   config.SingleFeatureModel     .CompletePaths(config.SingleFeatureModelDir, "", ".json")
   config.SingleFeatureComp      .CompletePaths(config.SingleFeatureModelDir, "", ".components.json")
   config.SingleFeaturePeak      .CompletePaths(config.SingleFeatureDir, "single-feature-peaks-", ".table")
-  config.SingleFeatureFg        .CompletePaths(config.SingleFeatureDir, "single-feature-", ".fg.bw")
-  config.SingleFeatureFgExp     .CompletePaths(config.SingleFeatureDir, "single-feature-exp-", ".fg.bw")
-  config.SingleFeatureBg        .CompletePaths(config.SingleFeatureDir, "single-feature-", ".bg.bw")
-  config.SingleFeatureBgExp     .CompletePaths(config.SingleFeatureDir, "single-feature-exp-", ".bg.bw")
+  config.SingleFeatureProb      .CompletePaths(config.SingleFeatureDir, "single-feature-", ".bw")
   config.MultiFeatureProb       .CompletePaths(config.MultiFeatureDir, "multi-feature-", ".bw")
   config.MultiFeaturePeak       .CompletePaths(config.MultiFeatureDir, "multi-feature-peaks-", ".table")
-  config.MultiFeatureProbExp    .CompletePaths(config.MultiFeatureDir, "multi-feature-exp-", ".bw")
-  config.MultiFeatureProbNorm   .CompletePaths(config.MultiFeatureDir, "multi-feature-norm-", ".bw")
-  config.MultiFeatureProbNormExp.CompletePaths(config.MultiFeatureDir, "multi-feature-norm-exp-", ".bw")
-  config.Posterior              .CompletePaths(config.PosteriorDir, "posterior-marginal-", ".bw")
-  config.PosteriorExp           .CompletePaths(config.PosteriorDir, "posterior-marginal-exp-", ".bw")
+  config.PosteriorProb          .CompletePaths(config.PosteriorDir, "posterior-marginal-", ".bw")
   config.PosteriorPeak          .CompletePaths(config.PosteriorDir, "posterior-marginal-peaks-", ".table")
   config.SetOpenChromatinAssay(config.DetectOpenChromatinAssay())
   if config.SingleFeatureModelStatic {
@@ -575,7 +554,7 @@ func (config *ConfigModHmm) CompletePaths(prefix string) {
   }
 }
 
-func (config *ConfigModHmm) SingleFeatureFiles(feature string, logScale bool) SingleFeatureFiles {
+func (config *ConfigModHmm) SingleFeatureFiles(feature string) SingleFeatureFiles {
 
   if !SingleFeatureList.Contains(strings.ToLower(feature)) {
     log.Fatalf("unknown feature: %s", feature)
@@ -585,29 +564,17 @@ func (config *ConfigModHmm) SingleFeatureFiles(feature string, logScale bool) Si
 
   switch files.Feature {
   case "rna-low":
-    if logScale {
-      files.Foreground = config.SingleFeatureFg.Rna_low
-      files.Background = config.SingleFeatureBg.Rna_low
-    } else {
-      files.Foreground = config.SingleFeatureFgExp.Rna_low
-      files.Background = config.SingleFeatureBgExp.Rna_low
-    }
-    files.Model        = config.SingleFeatureModel.Rna
-    files.Components   = config.SingleFeatureComp .Rna_low
-    files.Coverage     = config.Coverage    .Rna
-    files.CoverageCnts = config.CoverageCnts.Rna
+    files.Probabilities = config.SingleFeatureProb .Rna_low
+    files.Model         = config.SingleFeatureModel.Rna
+    files.Components    = config.SingleFeatureComp .Rna_low
+    files.Coverage      = config.Coverage    .Rna
+    files.CoverageCnts  = config.CoverageCnts.Rna
   default:
-    if logScale {
-      files.Foreground = config.SingleFeatureFg.GetTargetFile(feature)
-      files.Background = config.SingleFeatureBg.GetTargetFile(feature)
-    } else {
-      files.Foreground = config.SingleFeatureFgExp.GetTargetFile(feature)
-      files.Background = config.SingleFeatureBgExp.GetTargetFile(feature)
-    }
-    files.Model        = config.SingleFeatureModel.GetTargetFile(feature)
-    files.Components   = config.SingleFeatureComp .GetTargetFile(feature)
-    files.Coverage     = config.Coverage          .GetTargetFile(feature)
-    files.CoverageCnts = config.CoverageCnts      .GetTargetFile(feature)
+    files.Probabilities = config.SingleFeatureProb .GetTargetFile(feature)
+    files.Model         = config.SingleFeatureModel.GetTargetFile(feature)
+    files.Components    = config.SingleFeatureComp .GetTargetFile(feature)
+    files.Coverage      = config.Coverage          .GetTargetFile(feature)
+    files.CoverageCnts  = config.CoverageCnts      .GetTargetFile(feature)
     if files.Feature == "h3k4me3o1" {
       files.SrcCoverage     = append(files.SrcCoverage,     config.Coverage    .H3k4me1)
       files.SrcCoverage     = append(files.SrcCoverage,     config.Coverage    .H3k4me3)
@@ -737,42 +704,28 @@ func (config ConfigModHmm) String() string {
     fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureComp.String(config.OpenChromatinAssay))
   }
   if config.Verbose > 0 {
-    fmt.Fprintf(&buffer, "Single-feature foreground probabilities (log-scale):\n")
-    fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureFg.String(config.OpenChromatinAssay))
-    fmt.Fprintf(&buffer, "Single-feature background probabilities (log-scale):\n")
-    fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureBg.String(config.OpenChromatinAssay))
+    fmt.Fprintf(&buffer, "Single-feature foreground probabilities:\n")
+    fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureProb.String(config.OpenChromatinAssay))
   }
   if config.Verbose > 1 {
     fmt.Fprintf(&buffer, "Single-feature peaks:\n")
     fmt.Fprintf(&buffer, "%v\n", config.SingleFeaturePeak.String(config.OpenChromatinAssay))
-    fmt.Fprintf(&buffer, "Single-feature foreground probabilities:\n")
-    fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureFgExp.String(config.OpenChromatinAssay))
-    fmt.Fprintf(&buffer, "Single-feature background probabilities:\n")
-    fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureBgExp.String(config.OpenChromatinAssay))
   }
   if config.Verbose > 0 {
-    fmt.Fprintf(&buffer, "Multi-feature probabilities (log-scale):\n")
+    fmt.Fprintf(&buffer, "Multi-feature probabilities:\n")
     fmt.Fprintf(&buffer, "%v\n", config.MultiFeatureProb.String())
   }
   if config.Verbose > 1 {
     fmt.Fprintf(&buffer, "Multi-feature peaks:\n")
     fmt.Fprintf(&buffer, "%v\n", config.MultiFeaturePeak.String())
-    fmt.Fprintf(&buffer, "Multi-feature probabilities:\n")
-    fmt.Fprintf(&buffer, "%v\n", config.MultiFeatureProbExp.String())
-    fmt.Fprintf(&buffer, "Normalized multi-feature probabilities (log-scale):\n")
-    fmt.Fprintf(&buffer, "%v\n", config.MultiFeatureProbNorm.String())
-    fmt.Fprintf(&buffer, "Normalized multi-feature probabilities:\n")
-    fmt.Fprintf(&buffer, "%v\n", config.MultiFeatureProbNormExp.String())
   }
   if config.Verbose > 0 {
-    fmt.Fprintf(&buffer, "Posterior marginals (log-scale):\n")
-    fmt.Fprintf(&buffer, "%v\n", config.Posterior.String())
+    fmt.Fprintf(&buffer, "Posterior marginals:\n")
+    fmt.Fprintf(&buffer, "%v\n", config.PosteriorProb.String())
   }
   if config.Verbose > 1 {
     fmt.Fprintf(&buffer, "Posterior marginals peaks:\n")
     fmt.Fprintf(&buffer, "%v\n", config.PosteriorPeak.String())
-    fmt.Fprintf(&buffer, "Posterior marginals:\n")
-    fmt.Fprintf(&buffer, "%v\n", config.PosteriorExp.String())
   }
   if config.Verbose > 0 {
     fmt.Fprintf(&buffer, "ModHmm options:\n")

@@ -76,6 +76,39 @@ func (obj Counts) Swap(i, j int) {
 
 /* -------------------------------------------------------------------------- */
 
+func (obj Counts) Quantile(r float64) float64 {
+  n := 0
+  s := 0.0
+  for i, _ := range obj.X {
+    n += obj.Y[i]
+  }
+  for i, _ := range obj.X {
+    if s >= r {
+      return obj.X[i]
+    }
+    s += float64(obj.Y[i])/float64(n)
+  }
+  return obj.X[len(obj.X)-1]
+}
+
+func (obj Counts) ThresholdedMean(t float64) float64 {
+  n := 0
+  r := 0.0
+  for i, _ := range obj.X {
+    if obj.X[i] > t {
+      n += obj.Y[i]
+    }
+  }
+  for i, _ := range obj.X {
+    if obj.X[i] > t {
+      r += float64(obj.Y[i])/float64(n)*obj.X[i]
+    }
+  }
+  return r
+}
+
+/* -------------------------------------------------------------------------- */
+
 func (config *Counts) Import(reader io.Reader, args... interface{}) error {
   return JsonImport(reader, config)
 }
@@ -100,7 +133,7 @@ func (config *Counts) ExportFile(filename string) error {
 
 /* -------------------------------------------------------------------------- */
 
-func compute_counts(config ConfigModHmm, track Track, filenameOut string) {
+func compute_counts(config ConfigModHmm, track Track) Counts {
   config.BinSummaryStatistics = "discrete mean"
   m := make(map[float64]int)
   if err := (GenericMutableTrack{}).Map(track, func(seqname string, position int, value float64) float64 {
@@ -121,7 +154,13 @@ func compute_counts(config ConfigModHmm, track Track, filenameOut string) {
     i++
   }
   sort.Sort(c)
+  return c
+}
 
+/* -------------------------------------------------------------------------- */
+
+func modhmm_compute_counts(config ConfigModHmm, track Track, filenameOut string) {
+  c := compute_counts(config, track)
   printStderr(config, 1, "Exporting counts to `%s'... ", filenameOut)
   if err := c.ExportFile(filenameOut); err != nil {
     printStderr(config, 1, "failed\n")

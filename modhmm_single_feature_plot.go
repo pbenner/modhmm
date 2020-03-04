@@ -288,7 +288,7 @@ func modhmm_single_feature_plot(config ConfigModHmm, ignoreModel, ignoreComponen
   p.X.Tick.Label.Font.Size = vg.Length(config.FontSize)
   p.Y.Tick.Label.Font.Size = vg.Length(config.FontSize)
 
-  files  := config.SingleFeatureFiles(feature, false)
+  files  := config.SingleFeatureFiles(feature)
   counts := ImportCounts(config, files.CoverageCnts.Filename)
 
   if ignoreModel {

@@ -50,7 +50,7 @@ func getStateIndices(modhmm ModHmm, state string) []int {
 
 /* -------------------------------------------------------------------------- */
 
-func posterior(config ConfigModHmm, state string, trackFiles []string, tracks []Track, filenameResult string, logScale bool) []Track {
+func posterior(config ConfigModHmm, state string, trackFiles []string, tracks []Track, filenameResult string) []Track {
   if len(tracks) != len(trackFiles) {
     tracks = make([]Track, len(trackFiles))
     for i, filename := range trackFiles {
@@ -66,7 +66,7 @@ func posterior(config ConfigModHmm, state string, trackFiles []string, tracks []
   states := getStateIndices(modhmm, state)
   printStderr(config, 2, "State %s maps to state indices %v\n", strings.ToUpper(state), states)
 
-  result, err := ClassifyMultiTrack(config.SessionConfig, matrixClassifier.HmmPosterior{&modhmm.Hmm, states, logScale}, tracks, true); if err != nil {
+  result, err := ClassifyMultiTrack(config.SessionConfig, matrixClassifier.HmmPosterior{&modhmm.Hmm, states, false}, tracks, true); if err != nil {
     panic(err)
   }
   err = ExportTrack(config.SessionConfig, result, filenameResult); if err != nil {
@@ -85,7 +85,7 @@ func modhmm_posterior_tracks(config ConfigModHmm) []string {
   return files
 }
 
-func modhmm_posterior(config ConfigModHmm, state string, tracks []Track, logScale bool) []Track {
+func modhmm_posterior(config ConfigModHmm, state string, tracks []Track) []Track {
 
   if !MultiFeatureList.Contains(strings.ToLower(state)) {
     log.Fatalf("unknown state: %s", state)
@@ -101,32 +101,27 @@ func modhmm_posterior(config ConfigModHmm, state string, tracks []Track, logScal
   dependencies  = append(dependencies, modhmm_coverage_dep(config)...)
 
   trackFiles     := modhmm_posterior_tracks(config)
-  filenameResult := TargetFile{}
-  if logScale {
-    filenameResult = config.Posterior.GetTargetFile(state)
-  } else {
-    filenameResult = config.PosteriorExp.GetTargetFile(state)
-  }
+  filenameResult := config.PosteriorProb.GetTargetFile(state)
 
   if updateRequired(config, filenameResult, dependencies...) {
-    modhmm_multi_feature_eval_all(config, true)
+    modhmm_multi_feature_eval_all(config)
     modhmm_segmentation(config, "default")
 
     printStderr(config, 1, "==> Evaluating Posterior Marginals (%s) <==\n", strings.ToUpper(state))
-    tracks = posterior(config, state, trackFiles, tracks, filenameResult.Filename, logScale)
+    tracks = posterior(config, state, trackFiles, tracks, filenameResult.Filename)
   }
   return tracks
 }
 
-func modhmm_posterior_loop(config ConfigModHmm, states []string, logScale bool) {
+func modhmm_posterior_loop(config ConfigModHmm, states []string) {
   var tracks []Track
   for _, state := range states {
-    tracks = modhmm_posterior(config, state, tracks, logScale)
+    tracks = modhmm_posterior(config, state, tracks)
   }
 }
 
-func modhmm_posterior_all(config ConfigModHmm, logScale bool) {
-  modhmm_posterior_loop(config, MultiFeatureList, logScale)
+func modhmm_posterior_all(config ConfigModHmm) {
+  modhmm_posterior_loop(config, MultiFeatureList)
 }
 
 /* -------------------------------------------------------------------------- */
@@ -137,8 +132,7 @@ func modhmm_posterior_main(config ConfigModHmm, args []string) {
   options.SetProgram(fmt.Sprintf("%s eval-posterior-marginals", os.Args[0]))
   options.SetParameters("[STATE]...\n")
 
-  optStdScale := options.BoolLong("std-scale",  0 , "posteriors on standard scale")
-  optHelp     := options.BoolLong("help",      'h', "print help")
+  optHelp := options.BoolLong("help",      'h', "print help")
 
   options.Parse(args)
 
@@ -148,8 +142,8 @@ func modhmm_posterior_main(config ConfigModHmm, args []string) {
     os.Exit(0)
   }
   if len(options.Args()) == 0 {
-    modhmm_posterior_all(config, !*optStdScale)
+    modhmm_posterior_all(config)
   } else {
-    modhmm_posterior_loop(config, options.Args(), !*optStdScale)
+    modhmm_posterior_loop(config, options.Args())
   }
 }

@@ -20,7 +20,6 @@ package main
 
 import   "fmt"
 import   "log"
-import   "math"
 import   "os"
 import   "strconv"
 
@@ -34,7 +33,7 @@ import   "github.com/pborman/getopt"
 
 func modhmm_call_posterior_peaks(config ConfigModHmm, state string, threshold float64) {
   printStderr(config, 1, "==> Calling Posterior-Marginal Peaks (%s) <==\n", state)
-  filenameIn  := config.Posterior    .GetTargetFile(state).Filename
+  filenameIn  := config.PosteriorProb.GetTargetFile(state).Filename
   filenameOut := config.PosteriorPeak.GetTargetFile(state)
 
   if !updateRequired(config, filenameOut, filenameIn) {
@@ -43,7 +42,7 @@ func modhmm_call_posterior_peaks(config ConfigModHmm, state string, threshold fl
   if track, err := ImportTrack(config.SessionConfig, filenameIn); err != nil {
     log.Fatal(err)
   } else {
-    if peaks, err := getPeaks(track, math.Log(threshold)); err != nil {
+    if peaks, err := getPeaks(track, threshold); err != nil {
       log.Fatal(err)
     } else {
       printStderr(config, 1, "Writing table `%s'... ", filenameOut.Filename)

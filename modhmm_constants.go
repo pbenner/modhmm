@@ -50,16 +50,16 @@ var jControl   int
 
 func init() {
   // track indices for multi-feature classifiers
-  jOpen      = 2*SingleFeatureList.Index("open")
-  jH3k27ac   = 2*SingleFeatureList.Index("h3k27ac")
-  jH3k27me3  = 2*SingleFeatureList.Index("h3k27me3")
-  jH3k9me3   = 2*SingleFeatureList.Index("h3k9me3")
-  jH3k4me1   = 2*SingleFeatureList.Index("h3k4me1")
-  jH3k4me3   = 2*SingleFeatureList.Index("h3k4me3")
-  jH3k4me3o1 = 2*SingleFeatureList.Index("h3k4me3o1")
-  jRna       = 2*SingleFeatureList.Index("rna")
-  jRnaLow    = 2*SingleFeatureList.Index("rna-low")
-  jControl   = 2*SingleFeatureList.Index("control")
+  jOpen      = SingleFeatureList.Index("open")
+  jH3k27ac   = SingleFeatureList.Index("h3k27ac")
+  jH3k27me3  = SingleFeatureList.Index("h3k27me3")
+  jH3k9me3   = SingleFeatureList.Index("h3k9me3")
+  jH3k4me1   = SingleFeatureList.Index("h3k4me1")
+  jH3k4me3   = SingleFeatureList.Index("h3k4me3")
+  jH3k4me3o1 = SingleFeatureList.Index("h3k4me3o1")
+  jRna       = SingleFeatureList.Index("rna")
+  jRnaLow    = SingleFeatureList.Index("rna-low")
+  jControl   = SingleFeatureList.Index("control")
   // track indices for modhmm
   iPA = MultiFeatureList.Index("pa")
   iEA = MultiFeatureList.Index("ea")

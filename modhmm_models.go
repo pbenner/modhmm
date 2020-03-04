@@ -19,6 +19,7 @@ package main
 /* -------------------------------------------------------------------------- */
 
 import   "fmt"
+import   "math"
 
 import . "github.com/pbenner/autodiff/statistics"
 import   "github.com/pbenner/autodiff/statistics/generic"
@@ -80,7 +81,7 @@ func (obj *EmissionDistribution) CloneVectorPdf() VectorPdf {
 }
 
 func (obj *EmissionDistribution) LogPdf(r Scalar, x ConstVector) error {
-  r.Set(x.ConstAt(obj.i))
+  r.SetValue(math.Log(x.ValueAt(obj.i)))
   return nil
 }
 

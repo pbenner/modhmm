@@ -20,7 +20,6 @@ package main
 
 import   "fmt"
 import   "log"
-import   "math"
 import   "os"
 import   "strconv"
 
@@ -34,18 +33,18 @@ import   "github.com/pborman/getopt"
 
 func modhmm_call_single_feature_peaks(config ConfigModHmm, feature string, threshold float64) {
   printStderr(config, 1, "==> Calling Single-Feature Peaks (%s) <==\n", feature)
-  filenameIn  := config.SingleFeatureFg  .GetTargetFile(feature).Filename
+  filenameIn  := config.SingleFeatureProb.GetTargetFile(feature).Filename
   filenameOut := config.SingleFeaturePeak.GetTargetFile(feature)
 
   if !updateRequired(config, filenameOut, filenameIn) {
     return
   }
-  modhmm_single_feature_eval(config, feature, true)
+  modhmm_single_feature_eval(config, feature)
 
   if track, err := ImportTrack(config.SessionConfig, filenameIn); err != nil {
     log.Fatal(err)
   } else {
-    if peaks, err := getPeaks(track, math.Log(threshold)); err != nil {
+    if peaks, err := getPeaks(track, threshold); err != nil {
       log.Fatal(err)
     } else {
       printStderr(config, 1, "Writing table `%s'... ", filenameOut.Filename)

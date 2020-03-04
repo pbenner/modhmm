@@ -152,7 +152,7 @@ func modhmm_single_feature_estimate(config ConfigModHmm, feature string, n []int
   if !SingleFeatureModelList.Contains(strings.ToLower(feature)) {
     log.Fatalf("unknown feature: %s", feature)
   }
-  files := config.SingleFeatureFiles(feature, false)
+  files := config.SingleFeatureFiles(feature)
   var track Track
   // update model
   if force || updateRequired(config, files.Model, files.DependenciesModel()...) {
@@ -168,7 +168,7 @@ func modhmm_single_feature_estimate(config ConfigModHmm, feature string, n []int
     if track == nil {
       track = single_feature_import_model(config, files, false)
     }
-    compute_counts(config, track, files.CoverageCnts.Filename)
+    modhmm_compute_counts(config, track, files.CoverageCnts.Filename)
   }
 }
 
@@ -213,7 +213,7 @@ func modhmm_single_feature_estimate_default(config ConfigModHmm, feature string,
     modhmm_single_feature_estimate(config, feature, n, force)
   }
   // export foreground mixture components
-  files := config.SingleFeatureFiles(feature, false)
+  files := config.SingleFeatureFiles(feature)
   if force || updateRequired(config, files.Components, files.Model.Filename) {
     ExportComponents(config, files.Components.Filename, components)
   }
