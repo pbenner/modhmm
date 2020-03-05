@@ -61,6 +61,28 @@ func ImportHMM(config ConfigModHmm) ModHmm {
 
 /* -------------------------------------------------------------------------- */
 
+type MultiFeatureFilterZeros struct {
+}
+
+// filter strange probability assignments at chromosome boundaries
+func (MultiFeatureFilterZeros) Eval(x Matrix) Matrix {
+  n, m := x.Dims()
+  for i := 0; i < n; i++ {
+    allZero := true
+    for j := 0; j < m; j++ {
+      if x.ValueAt(i, j) != 0.0 {
+        allZero = false; break
+      }
+    }
+    if allZero {
+      x.At(i, iNS).SetValue(1.0)
+    }
+  }
+  return x
+}
+
+/* -------------------------------------------------------------------------- */
+
 func estimate(config ConfigModHmm, trackFiles []string, model string) {
   var estimator  *matrixEstimator.HmmEstimator
   var stateNames []string
@@ -74,7 +96,7 @@ func estimate(config ConfigModHmm, trackFiles []string, model string) {
     log.Fatalf("ERROR: invalid model name `%s'", model)
   }
 
-  if err := ImportAndEstimateOnMultiTrack(config.SessionConfig, estimator, trackFiles, true); err != nil {
+  if err := ImportAndEstimateOnMultiTrack(config.SessionConfig, estimator, trackFiles, true, MultiFeatureFilterZeros{}); err != nil {
     log.Fatalf("ERROR: %s", err)
   }
   modhmm := ModHmm{}
@@ -98,7 +120,7 @@ func estimate(config ConfigModHmm, trackFiles []string, model string) {
 func segment(config ConfigModHmm, trackFiles []string) {
   modhmm := ImportHMM(config)
 
-  if result, err := ImportAndClassifyMultiTrack(config.SessionConfig, matrixClassifier.HmmClassifier{&modhmm.Hmm}, trackFiles, true); err != nil {
+  if result, err := ImportAndClassifyMultiTrack(config.SessionConfig, matrixClassifier.HmmClassifier{&modhmm.Hmm}, trackFiles, true, MultiFeatureFilterZeros{}); err != nil {
     log.Fatal(err)
   } else {
     var name, desc string

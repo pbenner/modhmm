@@ -51,22 +51,12 @@ func getStateIndices(modhmm ModHmm, state string) []int {
 /* -------------------------------------------------------------------------- */
 
 func posterior(config ConfigModHmm, state string, trackFiles []string, tracks []Track, filenameResult string) []Track {
-  if len(tracks) != len(trackFiles) {
-    tracks = make([]Track, len(trackFiles))
-    for i, filename := range trackFiles {
-      if t, err := ImportTrack(config.SessionConfig, filename); err != nil {
-        log.Fatal(err)
-      } else {
-        tracks[i] = t
-      }
-    }
-  }
   modhmm := ImportHMM(config)
 
   states := getStateIndices(modhmm, state)
   printStderr(config, 2, "State %s maps to state indices %v\n", strings.ToUpper(state), states)
 
-  result, err := ClassifyMultiTrack(config.SessionConfig, matrixClassifier.HmmPosterior{&modhmm.Hmm, states, false}, tracks, true); if err != nil {
+  result, err := ImportAndClassifyMultiTrack(config.SessionConfig, matrixClassifier.HmmPosterior{&modhmm.Hmm, states, false}, trackFiles, true, MultiFeatureFilterZeros{}); if err != nil {
     panic(err)
   }
   err = ExportTrack(config.SessionConfig, result, filenameResult); if err != nil {
