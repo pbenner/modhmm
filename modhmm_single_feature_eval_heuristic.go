@@ -122,28 +122,20 @@ func single_feature_eval_heuristic_loop(config ConfigModHmm, result MutableTrack
 }
 
 func single_feature_eval_heuristic_parameters(config ConfigModHmm, files SingleFeatureFiles, counts Counts) (float64, float64) {
-  if files.Feature == "rna" {
-    q  := 0.50
-    p1 := 0.01
-    p2 := 0.50
-    m1 := counts.Quantile(q)
-    m2 := counts.ThresholdedMean(m1)
-    return compute_sigmoid_parameters(m1, m2, p1, p2)
-  } else {
-    // default parameters
-    q  := 0.80
-    p1 := 0.01
-    p2 := 0.50
-    // update parameters
-    switch files.Feature {
-    case "control" : q = 0.95
-    case "h3k27me3": q = 0.90
-    case "h3k9me3" : q = 0.90
-    }
-    m1 := counts.Quantile(q)
-    m2 := counts.ThresholdedMean(m1)
-    return compute_sigmoid_parameters(m1, m2, p1, p2)
+  // default parameters
+  q  := 0.80
+  p1 := 0.01
+  p2 := 0.50
+  // update parameters
+  switch files.Feature {
+  case "control" : q = 0.95
+  case "h3k27me3": q = 0.90
+  case "h3k9me3" : q = 0.90
+  case "rna"     : q = 0.50
   }
+  m1 := counts.Quantile(q)
+  m2 := counts.ThresholdedMean(m1)
+  return compute_sigmoid_parameters(m1, m2, p1, p2)
 }
 
 func single_feature_eval_heuristic(config ConfigModHmm, files SingleFeatureFiles) {

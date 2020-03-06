@@ -424,13 +424,13 @@ func DefaultModHmmConfig() ConfigModHmm {
   config.BinSize                    = 200
   config.BinSummaryStatistics       = "mean"
   config.CoverageThreads            = 1
-  config.CoverageFraglen            = true
+  config.CoverageFraglen            = false
   config.CoverageBinSize            = 10
   config.CoverageMAPQ               = 30
   config.ModelFallback              = "mm10"
   config.FontSize                   = 12
   config.OpenChromatinAssay         = ""
-  config.SingleFeatureMethod        = "model"
+  config.SingleFeatureMethod        = "heuristic"
   config.Threads                    = 1
   config.Verbose                    = 0
   return config
