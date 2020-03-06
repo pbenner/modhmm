@@ -164,7 +164,7 @@ func modhmm_single_feature_eval(config ConfigModHmm, feature string) {
 
   if updateRequired(config, files.Probabilities, files.Dependencies()...) {
 
-    if SingleFeatureIsOptional(files.Feature) && !FileExists(files.Probabilities.Filename) {
+    if SingleFeatureIsOptional(files.Feature) && !FileExists(files.Coverage.Filename) {
       return
     }
     printStderr(config, 1, "==> Evaluating Single-Feature Model (%s) <==\n", feature)
