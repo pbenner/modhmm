@@ -437,6 +437,9 @@ func (obj ClassifierNS) Eval(s Scalar, x ConstMatrix) error {
   { // no rna peak at all positions
     r *= obj.NoPeakAll(x, jRna)
   }
+  { // no rna-low peak at all positions
+    r *= obj.NoPeakAll(x, jRnaLow)
+  }
   { // no control peak at all positions
     r *= obj.NoPeakAll(x, jControl)
   }

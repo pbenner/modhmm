@@ -34,13 +34,23 @@ import   "github.com/pbenner/autodiff/algorithm/rprop"
 /* -------------------------------------------------------------------------- */
 
 func single_feature_import_heuristic(config ConfigModHmm, files SingleFeatureFiles) Track {
-  if files.Feature == "h3k4me3o1" {
+  switch files.Feature {
+  case "h3k4me3o1":
     config.BinSummaryStatistics = "discrete mean"
     config.BinOverlap = 1
     track1 := single_feature_import_and_normalize(config, files.SrcCoverage[0].Filename, files.SrcCoverageCnts[0].Filename, false)
     track2 := single_feature_import_and_normalize(config, files.SrcCoverage[1].Filename, files.SrcCoverageCnts[1].Filename, false)
     return single_feature_compute_h3k4me3o1(config, track1, track2)
-  } else {
+  case "rna":
+    config.BinSummaryStatistics = "discrete mean"
+    track := single_feature_import_and_normalize(config, files.Coverage.Filename, files.CoverageCnts.Filename, false)
+    if err := (GenericMutableTrack{track}).Map(track, func(seqname string, position int, value float64) float64 {
+      return math.Log(value+1.0)
+    }); err != nil {
+      log.Fatal(err)
+    }
+    return track
+  default:
     config.BinSummaryStatistics = "discrete mean"
     return single_feature_import_and_normalize(config, files.Coverage.Filename, files.CoverageCnts.Filename, false)
   }
@@ -113,11 +123,11 @@ func single_feature_eval_heuristic_loop(config ConfigModHmm, result MutableTrack
 
 func single_feature_eval_heuristic_parameters(config ConfigModHmm, files SingleFeatureFiles, counts Counts) (float64, float64) {
   if files.Feature == "rna" {
-    q  := 0.20
+    q  := 0.50
     p1 := 0.01
     p2 := 0.50
-    m1 := counts.X[0]
-    m2 := counts.Quantile(q)
+    m1 := counts.Quantile(q)
+    m2 := counts.ThresholdedMean(m1)
     return compute_sigmoid_parameters(m1, m2, p1, p2)
   } else {
     // default parameters
