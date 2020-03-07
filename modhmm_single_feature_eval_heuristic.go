@@ -35,12 +35,6 @@ import   "github.com/pbenner/autodiff/algorithm/rprop"
 
 func single_feature_import_heuristic(config ConfigModHmm, files SingleFeatureFiles) Track {
   switch files.Feature {
-  case "h3k4me3o1":
-    config.BinSummaryStatistics = "discrete mean"
-    config.BinOverlap = 1
-    track1 := single_feature_import_and_normalize(config, files.SrcCoverage[0].Filename, files.SrcCoverageCnts[0].Filename, false)
-    track2 := single_feature_import_and_normalize(config, files.SrcCoverage[1].Filename, files.SrcCoverageCnts[1].Filename, false)
-    return single_feature_compute_h3k4me3o1(config, track1, track2)
   case "rna":
     config.BinSummaryStatistics = "discrete mean"
     track := single_feature_import_and_normalize(config, files.Coverage.Filename, files.CoverageCnts.Filename, false)
@@ -129,6 +123,7 @@ func single_feature_eval_heuristic_parameters(config ConfigModHmm, files SingleF
   // update parameters
   switch files.Feature {
   case "control" : q = 0.95
+  case "h3k4me3" : q = 0.95
   case "h3k27me3": q = 0.90
   case "h3k9me3" : q = 0.90
   case "rna"     : q = 0.50

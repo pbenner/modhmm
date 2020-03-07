@@ -41,7 +41,6 @@ var jH3k27me3  int
 var jH3k9me3   int
 var jH3k4me1   int
 var jH3k4me3   int
-var jH3k4me3o1 int
 var jRna       int
 var jRnaLow    int
 var jControl   int
@@ -50,16 +49,15 @@ var jControl   int
 
 func init() {
   // track indices for multi-feature classifiers
-  jOpen      = SingleFeatureList.Index("open")
-  jH3k27ac   = SingleFeatureList.Index("h3k27ac")
-  jH3k27me3  = SingleFeatureList.Index("h3k27me3")
-  jH3k9me3   = SingleFeatureList.Index("h3k9me3")
-  jH3k4me1   = SingleFeatureList.Index("h3k4me1")
-  jH3k4me3   = SingleFeatureList.Index("h3k4me3")
-  jH3k4me3o1 = SingleFeatureList.Index("h3k4me3o1")
-  jRna       = SingleFeatureList.Index("rna")
-  jRnaLow    = SingleFeatureList.Index("rna-low")
-  jControl   = SingleFeatureList.Index("control")
+  jOpen     = SingleFeatureList.Index("open")
+  jH3k27ac  = SingleFeatureList.Index("h3k27ac")
+  jH3k27me3 = SingleFeatureList.Index("h3k27me3")
+  jH3k9me3  = SingleFeatureList.Index("h3k9me3")
+  jH3k4me1  = SingleFeatureList.Index("h3k4me1")
+  jH3k4me3  = SingleFeatureList.Index("h3k4me3")
+  jRna      = SingleFeatureList.Index("rna")
+  jRnaLow   = SingleFeatureList.Index("rna-low")
+  jControl  = SingleFeatureList.Index("control")
   // track indices for modhmm
   iPA = MultiFeatureList.Index("pa")
   iEA = MultiFeatureList.Index("ea")

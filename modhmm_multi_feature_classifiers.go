@@ -87,6 +87,16 @@ func (obj BasicClassifier) PeakAny(x ConstMatrix, i int) float64 {
   return t
 }
 
+func (obj BasicClassifier) PeakAnyRange(x ConstMatrix, i, k1, k2 int) float64 {
+  t    := 0.0
+  r    := 1.0
+  for k := k1; k < k2; k++ {
+    t +=   r*x.ValueAt(i, k)
+    r *= 1.0-x.ValueAt(i, k)
+  }
+  return t
+}
+
 func (obj BasicClassifier) PeakAt(x ConstMatrix, i, k int) float64 {
   return x.ValueAt(i, k)
 }
@@ -153,11 +163,11 @@ func (obj ClassifierPA) Eval(s Scalar, x ConstMatrix) error {
   { // h3k27ac peak at any position
     r *= obj.PeakSym(x, jH3k27ac, 0)
   }
+  { // h3k4me1 peak at any position
+    r *= obj.PeakAny(x, jH3k4me1)
+  }
   { // h3k4me3 peak at any position
     r *= obj.PeakAny(x, jH3k4me3)
-  }
-  { // h3k4me3o1 peak at any position
-    r *= obj.PeakAny(x, jH3k4me3o1)
   }
   { // no control peak at all positions
     r *= obj.NoPeakAll(x, jControl)
@@ -167,7 +177,7 @@ func (obj ClassifierPA) Eval(s Scalar, x ConstMatrix) error {
 }
 
 func (ClassifierPA) Dims() (int, int) {
-  return 10, 5
+  return 9, 5
 }
 
 func (ClassifierPA) CloneMatrixBatchClassifier() MatrixBatchClassifier {
@@ -189,10 +199,10 @@ func (obj ClassifierEA) Eval(s Scalar, x ConstMatrix) error {
     r *= obj.PeakSym_(x, jH3k27ac, 0, 1)
   }
   { // h3k4me1 peak at any position
-    r *= obj.PeakSym(x, jH3k4me1, 0)
+    r *= obj.PeakAnyRange(x, jH3k4me1, 1, 6)
   }
-  { // no h3k4me3o1 peak at all positions
-    r *= obj.NoPeakRange(x, jH3k4me3o1, 1, 6)
+  { // no h3k4me3 peak at all positions
+    r *= obj.NoPeakRange(x, jH3k4me3, 1, 6)
   }
   { // no control peak at all positions
     r *= obj.NoPeakRange(x, jControl, 1, 6)
@@ -202,7 +212,7 @@ func (obj ClassifierEA) Eval(s Scalar, x ConstMatrix) error {
 }
 
 func (ClassifierEA) Dims() (int, int) {
-  return 10, 7
+  return 9, 7
 }
 
 func (ClassifierEA) CloneMatrixBatchClassifier() MatrixBatchClassifier {
@@ -236,7 +246,7 @@ func (obj ClassifierBI) Eval(s Scalar, x ConstMatrix) error {
 }
 
 func (ClassifierBI) Dims() (int, int) {
-  return 10, 7
+  return 9, 7
 }
 
 func (ClassifierBI) CloneMatrixBatchClassifier() MatrixBatchClassifier {
@@ -273,7 +283,7 @@ func (obj ClassifierPR) Eval(s Scalar, x ConstMatrix) error {
 }
 
 func (ClassifierPR) Dims() (int, int) {
-  return 10, 7
+  return 9, 7
 }
 
 func (ClassifierPR) CloneMatrixBatchClassifier() MatrixBatchClassifier {
@@ -305,7 +315,7 @@ func (obj ClassifierTR) Eval(s Scalar, x ConstMatrix) error {
 }
 
 func (ClassifierTR) Dims() (int, int) {
-  return 10, 1
+  return 9, 1
 }
 
 func (ClassifierTR) CloneMatrixBatchClassifier() MatrixBatchClassifier {
@@ -337,7 +347,7 @@ func (obj ClassifierTL) Eval(s Scalar, x ConstMatrix) error {
 }
 
 func (ClassifierTL) Dims() (int, int) {
-  return 10, 1
+  return 9, 1
 }
 
 func (ClassifierTL) CloneMatrixBatchClassifier() MatrixBatchClassifier {
@@ -369,7 +379,7 @@ func (obj ClassifierR1) Eval(s Scalar, x ConstMatrix) error {
 }
 
 func (ClassifierR1) Dims() (int, int) {
-  return 10, 1
+  return 9, 1
 }
 
 func (ClassifierR1) CloneMatrixBatchClassifier() MatrixBatchClassifier {
@@ -401,7 +411,7 @@ func (obj ClassifierR2) Eval(s Scalar, x ConstMatrix) error {
 }
 
 func (ClassifierR2) Dims() (int, int) {
-  return 10, 1
+  return 9, 1
 }
 
 func (ClassifierR2) CloneMatrixBatchClassifier() MatrixBatchClassifier {
@@ -448,7 +458,7 @@ func (obj ClassifierNS) Eval(s Scalar, x ConstMatrix) error {
 }
 
 func (ClassifierNS) Dims() (int, int) {
-  return 10, 1
+  return 9, 1
 }
 
 func (ClassifierNS) CloneMatrixBatchClassifier() MatrixBatchClassifier {
@@ -471,7 +481,7 @@ func (obj ClassifierCL) Eval(s Scalar, x ConstMatrix) error {
 }
 
 func (ClassifierCL) Dims() (int, int) {
-  return 10, 1
+  return 9, 1
 }
 
 func (ClassifierCL) CloneMatrixBatchClassifier() MatrixBatchClassifier {

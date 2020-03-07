@@ -41,20 +41,20 @@ import   "github.com/pborman/getopt"
 func ImportHMM(config ConfigModHmm) ModHmm {
   modhmm   := ModHmm{}
   filename := config.Model.Filename
-  printStderr(config, 1, "Importing HMM model from `%s'... ", config.Model.Filename)
+  printStderr(config, 2, "Importing HMM model from `%s'... ", config.Model.Filename)
   if err := ImportDistribution(filename, &modhmm, BareRealType); err != nil {
-    printStderr(config, 1, "failed\n")
+    printStderr(config, 2, "failed\n")
     // remove directory from filename
     _, filename = path.Split(filename)
     filename = fmt.Sprintf("%s.json", config.ModelFallbackPath())
-    printStderr(config, 1, "Importing HMM fallback model (%s)... ", config.ModelFallback)
+    printStderr(config, 2, "Importing HMM fallback model (%s)... ", config.ModelFallback)
     if err := ImportDefaultDistribution(config, filename, &modhmm, BareRealType); err != nil {
-      printStderr(config, 1, "failed\n")
+      printStderr(config, 2, "failed\n")
       log.Fatal(err)
     }
-    printStderr(config, 1, "done\n")
+    printStderr(config, 2, "done\n")
   } else {
-    printStderr(config, 1, "done\n")
+    printStderr(config, 2, "done\n")
   }
   return modhmm
 }
@@ -187,8 +187,8 @@ func modhmm_segmentation_main(config ConfigModHmm, args []string) {
   options := getopt.New()
   options.SetProgram(fmt.Sprintf("%s segmentation", os.Args[0]))
 
-  optHelp  := options.   BoolLong("help",     'h',            "print help")
-  optModel := options. StringLong("model",     0 , "default", "default, dense")
+  optHelp  := options.   BoolLong("help",  'h',            "print help")
+  optModel := options. StringLong("model",  0 , "default", "default, dense")
 
   options.Parse(args)
 

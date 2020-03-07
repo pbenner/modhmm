@@ -162,19 +162,6 @@ func importFraglen(config ConfigModHmm, feature, filename string) int {
 
 /* -------------------------------------------------------------------------- */
 
-func modhmm_export_h3k4me3o1(config ConfigModHmm) error {
-  files := config.SingleFeatureFiles("h3k4me3o1")
-  if updateRequired(config, files.Coverage, files.DependenciesModel()...) {
-    track := single_feature_import(config, files, true)
-    if err := ExportTrack(config.SessionConfig, track, files.Coverage.Filename); err != nil {
-      return err
-    }
-  }
-  return nil
-}
-
-/* -------------------------------------------------------------------------- */
-
 func modhmm_coverage_dep(config ConfigModHmm, features ...string) []string {
   if len(features) == 0 {
     return config.Bam.GetFilenames()
@@ -237,10 +224,6 @@ func coverage(config ConfigModHmm, feature string, filenameBam []string, filenam
 
 func modhmm_coverage(config ConfigModHmm, feature string) error {
 
-  // special case, just for exporting H3K4me3/1
-  if strings.ToLower(feature) == "h3k4me3o1" {
-    return modhmm_export_h3k4me3o1(config)
-  }
   if !CoverageList.Contains(strings.ToLower(feature)) {
     return fmt.Errorf("unknown feature: %s", feature)
   }

@@ -340,7 +340,6 @@ Repeat these steps for all remaining features:
   modhmm -c mm10-forebrain-embryo-day11.5.json estimate-single-feature h3k27me3  4 4 1
   modhmm -c mm10-forebrain-embryo-day11.5.json estimate-single-feature h3k4me1   1 8 0
   modhmm -c mm10-forebrain-embryo-day11.5.json estimate-single-feature h3k4me3   1 1 3
-  modhmm -c mm10-forebrain-embryo-day11.5.json estimate-single-feature h3k4me3o1 1 4 2
   modhmm -c mm10-forebrain-embryo-day11.5.json estimate-single-feature h3k9me3   2 4 1
   modhmm -c mm10-forebrain-embryo-day11.5.json estimate-single-feature rna       1 0 4
   modhmm -c mm10-forebrain-embryo-day11.5.json estimate-single-feature control   7 2 1
@@ -349,7 +348,6 @@ Repeat these steps for all remaining features:
   echo '[8]'       > mm10-forebrain-embryo-day11.5:models/h3k27me3.components.json
   echo '[5,6,7,8]' > mm10-forebrain-embryo-day11.5:models/h3k4me1.components.json
   echo '[3,4]'     > mm10-forebrain-embryo-day11.5:models/h3k4me3.components.json
-  echo '[6]'       > mm10-forebrain-embryo-day11.5:models/h3k4me3o1.components.json
   echo '[5,6]'     > mm10-forebrain-embryo-day11.5:models/h3k9me3.components.json
   echo '[2,3,4]'   > mm10-forebrain-embryo-day11.5:models/rna.components.json
   echo '[1,2]'     > mm10-forebrain-embryo-day11.5:models/rna-low.components.json

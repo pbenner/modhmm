@@ -36,37 +36,17 @@ import . "github.com/pbenner/modhmm/utility"
 /* -------------------------------------------------------------------------- */
 
 func single_feature_import_model(config ConfigModHmm, files SingleFeatureFiles, normalize bool) Track {
-  if files.Feature == "h3k4me3o1" {
-    // check if h3k4me1 or h3k4me3 must be updated first
-    files1 := config.SingleFeatureFiles("h3k4me1")
-    files2 := config.SingleFeatureFiles("h3k4me3")
-    if (FileExists(files1.Model.Filename) && updateRequired(config, files1.Model, files1.DependenciesModel()...)) ||
-      ((FileExists(files2.Model.Filename) && updateRequired(config, files2.Model, files2.DependenciesModel()...))) {
-      log.Fatalf("ERROR: Please first update single-feature models for `h3k4me1' and `h3k4me3'.\n" +
-        "Custom single-feature models are being used. This error occurs because the\n" +
-        "time-stamp of coverage files is newer than those of the single-feature model\n" +
-        "files. Please make sure that the models are up to date. Use\n" +
-        "\t\"Single-Feature Model Static\": true\n" +
-        "in the config file prevent this check.")
-    }
-    config.BinSummaryStatistics = "mean"
-    config.BinOverlap = 1
-    track1 := single_feature_import_and_normalize(config, files.SrcCoverage[0].Filename, files.SrcCoverageCnts[0].Filename, normalize)
-    track2 := single_feature_import_and_normalize(config, files.SrcCoverage[1].Filename, files.SrcCoverageCnts[1].Filename, normalize)
-    return single_feature_compute_h3k4me3o1(config, track1, track2)
-  } else {
-    // check if single feature model must be updated
-    if normalize && FileExists(files.Model.Filename) && updateRequired(config, files.Model, files.DependenciesModel()...) {
-      log.Fatalf("ERROR: Please first update single-feature model for `%s'.\n" +
-        "Custom single-feature models are being used. This error occurs because the\n" +
-        "time-stamp of coverage files is newer than those of the single-feature model\n" +
-        "files. Please make sure that the models are up to date. Use\n" +
-        "\t\"Single-Feature Model Static\": true\n" +
-        "in the config file prevent this check.", files.Feature)
-    }
-    config.BinSummaryStatistics = "discrete mean"
-    return single_feature_import_and_normalize(config, files.Coverage.Filename, files.CoverageCnts.Filename, normalize)
+  // check if single feature model must be updated
+  if normalize && FileExists(files.Model.Filename) && updateRequired(config, files.Model, files.DependenciesModel()...) {
+    log.Fatalf("ERROR: Please first update single-feature model for `%s'.\n" +
+      "Custom single-feature models are being used. This error occurs because the\n" +
+      "time-stamp of coverage files is newer than those of the single-feature model\n" +
+      "files. Please make sure that the models are up to date. Use\n" +
+      "\t\"Single-Feature Model Static\": true\n" +
+      "in the config file prevent this check.", files.Feature)
   }
+  config.BinSummaryStatistics = "discrete mean"
+  return single_feature_import_and_normalize(config, files.Coverage.Filename, files.CoverageCnts.Filename, normalize)
 }
 
 /* -------------------------------------------------------------------------- */

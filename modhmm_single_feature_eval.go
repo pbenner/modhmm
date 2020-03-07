@@ -20,7 +20,6 @@ package main
 
 import   "fmt"
 import   "log"
-import   "math"
 import   "os"
 import   "strings"
 
@@ -53,30 +52,6 @@ func single_feature_import_and_normalize(config ConfigModHmm, filenameData, file
 }
 
 /* -------------------------------------------------------------------------- */
-
-func single_feature_compute_h3k4me3o1(config ConfigModHmm, track1, track2 MutableTrack) MutableTrack {
-  n1 := int64(0)
-  n2 := int64(0)
-  if err := (GenericMutableTrack{}).MapList([]Track{track1, track2}, func(seqname string, position int, values ...float64) float64 {
-    n1 += int64(values[0])
-    n2 += int64(values[1])
-    return 0.0
-  }); err != nil {
-    log.Fatal(err)
-  }
-  z := float64(n1)/float64(n2)
-  if err := (GenericMutableTrack{track1}).MapList([]Track{track1, track2}, func(seqname string, position int, values ...float64) float64 {
-    x1 := values[0]
-    x2 := values[1]
-    // do not add a pseudocount to x2 so that if x1 and x2
-    // are both zero, also the result is zero
-    // (otherwise strange peaks appear in the distribution)
-    return math.Round(z*(x2+0.0)/(x1+1.0)*10)
-  }); err != nil {
-    log.Fatal(err)
-  }
-  return track1
-}
 
 func single_feature_eval_rna_low(config ConfigModHmm, rnaProb MutableTrack, rnaData Track) {
   files  := config.SingleFeatureFiles("rna-low")
@@ -129,8 +104,6 @@ func single_feature_filter_update(config ConfigModHmm, features []string) []stri
     dependencies  = append(dependencies, files.Dependencies()...)
 
     switch files.Feature {
-    case "h3k4me3o1":
-      dependencies  = append(dependencies, modhmm_coverage_dep(config, "h3k4me1", "h3k4me3")...)
     case "rna-low":
       dependencies  = append(dependencies, modhmm_coverage_dep(config, "rna")...)
     default:
