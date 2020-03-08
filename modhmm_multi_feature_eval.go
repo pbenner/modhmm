@@ -62,7 +62,7 @@ func multi_feature_eval(config ConfigModHmm, classifier MatrixBatchClassifier, t
     genome := Genome{}
     empty  := []int{}
     for i, filename := range trackFiles {
-      if filename == "" {
+      if !FileExists(filename) && SingleFeatureIsOptional(SingleFeatureList[i]) {
         empty = append(empty, i)
         continue
       }
@@ -94,11 +94,7 @@ func multi_feature_eval(config ConfigModHmm, classifier MatrixBatchClassifier, t
 func modhmm_multi_feature_eval_dep(config ConfigModHmm) []string {
   files := []string{}
   for _, feature := range SingleFeatureList {
-    if filename := config.SingleFeatureProb.GetTargetFile(feature).Filename; SingleFeatureIsOptional(feature) && !FileExists(filename) {
-      files = append(files, "")
-    } else {
-      files = append(files, filename)
-    }
+    files = append(files, config.SingleFeatureProb.GetTargetFile(feature).Filename)
   }
   return files
 }

@@ -59,10 +59,10 @@ func uniqueStrings(a []string) []string {
   m := make(map[string]struct{})
   r := []string{}
   for _, s := range a {
-    m[s] = struct{}{}
-  }
-  for k, _ := range m {
-    r = append(r, k)
+    if _, ok := m[s]; !ok {
+      r = append(r, s)
+      m[s] = struct{}{}
+    }
   }
   return r
 }
