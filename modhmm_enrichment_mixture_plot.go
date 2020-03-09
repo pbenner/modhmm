@@ -217,7 +217,7 @@ func eval_delta_component(mixture *scalarDistribution.Mixture, k int, xlim [2]fl
 
 /* -------------------------------------------------------------------------- */
 
-func modhmm_single_feature_plot_counts(config ConfigModHmm, p *plot.Plot, counts Counts) float64 {
+func modhmm_enrichment_plot_counts(config ConfigModHmm, p *plot.Plot, counts Counts) float64 {
   counts_xy, y_min := eval_counts(counts, config.XLim)
   plotutil.DefaultColors = []color.Color{color.RGBA{0, 0, 0, 255}}
   if err := plotutil.AddLines(p, "relative frequency", counts_xy); err != nil {
@@ -226,8 +226,8 @@ func modhmm_single_feature_plot_counts(config ConfigModHmm, p *plot.Plot, counts
   return y_min
 }
 
-func modhmm_single_feature_plot_isolated(config ConfigModHmm, p *plot.Plot, mixture *scalarDistribution.Mixture, counts Counts) {
-  y_min := modhmm_single_feature_plot_counts(config, p, counts)
+func modhmm_enrichment_plot_isolated(config ConfigModHmm, p *plot.Plot, mixture *scalarDistribution.Mixture, counts Counts) {
+  y_min := modhmm_enrichment_plot_counts(config, p, counts)
   var list_points []interface{}
   var list_lines  []interface{}
   for k := 0; k < mixture.NComponents(); k ++ {
@@ -251,8 +251,8 @@ func modhmm_single_feature_plot_isolated(config ConfigModHmm, p *plot.Plot, mixt
   }
 }
 
-func modhmm_single_feature_plot_joined(config ConfigModHmm, p *plot.Plot, mixture *scalarDistribution.Mixture, counts Counts, k_fg, k_bg []int) {
-  y_min  := modhmm_single_feature_plot_counts(config, p, counts)
+func modhmm_enrichment_plot_joined(config ConfigModHmm, p *plot.Plot, mixture *scalarDistribution.Mixture, counts Counts, k_fg, k_bg []int) {
+  y_min  := modhmm_enrichment_plot_counts(config, p, counts)
   xys_fg := eval_component(mixture, k_fg, counts, config.XLim, y_min)
   xys_bg := eval_component(mixture, k_bg, counts, config.XLim, y_min)
   plotutil.DefaultColors = plotutil.SoftColors
@@ -263,10 +263,10 @@ func modhmm_single_feature_plot_joined(config ConfigModHmm, p *plot.Plot, mixtur
 
 /* -------------------------------------------------------------------------- */
 
-func modhmm_single_feature_plot(config ConfigModHmm, ignoreModel, ignoreComponents bool, feature string) *plot.Plot {
+func modhmm_enrichment_plot(config ConfigModHmm, ignoreModel, ignoreComponents bool, feature string) *plot.Plot {
   feature = config.CoerceOpenChromatinAssay(feature)
 
-  if !SingleFeatureList.Contains(strings.ToLower(feature)) {
+  if !EnrichmentList.Contains(strings.ToLower(feature)) {
     log.Fatalf("unknown feature: %s", feature)
   }
   p, err := plot.New()
@@ -288,20 +288,20 @@ func modhmm_single_feature_plot(config ConfigModHmm, ignoreModel, ignoreComponen
   p.X.Tick.Label.Font.Size = vg.Length(config.FontSize)
   p.Y.Tick.Label.Font.Size = vg.Length(config.FontSize)
 
-  files  := config.SingleFeatureFiles(feature)
+  files  := config.EnrichmentFiles(feature)
   counts := ImportCounts(config, files.CoverageCnts.Filename)
 
   if ignoreModel {
-    modhmm_single_feature_plot_counts(config, p, counts)
+    modhmm_enrichment_plot_counts(config, p, counts)
   } else {
     mixture := ImportMixtureDistribution(config, files.Model.Filename)
 
     if ignoreComponents {
-      modhmm_single_feature_plot_isolated(config, p, mixture, counts)
+      modhmm_enrichment_plot_isolated(config, p, mixture, counts)
     } else {
       k, r := ImportComponents(config, files.Components.Filename, mixture.NComponents())
 
-      modhmm_single_feature_plot_joined(config, p, mixture, counts, k, r)
+      modhmm_enrichment_plot_joined(config, p, mixture, counts, k, r)
     }
   }
   return p
@@ -309,7 +309,7 @@ func modhmm_single_feature_plot(config ConfigModHmm, ignoreModel, ignoreComponen
 
 /* -------------------------------------------------------------------------- */
 
-func modhmm_single_feature_plot_loop(config ConfigModHmm, save string, ignoreModel, ignoreComponents bool, features []string) {
+func modhmm_enrichment_plot_loop(config ConfigModHmm, save string, ignoreModel, ignoreComponents bool, features []string) {
   n1, n2 := nrc(len(features))
   plots := make([][]*plot.Plot, n1)
   for i := 0; i < n1; i++ {
@@ -318,7 +318,7 @@ func modhmm_single_feature_plot_loop(config ConfigModHmm, save string, ignoreMod
       if i*n2+j >= len(features) {
         break
       }
-      plots[i][j] = modhmm_single_feature_plot(config, ignoreModel, ignoreComponents, features[i*n2+j])
+      plots[i][j] = modhmm_enrichment_plot(config, ignoreModel, ignoreComponents, features[i*n2+j])
     }
   }
   if filename, err := plot_result(plots, save); err != nil {
@@ -333,13 +333,13 @@ func modhmm_single_feature_plot_loop(config ConfigModHmm, save string, ignoreMod
   }
 }
 
-func modhmm_single_feature_plot_all(config ConfigModHmm, save string, ignoreModel, ignoreComponents bool) {
-  modhmm_single_feature_plot_loop(config, save, ignoreModel, ignoreComponents, SingleFeatureList)
+func modhmm_enrichment_plot_all(config ConfigModHmm, save string, ignoreModel, ignoreComponents bool) {
+  modhmm_enrichment_plot_loop(config, save, ignoreModel, ignoreComponents, EnrichmentList)
 }
 
 /* -------------------------------------------------------------------------- */
 
-func modhmm_single_feature_plot_main(config ConfigModHmm, args []string) {
+func modhmm_enrichment_plot_main(config ConfigModHmm, args []string) {
 
   options := getopt.New()
   options.SetProgram(fmt.Sprintf("%s plot-single-feature", os.Args[0]))
@@ -384,8 +384,8 @@ func modhmm_single_feature_plot_main(config ConfigModHmm, args []string) {
     }
   }
   if len(options.Args()) == 0 {
-    modhmm_single_feature_plot_all(config, *optSave, *optIgnoreModel, *optIgnoreComp)
+    modhmm_enrichment_plot_all(config, *optSave, *optIgnoreModel, *optIgnoreComp)
   } else {
-    modhmm_single_feature_plot_loop(config, *optSave, *optIgnoreModel, *optIgnoreComp, options.Args())
+    modhmm_enrichment_plot_loop(config, *optSave, *optIgnoreModel, *optIgnoreComp, options.Args())
   }
 }

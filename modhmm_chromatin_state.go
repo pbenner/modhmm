@@ -36,7 +36,7 @@ import   "github.com/pborman/getopt"
 
 /* -------------------------------------------------------------------------- */
 
-func get_multi_feature_model(config ConfigModHmm, state string) MatrixBatchClassifier {
+func get_chromatin_state_model(config ConfigModHmm, state string) MatrixBatchClassifier {
   switch strings.ToLower(state) {
   case "pa": return ClassifierPA{}
   case "ea": return ClassifierEA{}
@@ -56,13 +56,13 @@ func get_multi_feature_model(config ConfigModHmm, state string) MatrixBatchClass
 
 /* -------------------------------------------------------------------------- */
 
-func multi_feature_eval(config ConfigModHmm, classifier MatrixBatchClassifier, trackFiles []string, tracks []Track, filenameResult string) []Track {
+func chromatin_state_eval(config ConfigModHmm, classifier MatrixBatchClassifier, trackFiles []string, tracks []Track, filenameResult string) []Track {
   if len(tracks) != len(trackFiles) {
     tracks  = make([]Track, len(trackFiles))
     genome := Genome{}
     empty  := []int{}
     for i, filename := range trackFiles {
-      if !FileExists(filename) && SingleFeatureIsOptional(SingleFeatureList[i]) {
+      if !FileExists(filename) && EnrichmentIsOptional(EnrichmentList[i]) {
         empty = append(empty, i)
         continue
       }
@@ -91,17 +91,17 @@ func multi_feature_eval(config ConfigModHmm, classifier MatrixBatchClassifier, t
 
 /* -------------------------------------------------------------------------- */
 
-func modhmm_multi_feature_eval_dep(config ConfigModHmm) []string {
+func modhmm_chromatin_state_eval_dep(config ConfigModHmm) []string {
   files := []string{}
-  for _, feature := range SingleFeatureList {
-    files = append(files, config.SingleFeatureProb.GetTargetFile(feature).Filename)
+  for _, feature := range EnrichmentList {
+    files = append(files, config.EnrichmentProb.GetTargetFile(feature).Filename)
   }
   return files
 }
 
-func modhmm_multi_feature_eval(config ConfigModHmm, state string, tracks []Track) []Track {
+func modhmm_chromatin_state_eval(config ConfigModHmm, state string, tracks []Track) []Track {
 
-  if !MultiFeatureList.Contains(strings.ToLower(state)) {
+  if !ChromatinStateList.Contains(strings.ToLower(state)) {
     log.Fatalf("unknown state: %s", state)
   }
 
@@ -109,36 +109,36 @@ func modhmm_multi_feature_eval(config ConfigModHmm, state string, tracks []Track
   localConfig.BinSummaryStatistics = "mean"
 
   dependencies   := []string{}
-  dependencies    = append(dependencies, modhmm_multi_feature_eval_dep(config)...)
-  dependencies    = append(dependencies, modhmm_single_feature_eval_dep(config)...)
+  dependencies    = append(dependencies, modhmm_chromatin_state_eval_dep(config)...)
+  dependencies    = append(dependencies, modhmm_enrichment_eval_dep(config)...)
   dependencies    = append(dependencies, modhmm_coverage_dep(config)...)
 
-  trackFiles     := modhmm_multi_feature_eval_dep(config)
-  filenameResult := config.MultiFeatureProb.GetTargetFile(state)
+  trackFiles     := modhmm_chromatin_state_eval_dep(config)
+  filenameResult := config.ChromatinStateProb.GetTargetFile(state)
 
   if updateRequired(config, filenameResult, dependencies...) {
-    modhmm_single_feature_eval_all(config)
+    modhmm_enrichment_eval_all(config)
     printStderr(config, 1, "==> Evaluating Multi-Feature Model (%s) <==\n", strings.ToUpper(state))
-    classifier := get_multi_feature_model(config, state)
-    tracks = multi_feature_eval(localConfig, classifier, trackFiles, tracks, filenameResult.Filename)
+    classifier := get_chromatin_state_model(config, state)
+    tracks = chromatin_state_eval(localConfig, classifier, trackFiles, tracks, filenameResult.Filename)
   }
   return tracks
 }
 
-func modhmm_multi_feature_eval_loop(config ConfigModHmm, states []string) {
+func modhmm_chromatin_state_eval_loop(config ConfigModHmm, states []string) {
   var tracks []Track
   for _, feature := range states {
-    tracks = modhmm_multi_feature_eval(config, feature, tracks)
+    tracks = modhmm_chromatin_state_eval(config, feature, tracks)
   }
 }
 
-func modhmm_multi_feature_eval_all(config ConfigModHmm) {
-  modhmm_multi_feature_eval_loop(config, MultiFeatureList)
+func modhmm_chromatin_state_eval_all(config ConfigModHmm) {
+  modhmm_chromatin_state_eval_loop(config, ChromatinStateList)
 }
 
 /* -------------------------------------------------------------------------- */
 
-func modhmm_multi_feature_eval_main(config ConfigModHmm, args []string) {
+func modhmm_chromatin_state_eval_main(config ConfigModHmm, args []string) {
 
   options := getopt.New()
   options.SetProgram(fmt.Sprintf("%s eval-multi-feature", os.Args[0]))
@@ -154,8 +154,8 @@ func modhmm_multi_feature_eval_main(config ConfigModHmm, args []string) {
     os.Exit(0)
   }
   if len(options.Args()) == 0 {
-    modhmm_multi_feature_eval_all(config)
+    modhmm_chromatin_state_eval_all(config)
   } else {
-    modhmm_multi_feature_eval_loop(config, options.Args())
+    modhmm_chromatin_state_eval_loop(config, options.Args())
   }
 }

@@ -276,7 +276,7 @@ func modhmm_coverage(config ConfigModHmm, feature string) error {
 
   if updateRequired(config, filenameData, filenameBam...) {
     if len(filenameBam) == 0 {
-      if SingleFeatureIsOptional(feature) {
+      if EnrichmentIsOptional(feature) {
         printStderr(config, 1, "Warning: no bam files specified for optional feature `%s'. This feature will be ignored.\n", logPrefix)
         return nil
       } else {

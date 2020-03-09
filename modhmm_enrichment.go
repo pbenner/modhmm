@@ -33,7 +33,7 @@ import   "github.com/pborman/getopt"
 
 /* -------------------------------------------------------------------------- */
 
-func single_feature_import_and_normalize(config ConfigModHmm, filenameData, filenameCnts string, normalize bool) MutableTrack {
+func enrichment_import_and_normalize(config ConfigModHmm, filenameData, filenameCnts string, normalize bool) MutableTrack {
   if track, err := ImportTrack(config.SessionConfig, filenameData); err != nil {
     log.Fatal(err)
     return nil
@@ -53,8 +53,8 @@ func single_feature_import_and_normalize(config ConfigModHmm, filenameData, file
 
 /* -------------------------------------------------------------------------- */
 
-func single_feature_eval_rna_low(config ConfigModHmm, rnaProb MutableTrack, rnaData Track) {
-  files  := config.SingleFeatureFiles("rna-low")
+func enrichment_eval_rna_low(config ConfigModHmm, rnaProb MutableTrack, rnaData Track) {
+  files  := config.EnrichmentFiles("rna-low")
   result := rnaProb.CloneMutableTrack()
 
   if err := (GenericMutableTrack{result}).MapList([]Track{rnaProb, rnaData}, func(seqname string, position int, value... float64) float64 {
@@ -73,32 +73,32 @@ func single_feature_eval_rna_low(config ConfigModHmm, rnaProb MutableTrack, rnaD
 
 /* -------------------------------------------------------------------------- */
 
-func single_feature_import(config ConfigModHmm, files SingleFeatureFiles, normalize bool) Track {
-  switch strings.ToLower(config.SingleFeatureMethod) {
-  case "model"    : return single_feature_import_model    (config, files, normalize)
-  case "heuristic": return single_feature_import_heuristic(config, files)
+func enrichment_import(config ConfigModHmm, files EnrichmentFiles, normalize bool) Track {
+  switch strings.ToLower(config.EnrichmentMethod) {
+  case "model"    : return enrichment_import_model    (config, files, normalize)
+  case "heuristic": return enrichment_import_heuristic(config, files)
   default:
     log.Fatal("invalid single-feature method")
     panic("internal error")
   }
 }
 
-func single_feature_eval(config ConfigModHmm, files SingleFeatureFiles) {
-  switch strings.ToLower(config.SingleFeatureMethod) {
-  case "model"    : single_feature_eval_classifier(config, files)
-  case "heuristic": single_feature_eval_heuristic (config, files)
+func enrichment_eval(config ConfigModHmm, files EnrichmentFiles) {
+  switch strings.ToLower(config.EnrichmentMethod) {
+  case "model"    : enrichment_eval_classifier(config, files)
+  case "heuristic": enrichment_eval_heuristic (config, files)
   default:
     log.Fatal("invalid single-feature method")
     panic("internal error")
   }
 }
 
-func single_feature_filter_update(config ConfigModHmm, features []string) []string {
+func enrichment_filter_update(config ConfigModHmm, features []string) []string {
   r := []string{}
   for _, feature := range features {
     feature = config.CoerceOpenChromatinAssay(feature)
 
-    files := config.SingleFeatureFiles(feature)
+    files := config.EnrichmentFiles(feature)
 
     dependencies := []string{}
     dependencies  = append(dependencies, files.Dependencies()...)
@@ -122,47 +122,47 @@ func single_feature_filter_update(config ConfigModHmm, features []string) []stri
 
 /* -------------------------------------------------------------------------- */
 
-func modhmm_single_feature_eval_dep(config ConfigModHmm) []string {
+func modhmm_enrichment_eval_dep(config ConfigModHmm) []string {
   r := []string{}
   r  = append(r, config.Coverage          .GetFilenames()...)
-  r  = append(r, config.SingleFeatureModel.GetFilenames()...)
-  r  = append(r, config.SingleFeatureComp .GetFilenames()...)
+  r  = append(r, config.EnrichmentModel.GetFilenames()...)
+  r  = append(r, config.EnrichmentComp .GetFilenames()...)
   r  = append(r, config.CoverageCnts      .GetFilenames()...)
   return r
 }
 
-func modhmm_single_feature_eval(config ConfigModHmm, feature string) {
+func modhmm_enrichment_eval(config ConfigModHmm, feature string) {
 
-  files := config.SingleFeatureFiles(feature)
+  files := config.EnrichmentFiles(feature)
 
   if updateRequired(config, files.Probabilities, files.Dependencies()...) {
 
-    if SingleFeatureIsOptional(files.Feature) && !FileExists(files.Coverage.Filename) {
+    if EnrichmentIsOptional(files.Feature) && !FileExists(files.Coverage.Filename) {
       return
     }
     printStderr(config, 1, "==> Evaluating Single-Feature Model (%s) <==\n", feature)
-    single_feature_eval(config, files)
+    enrichment_eval(config, files)
   }
 }
 
-func modhmm_single_feature_eval_loop(config ConfigModHmm, features []string) {
+func modhmm_enrichment_eval_loop(config ConfigModHmm, features []string) {
   // reduce list of features to those that require an update
-  features = single_feature_filter_update(config, features)
+  features = enrichment_filter_update(config, features)
   // compute coverages here to make use of multi-threading
   modhmm_coverage_loop(config, InsensitiveStringList(features).Intersection(CoverageList))
   // eval single features
   for _, feature := range features {
-    modhmm_single_feature_eval(config, feature)
+    modhmm_enrichment_eval(config, feature)
   }
 }
 
-func modhmm_single_feature_eval_all(config ConfigModHmm) {
-  modhmm_single_feature_eval_loop(config, SingleFeatureList)
+func modhmm_enrichment_eval_all(config ConfigModHmm) {
+  modhmm_enrichment_eval_loop(config, EnrichmentList)
 }
 
 /* -------------------------------------------------------------------------- */
 
-func modhmm_single_feature_eval_main(config ConfigModHmm, args []string) {
+func modhmm_enrichment_eval_main(config ConfigModHmm, args []string) {
 
   options := getopt.New()
   options.SetProgram(fmt.Sprintf("%s eval-single-feature", os.Args[0]))
@@ -178,8 +178,8 @@ func modhmm_single_feature_eval_main(config ConfigModHmm, args []string) {
     os.Exit(0)
   }
   if len(options.Args()) == 0 {
-    modhmm_single_feature_eval_all(config)
+    modhmm_enrichment_eval_all(config)
   } else {
-    modhmm_single_feature_eval_loop(config, options.Args())
+    modhmm_enrichment_eval_loop(config, options.Args())
   }
 }

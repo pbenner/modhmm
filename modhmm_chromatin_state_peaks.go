@@ -20,6 +20,7 @@ package main
 
 import   "fmt"
 import   "log"
+import   "math"
 import   "os"
 import   "strconv"
 
@@ -31,20 +32,20 @@ import   "github.com/pborman/getopt"
 
 /* -------------------------------------------------------------------------- */
 
-func modhmm_call_single_feature_peaks(config ConfigModHmm, feature string, threshold float64) {
-  printStderr(config, 1, "==> Calling Single-Feature Peaks (%s) <==\n", feature)
-  filenameIn  := config.SingleFeatureProb.GetTargetFile(feature).Filename
-  filenameOut := config.SingleFeaturePeak.GetTargetFile(feature)
+func modhmm_call_chromatin_state_peaks(config ConfigModHmm, state string, threshold float64) {
+  printStderr(config, 1, "==> Calling Multi-Feature Peaks (%s) <==\n", state)
+  filenameIn  := config.ChromatinStateProb.GetTargetFile(state).Filename
+  filenameOut := config.ChromatinStatePeak.GetTargetFile(state)
 
   if !updateRequired(config, filenameOut, filenameIn) {
     return
   }
-  modhmm_single_feature_eval(config, feature)
+  modhmm_chromatin_state_eval_loop(config, []string{state})
 
   if track, err := ImportTrack(config.SessionConfig, filenameIn); err != nil {
     log.Fatal(err)
   } else {
-    if peaks, err := getPeaks(track, threshold); err != nil {
+    if peaks, err := getPeaks(track, math.Log(threshold)); err != nil {
       log.Fatal(err)
     } else {
       printStderr(config, 1, "Writing table `%s'... ", filenameOut.Filename)
@@ -60,24 +61,23 @@ func modhmm_call_single_feature_peaks(config ConfigModHmm, feature string, thres
 
 /* -------------------------------------------------------------------------- */
 
-func modhmm_call_single_feature_peaks_loop(config ConfigModHmm, features []string, threshold float64) {
-  for _, feature := range features {
-    feature = config.CoerceOpenChromatinAssay(feature)
-    modhmm_call_single_feature_peaks(config, feature, threshold)
+func modhmm_call_chromatin_state_peaks_loop(config ConfigModHmm, states []string, threshold float64) {
+  for _, state := range states {
+    modhmm_call_chromatin_state_peaks(config, state, threshold)
   }
 }
 
-func modhmm_call_single_feature_peaks_all(config ConfigModHmm, threshold float64) {
-  modhmm_call_single_feature_peaks_loop(config, SingleFeatureList, threshold)
+func modhmm_call_chromatin_state_peaks_all(config ConfigModHmm, threshold float64) {
+  modhmm_call_chromatin_state_peaks_loop(config, ChromatinStateList, threshold)
 }
 
-func modhmm_call_single_feature_peaks_main(config ConfigModHmm, args []string) {
+func modhmm_call_chromatin_state_peaks_main(config ConfigModHmm, args []string) {
 
   var threshold float64
 
   options := getopt.New()
-  options.SetProgram(fmt.Sprintf("%s call-single-feature-peaks", os.Args[0]))
-  options.SetParameters("[FEATURE]...\n")
+  options.SetProgram(fmt.Sprintf("%s call-multi-feature-peaks", os.Args[0]))
+  options.SetParameters("[STATE]...\n")
 
   optThreshold := options.StringLong("threshold",  0 ,  "0.9", "threshold value [default 0.9]")
   optHelp      := options.BoolLong  ("help",      'h',         "print help")
@@ -96,8 +96,8 @@ func modhmm_call_single_feature_peaks_main(config ConfigModHmm, args []string) {
   }
 
   if len(options.Args()) == 0 {
-    modhmm_call_single_feature_peaks_all(config, threshold)
+    modhmm_call_chromatin_state_peaks_all(config, threshold)
   } else {
-    modhmm_call_single_feature_peaks_loop(config, options.Args(), threshold)
+    modhmm_call_chromatin_state_peaks_loop(config, options.Args(), threshold)
   }
 }

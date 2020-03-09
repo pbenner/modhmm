@@ -32,7 +32,7 @@ import   "github.com/pborman/getopt"
 
 /* -------------------------------------------------------------------------- */
 
-func modhmm_single_feature_print_component(k int, pdf ScalarPdf) {
+func modhmm_enrichment_print_component(k int, pdf ScalarPdf) {
   switch a := pdf.(type) {
   case *scalarDistribution.DeltaDistribution:
     fmt.Printf(": %2d Delta     %e", k+1, a.X.GetValue())
@@ -41,20 +41,20 @@ func modhmm_single_feature_print_component(k int, pdf ScalarPdf) {
   case *scalarDistribution.GeometricDistribution:
     fmt.Printf(": %2d Geometric %e", k+1, a.GetParameters().ValueAt(0))
   case *scalarDistribution.PdfTranslation:
-    modhmm_single_feature_print_component(k, a.ScalarPdf)
+    modhmm_enrichment_print_component(k, a.ScalarPdf)
   default:
     log.Fatal("unknown distribution")
   }
 }
 
-func modhmm_single_feature_print_components(config ConfigModHmm, mixture *scalarDistribution.Mixture, k_fg []int) {
+func modhmm_enrichment_print_components(config ConfigModHmm, mixture *scalarDistribution.Mixture, k_fg []int) {
   fg := make([]bool, mixture.NComponents())
   for _, k := range k_fg {
     fg[k] = true
   }
   fmt.Println(":  # Type      Parameter")
   for k := 0; k < mixture.NComponents(); k ++ {
-    modhmm_single_feature_print_component(k, mixture.Edist[k])
+    modhmm_enrichment_print_component(k, mixture.Edist[k])
     if fg[k] {
       fmt.Printf(" [foreground]\n")
     } else {
@@ -65,36 +65,36 @@ func modhmm_single_feature_print_components(config ConfigModHmm, mixture *scalar
 
 /* -------------------------------------------------------------------------- */
 
-func modhmm_single_feature_print(config ConfigModHmm, feature string) {
+func modhmm_enrichment_print(config ConfigModHmm, feature string) {
   feature = config.CoerceOpenChromatinAssay(feature)
 
-  if !SingleFeatureList.Contains(strings.ToLower(feature)) {
+  if !EnrichmentList.Contains(strings.ToLower(feature)) {
     log.Fatalf("unknown feature: %s", feature)
   }
 
-  files   := config.SingleFeatureFiles(feature)
+  files   := config.EnrichmentFiles(feature)
   mixture := ImportMixtureDistribution(config, files.Model.Filename)
   k, _    := ImportComponents(config, files.Components.Filename, mixture.NComponents())
 
   fmt.Printf("Mixture components for feature `%s'\n", feature)
-  modhmm_single_feature_print_components(config, mixture, k)
+  modhmm_enrichment_print_components(config, mixture, k)
 }
 
 /* -------------------------------------------------------------------------- */
 
-func modhmm_single_feature_print_loop(config ConfigModHmm, features []string) {
+func modhmm_enrichment_print_loop(config ConfigModHmm, features []string) {
   for _, feature := range features {
-    modhmm_single_feature_print(config, feature)
+    modhmm_enrichment_print(config, feature)
   }
 }
 
-func modhmm_single_feature_print_all(config ConfigModHmm) {
-  modhmm_single_feature_print_loop(config, SingleFeatureList)
+func modhmm_enrichment_print_all(config ConfigModHmm) {
+  modhmm_enrichment_print_loop(config, EnrichmentList)
 }
 
 /* -------------------------------------------------------------------------- */
 
-func modhmm_single_feature_print_main(config ConfigModHmm, args []string) {
+func modhmm_enrichment_print_main(config ConfigModHmm, args []string) {
 
   options := getopt.New()
   options.SetProgram(fmt.Sprintf("%s print-single-feature", os.Args[0]))
@@ -110,8 +110,8 @@ func modhmm_single_feature_print_main(config ConfigModHmm, args []string) {
     os.Exit(0)
   }
   if len(options.Args()) == 0 {
-    modhmm_single_feature_print_all(config)
+    modhmm_enrichment_print_all(config)
   } else {
-    modhmm_single_feature_print_loop(config, options.Args())
+    modhmm_enrichment_print_loop(config, options.Args())
   }
 }

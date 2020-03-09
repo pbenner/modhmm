@@ -33,11 +33,11 @@ import   "github.com/pbenner/autodiff/algorithm/rprop"
 
 /* -------------------------------------------------------------------------- */
 
-func single_feature_import_heuristic(config ConfigModHmm, files SingleFeatureFiles) Track {
+func enrichment_import_heuristic(config ConfigModHmm, files EnrichmentFiles) Track {
   switch files.Feature {
   case "rna":
     config.BinSummaryStatistics = "discrete mean"
-    track := single_feature_import_and_normalize(config, files.Coverage.Filename, files.CoverageCnts.Filename, false)
+    track := enrichment_import_and_normalize(config, files.Coverage.Filename, files.CoverageCnts.Filename, false)
     if err := (GenericMutableTrack{track}).Map(track, func(seqname string, position int, value float64) float64 {
       return math.Log(value+1.0)
     }); err != nil {
@@ -46,7 +46,7 @@ func single_feature_import_heuristic(config ConfigModHmm, files SingleFeatureFil
     return track
   default:
     config.BinSummaryStatistics = "discrete mean"
-    return single_feature_import_and_normalize(config, files.Coverage.Filename, files.CoverageCnts.Filename, false)
+    return enrichment_import_and_normalize(config, files.Coverage.Filename, files.CoverageCnts.Filename, false)
   }
 }
 
@@ -87,7 +87,7 @@ func compute_sigmoid_parameters(x1, x2, p1, p2 float64) (float64, float64) {
 
 /* -------------------------------------------------------------------------- */
 
-func single_feature_eval_heuristic_loop(config ConfigModHmm, result MutableTrack, data Track, a, b float64) {
+func enrichment_eval_heuristic_loop(config ConfigModHmm, result MutableTrack, data Track, a, b float64) {
   pool  := threadpool.New(config.Threads, 10000)
   group := pool.NewJobGroup()
 
@@ -115,7 +115,7 @@ func single_feature_eval_heuristic_loop(config ConfigModHmm, result MutableTrack
   pool.Wait(group)
 }
 
-func single_feature_eval_heuristic_parameters(config ConfigModHmm, files SingleFeatureFiles, counts Counts) (float64, float64) {
+func enrichment_eval_heuristic_parameters(config ConfigModHmm, files EnrichmentFiles, counts Counts) (float64, float64) {
   // default parameters
   q  := 0.80
   p1 := 0.01
@@ -133,18 +133,18 @@ func single_feature_eval_heuristic_parameters(config ConfigModHmm, files SingleF
   return compute_sigmoid_parameters(m1, m2, p1, p2)
 }
 
-func single_feature_eval_heuristic(config ConfigModHmm, files SingleFeatureFiles) {
-  data   := single_feature_import_heuristic(config, files)
+func enrichment_eval_heuristic(config ConfigModHmm, files EnrichmentFiles) {
+  data   := enrichment_import_heuristic(config, files)
   counts := compute_counts(config, data)
-  a, b   := single_feature_eval_heuristic_parameters(config, files, counts)
+  a, b   := enrichment_eval_heuristic_parameters(config, files, counts)
   result := AllocSimpleTrack("classification", data.GetGenome(), data.GetBinSize())
 
   // compute probabilities
-  single_feature_eval_heuristic_loop(config, result, data, a, b)
+  enrichment_eval_heuristic_loop(config, result, data, a, b)
 
   // rna-low is a special case
   if files.Feature == "rna" {
-    single_feature_eval_rna_low(config, result, data)
+    enrichment_eval_rna_low(config, result, data)
   }
   if err := ExportTrack(config.SessionConfig, result, files.Probabilities.Filename); err != nil {
     log.Fatal(err)

@@ -20,7 +20,6 @@ package main
 
 import   "fmt"
 import   "log"
-import   "math"
 import   "os"
 import   "strconv"
 
@@ -32,20 +31,20 @@ import   "github.com/pborman/getopt"
 
 /* -------------------------------------------------------------------------- */
 
-func modhmm_call_multi_feature_peaks(config ConfigModHmm, state string, threshold float64) {
-  printStderr(config, 1, "==> Calling Multi-Feature Peaks (%s) <==\n", state)
-  filenameIn  := config.MultiFeatureProb.GetTargetFile(state).Filename
-  filenameOut := config.MultiFeaturePeak.GetTargetFile(state)
+func modhmm_call_enrichment_peaks(config ConfigModHmm, feature string, threshold float64) {
+  printStderr(config, 1, "==> Calling Single-Feature Peaks (%s) <==\n", feature)
+  filenameIn  := config.EnrichmentProb.GetTargetFile(feature).Filename
+  filenameOut := config.EnrichmentPeak.GetTargetFile(feature)
 
   if !updateRequired(config, filenameOut, filenameIn) {
     return
   }
-  modhmm_multi_feature_eval_loop(config, []string{state})
+  modhmm_enrichment_eval(config, feature)
 
   if track, err := ImportTrack(config.SessionConfig, filenameIn); err != nil {
     log.Fatal(err)
   } else {
-    if peaks, err := getPeaks(track, math.Log(threshold)); err != nil {
+    if peaks, err := getPeaks(track, threshold); err != nil {
       log.Fatal(err)
     } else {
       printStderr(config, 1, "Writing table `%s'... ", filenameOut.Filename)
@@ -61,23 +60,24 @@ func modhmm_call_multi_feature_peaks(config ConfigModHmm, state string, threshol
 
 /* -------------------------------------------------------------------------- */
 
-func modhmm_call_multi_feature_peaks_loop(config ConfigModHmm, states []string, threshold float64) {
-  for _, state := range states {
-    modhmm_call_multi_feature_peaks(config, state, threshold)
+func modhmm_call_enrichment_peaks_loop(config ConfigModHmm, features []string, threshold float64) {
+  for _, feature := range features {
+    feature = config.CoerceOpenChromatinAssay(feature)
+    modhmm_call_enrichment_peaks(config, feature, threshold)
   }
 }
 
-func modhmm_call_multi_feature_peaks_all(config ConfigModHmm, threshold float64) {
-  modhmm_call_multi_feature_peaks_loop(config, MultiFeatureList, threshold)
+func modhmm_call_enrichment_peaks_all(config ConfigModHmm, threshold float64) {
+  modhmm_call_enrichment_peaks_loop(config, EnrichmentList, threshold)
 }
 
-func modhmm_call_multi_feature_peaks_main(config ConfigModHmm, args []string) {
+func modhmm_call_enrichment_peaks_main(config ConfigModHmm, args []string) {
 
   var threshold float64
 
   options := getopt.New()
-  options.SetProgram(fmt.Sprintf("%s call-multi-feature-peaks", os.Args[0]))
-  options.SetParameters("[STATE]...\n")
+  options.SetProgram(fmt.Sprintf("%s call-single-feature-peaks", os.Args[0]))
+  options.SetParameters("[FEATURE]...\n")
 
   optThreshold := options.StringLong("threshold",  0 ,  "0.9", "threshold value [default 0.9]")
   optHelp      := options.BoolLong  ("help",      'h',         "print help")
@@ -96,8 +96,8 @@ func modhmm_call_multi_feature_peaks_main(config ConfigModHmm, args []string) {
   }
 
   if len(options.Args()) == 0 {
-    modhmm_call_multi_feature_peaks_all(config, threshold)
+    modhmm_call_enrichment_peaks_all(config, threshold)
   } else {
-    modhmm_call_multi_feature_peaks_loop(config, options.Args(), threshold)
+    modhmm_call_enrichment_peaks_loop(config, options.Args(), threshold)
   }
 }

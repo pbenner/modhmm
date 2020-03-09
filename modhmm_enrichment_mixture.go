@@ -35,7 +35,7 @@ import . "github.com/pbenner/modhmm/utility"
 
 /* -------------------------------------------------------------------------- */
 
-func single_feature_import_model(config ConfigModHmm, files SingleFeatureFiles, normalize bool) Track {
+func enrichment_import_model(config ConfigModHmm, files EnrichmentFiles, normalize bool) Track {
   // check if single feature model must be updated
   if normalize && FileExists(files.Model.Filename) && updateRequired(config, files.Model, files.DependenciesModel()...) {
     log.Fatalf("ERROR: Please first update single-feature model for `%s'.\n" +
@@ -46,26 +46,26 @@ func single_feature_import_model(config ConfigModHmm, files SingleFeatureFiles, 
       "in the config file prevent this check.", files.Feature)
   }
   config.BinSummaryStatistics = "discrete mean"
-  return single_feature_import_and_normalize(config, files.Coverage.Filename, files.CoverageCnts.Filename, normalize)
+  return enrichment_import_and_normalize(config, files.Coverage.Filename, files.CoverageCnts.Filename, normalize)
 }
 
 /* -------------------------------------------------------------------------- */
 
-func single_feature_eval_classifier(config ConfigModHmm, files SingleFeatureFiles) {
+func enrichment_eval_classifier(config ConfigModHmm, files EnrichmentFiles) {
   mixture := ImportMixtureDistribution(config, files.Model.Filename)
   k, _    := ImportComponents(config, files.Components.Filename, mixture.NComponents())
 
   scalarClassifier := scalarClassifier.MixturePosterior{mixture, k}
   vectorClassifier := vectorClassifier.ScalarBatchIid{scalarClassifier, 1}
 
-  data := single_feature_import_model(config, files, true)
+  data := enrichment_import_model(config, files, true)
 
   result, err := BatchClassifySingleTrack(config.SessionConfig, vectorClassifier, data); if err != nil {
     log.Fatal(err)
   }
   // rna-low is a special case
   if files.Feature == "rna" {
-    single_feature_eval_rna_low(config, result, data)
+    enrichment_eval_rna_low(config, result, data)
   }
   if err := (GenericMutableTrack{result}).Map(result, func(seqname string, position int, value float64) float64 {
     return math.Exp(value)

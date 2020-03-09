@@ -124,7 +124,7 @@ func newEstimator(config ConfigModHmm, n_delta, n_poisson, n_geometric int) Vect
 
 /* -------------------------------------------------------------------------- */
 
-func single_feature_estimate(config ConfigModHmm, track Track, estimator VectorEstimator, files SingleFeatureFiles) {
+func enrichment_estimate(config ConfigModHmm, track Track, estimator VectorEstimator, files EnrichmentFiles) {
   if err := EstimateOnSingleTrack(config.SessionConfig, estimator, track); err != nil {
     log.Fatal(err)
   }
@@ -146,33 +146,33 @@ func single_feature_estimate(config ConfigModHmm, track Track, estimator VectorE
 
 /* -------------------------------------------------------------------------- */
 
-func modhmm_single_feature_estimate(config ConfigModHmm, feature string, n []int, force bool) {
+func modhmm_enrichment_estimate(config ConfigModHmm, feature string, n []int, force bool) {
   var estimator VectorEstimator
 
-  if !SingleFeatureModelList.Contains(strings.ToLower(feature)) {
+  if !EnrichmentModelList.Contains(strings.ToLower(feature)) {
     log.Fatalf("unknown feature: %s", feature)
   }
-  files := config.SingleFeatureFiles(feature)
+  files := config.EnrichmentFiles(feature)
   var track Track
   // update model
   if force || updateRequired(config, files.Model, files.DependenciesModel()...) {
     if track == nil {
-      track = single_feature_import_model(config, files, false)
+      track = enrichment_import_model(config, files, false)
     }
     estimator = newEstimator(config, n[0], n[1], n[2])
 
-    single_feature_estimate(config, track, estimator, files)
+    enrichment_estimate(config, track, estimator, files)
   }
   // update counts
   if force || updateRequired(config, files.CoverageCnts, files.DependenciesModel()...) {
     if track == nil {
-      track = single_feature_import_model(config, files, false)
+      track = enrichment_import_model(config, files, false)
     }
     modhmm_compute_counts(config, track, files.CoverageCnts.Filename)
   }
 }
 
-func modhmm_single_feature_estimate_default(config ConfigModHmm, feature string, force bool, defcomp string) {
+func modhmm_enrichment_estimate_default(config ConfigModHmm, feature string, force bool, defcomp string) {
   var n, components []int
   switch strings.ToLower(defcomp) {
   case "mm10":
@@ -207,32 +207,32 @@ func modhmm_single_feature_estimate_default(config ConfigModHmm, feature string,
     log.Fatalf("unknown default comonents specifier: %s", defcomp)
   }
   // estimate mixture
-  if SingleFeatureModelList.Contains(strings.ToLower(feature)) {
-    modhmm_single_feature_estimate(config, feature, n, force)
+  if EnrichmentModelList.Contains(strings.ToLower(feature)) {
+    modhmm_enrichment_estimate(config, feature, n, force)
   }
   // export foreground mixture components
-  files := config.SingleFeatureFiles(feature)
+  files := config.EnrichmentFiles(feature)
   if force || updateRequired(config, files.Components, files.Model.Filename) {
     ExportComponents(config, files.Components.Filename, components)
   }
 }
 
-func modhmm_single_feature_estimate_default_loop(config ConfigModHmm, features []string, force bool, defcomp string) {
+func modhmm_enrichment_estimate_default_loop(config ConfigModHmm, features []string, force bool, defcomp string) {
   // compute coverages here to make use of multi-threading
   modhmm_coverage_loop(config, InsensitiveStringList(features).Intersection(CoverageList))
   // eval single features
   for _, feature := range features {
-    modhmm_single_feature_estimate_default(config, feature, force, defcomp)
+    modhmm_enrichment_estimate_default(config, feature, force, defcomp)
   }
 }
 
-func modhmm_single_feature_estimate_default_all(config ConfigModHmm, force bool, defcomp string) {
-  modhmm_single_feature_estimate_default_loop(config, SingleFeatureList, force, defcomp)
+func modhmm_enrichment_estimate_default_all(config ConfigModHmm, force bool, defcomp string) {
+  modhmm_enrichment_estimate_default_loop(config, EnrichmentList, force, defcomp)
 }
 
 /* -------------------------------------------------------------------------- */
 
-func modhmm_single_feature_estimate_main(config ConfigModHmm, args []string) {
+func modhmm_enrichment_estimate_main(config ConfigModHmm, args []string) {
 
   options := getopt.New()
   options.SetProgram(fmt.Sprintf("%s estimate-single-feature", os.Args[0]))
@@ -277,10 +277,10 @@ func modhmm_single_feature_estimate_main(config ConfigModHmm, args []string) {
     } else {
       n = append(n, int(m))
     }
-    modhmm_single_feature_estimate(config, feature, n, *optForce)
+    modhmm_enrichment_estimate(config, feature, n, *optForce)
   case 1:
-    modhmm_single_feature_estimate_default(config, feature, *optForce, *optDefComp)
+    modhmm_enrichment_estimate_default(config, feature, *optForce, *optDefComp)
   case 0:
-    modhmm_single_feature_estimate_default_all(config, *optForce, *optDefComp)
+    modhmm_enrichment_estimate_default_all(config, *optForce, *optDefComp)
   }
 }

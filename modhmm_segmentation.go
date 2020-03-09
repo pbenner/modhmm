@@ -61,11 +61,11 @@ func ImportHMM(config ConfigModHmm) ModHmm {
 
 /* -------------------------------------------------------------------------- */
 
-type MultiFeatureFilterZeros struct {
+type ChromatinStateFilterZeros struct {
 }
 
 // filter strange probability assignments at chromosome boundaries
-func (MultiFeatureFilterZeros) Eval(x Matrix) Matrix {
+func (ChromatinStateFilterZeros) Eval(x Matrix) Matrix {
   n, m := x.Dims()
   for i := 0; i < n; i++ {
     allZero := true
@@ -96,7 +96,7 @@ func estimate(config ConfigModHmm, trackFiles []string, model string) {
     log.Fatalf("ERROR: invalid model name `%s'", model)
   }
 
-  if err := ImportAndEstimateOnMultiTrack(config.SessionConfig, estimator, trackFiles, true, MultiFeatureFilterZeros{}); err != nil {
+  if err := ImportAndEstimateOnMultiTrack(config.SessionConfig, estimator, trackFiles, true, ChromatinStateFilterZeros{}); err != nil {
     log.Fatalf("ERROR: %s", err)
   }
   modhmm := ModHmm{}
@@ -120,7 +120,7 @@ func estimate(config ConfigModHmm, trackFiles []string, model string) {
 func segment(config ConfigModHmm, trackFiles []string) {
   modhmm := ImportHMM(config)
 
-  if result, err := ImportAndClassifyMultiTrack(config.SessionConfig, matrixClassifier.HmmClassifier{&modhmm.Hmm}, trackFiles, true, MultiFeatureFilterZeros{}); err != nil {
+  if result, err := ImportAndClassifyMultiTrack(config.SessionConfig, matrixClassifier.HmmClassifier{&modhmm.Hmm}, trackFiles, true, ChromatinStateFilterZeros{}); err != nil {
     log.Fatal(err)
   } else {
     var name, desc string
@@ -143,9 +143,9 @@ func segment(config ConfigModHmm, trackFiles []string) {
 /* -------------------------------------------------------------------------- */
 
 func modhmm_segmentation_dep(config ConfigModHmm) []string {
-  files := make([]string, len(MultiFeatureList))
-  for i, state := range MultiFeatureList {
-    files[i] = config.MultiFeatureProb.GetTargetFile(state).Filename
+  files := make([]string, len(ChromatinStateList))
+  for i, state := range ChromatinStateList {
+    files[i] = config.ChromatinStateProb.GetTargetFile(state).Filename
   }
   return files
 }
@@ -154,8 +154,8 @@ func modhmm_segmentation(config ConfigModHmm, model string) {
 
   dependencies := []string{}
   dependencies  = append(dependencies, modhmm_segmentation_dep(config)...)
-  dependencies  = append(dependencies, modhmm_multi_feature_eval_dep(config)...)
-  dependencies  = append(dependencies, modhmm_single_feature_eval_dep(config)...)
+  dependencies  = append(dependencies, modhmm_chromatin_state_eval_dep(config)...)
+  dependencies  = append(dependencies, modhmm_enrichment_eval_dep(config)...)
   dependencies  = append(dependencies, modhmm_coverage_dep(config)...)
 
   trackFiles := modhmm_segmentation_dep(config)
@@ -164,7 +164,7 @@ func modhmm_segmentation(config ConfigModHmm, model string) {
   filenameSegmentation := config.Segmentation
 
   if config.ModelEstimate && updateRequired(config, filenameModel, dependencies...) {
-    modhmm_multi_feature_eval_all(config)
+    modhmm_chromatin_state_eval_all(config)
 
     printStderr(config, 1, "==> Estimating ModHmm transition parameters <==\n")
     estimate(config, trackFiles, model)
@@ -173,7 +173,7 @@ func modhmm_segmentation(config ConfigModHmm, model string) {
     dependencies = append(dependencies, filenameModel.Filename)
   }
   if updateRequired(config, filenameSegmentation, dependencies...) {
-    modhmm_multi_feature_eval_all(config)
+    modhmm_chromatin_state_eval_all(config)
 
     printStderr(config, 1, "==> Computing Segmentation <==\n")
     segment(config, trackFiles)

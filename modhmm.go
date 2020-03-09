@@ -137,29 +137,27 @@ func main() {
   case "coverage":
     modhmm_coverage_main(config, options.Args())
   case "estimate-single-feature":
-    modhmm_single_feature_estimate_main(config, options.Args())
+    modhmm_enrichment_estimate_main(config, options.Args())
   case "plot-single-feature":
-    modhmm_single_feature_plot_main(config, options.Args())
+    modhmm_enrichment_plot_main(config, options.Args())
   case "print-single-feature":
-    modhmm_single_feature_print_main(config, options.Args())
+    modhmm_enrichment_print_main(config, options.Args())
   case "print-transition-matrix":
     modhmm_transition_matrix_print_main(config, options.Args())
   case "eval-single-feature":
-    modhmm_single_feature_eval_main(config, options.Args())
+    modhmm_enrichment_eval_main(config, options.Args())
   case "eval-multi-feature":
-    modhmm_multi_feature_eval_main(config, options.Args())
+    modhmm_chromatin_state_eval_main(config, options.Args())
   case "eval-posterior-marginals":
     modhmm_posterior_main(config, options.Args())
   case "segmentation":
     modhmm_segmentation_main(config, options.Args())
   case "call-single-feature-peaks":
-    modhmm_call_single_feature_peaks_main(config, options.Args())
+    modhmm_call_enrichment_peaks_main(config, options.Args())
   case "call-multi-feature-peaks":
-    modhmm_call_multi_feature_peaks_main(config, options.Args())
+    modhmm_call_chromatin_state_peaks_main(config, options.Args())
   case "call-posterior-marginal-peaks":
     modhmm_call_posterior_peaks_main(config, options.Args())
-  case "differential-markov-model":
-    modhmm_differential_markov_model_main(config, options.Args())
   default:
     options.PrintUsage(os.Stderr)
     os.Exit(1)

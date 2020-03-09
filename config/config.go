@@ -36,22 +36,22 @@ var CoverageList = StringList{
 
 /* -------------------------------------------------------------------------- */
 
-var SingleFeatureModelList = StringList{
+var EnrichmentModelList = StringList{
   "open", "h3k27ac", "h3k27me3", "h3k9me3", "h3k4me1", "h3k4me3", "rna", "control"}
 
 /* -------------------------------------------------------------------------- */
 
-var SingleFeatureList = StringList{
+var EnrichmentList = StringList{
   "open", "h3k27ac", "h3k27me3", "h3k9me3", "h3k4me1", "h3k4me3", "rna", "rna-low", "control"}
 
 /* -------------------------------------------------------------------------- */
 
-var MultiFeatureList = StringList{
+var ChromatinStateList = StringList{
   "pa", "ea", "bi", "pr", "tr", "tl", "r1", "r2", "ns", "cl"}
 
 /* -------------------------------------------------------------------------- */
 
-func SingleFeatureIsOptional(feature string) bool {
+func EnrichmentIsOptional(feature string) bool {
   switch strings.ToLower(feature) {
   case "h3k27me3": return true
   case "h3k9me3" : return true
@@ -77,7 +77,7 @@ func (obj TargetFile) String() string {
 
 /* -------------------------------------------------------------------------- */
 
-type SingleFeatureFiles struct {
+type EnrichmentFiles struct {
   Feature           string
   Probabilities     TargetFile
   Model             TargetFile
@@ -89,7 +89,7 @@ type SingleFeatureFiles struct {
   SrcCoverageCnts []TargetFile
 }
 
-func (obj SingleFeatureFiles) Dependencies() []string {
+func (obj EnrichmentFiles) Dependencies() []string {
   filenames := []string{}
   filenames  = append(filenames, obj.Model       .Filename)
   filenames  = append(filenames, obj.Coverage    .Filename)
@@ -98,7 +98,7 @@ func (obj SingleFeatureFiles) Dependencies() []string {
   return filenames
 }
 
-func (obj SingleFeatureFiles) DependenciesModel() []string {
+func (obj EnrichmentFiles) DependenciesModel() []string {
   return []string{obj.Coverage.Filename}
 }
 
@@ -266,12 +266,12 @@ func (config *ConfigCoveragePaths) SetStatic(static bool) {
 
 /* -------------------------------------------------------------------------- */
 
-type ConfigSingleFeaturePaths struct {
+type ConfigEnrichmentPaths struct {
   ConfigCoveragePaths
   Rna_low     TargetFile `json:"RNA low"`
 }
 
-func (config *ConfigSingleFeaturePaths) GetTargetFile(feature string) TargetFile {
+func (config *ConfigEnrichmentPaths) GetTargetFile(feature string) TargetFile {
   switch strings.ToLower(feature) {
   case "rna_low"  : return config.Rna_low
   case "rna-low"  : return config.Rna_low
@@ -279,27 +279,27 @@ func (config *ConfigSingleFeaturePaths) GetTargetFile(feature string) TargetFile
   }
 }
 
-func (config *ConfigSingleFeaturePaths) CompletePaths(dir, prefix, suffix string) {
+func (config *ConfigEnrichmentPaths) CompletePaths(dir, prefix, suffix string) {
   config.ConfigCoveragePaths.CompletePaths(dir, prefix, suffix)
   config.Rna_low.Filename = completePath(dir, prefix, config.Rna_low  .Filename, fmt.Sprintf("rna-low%s", suffix))
 }
 
-func (config *ConfigSingleFeaturePaths) GetFilenames() []string {
+func (config *ConfigEnrichmentPaths) GetFilenames() []string {
   filenames := []string{}
-  for _, feature := range SingleFeatureList {
+  for _, feature := range EnrichmentList {
     filenames = append(filenames, config.GetTargetFile(feature).Filename)
   }
   return filenames
 }
 
-func (config *ConfigSingleFeaturePaths) SetStatic(static bool) {
+func (config *ConfigEnrichmentPaths) SetStatic(static bool) {
   config.ConfigCoveragePaths.SetStatic(static)
   config.Rna_low.Static = static
 }
 
 /* -------------------------------------------------------------------------- */
 
-type ConfigMultiFeaturePaths struct {
+type ConfigChromatinStatePaths struct {
   EA       TargetFile
   PA       TargetFile
   BI       TargetFile
@@ -312,7 +312,7 @@ type ConfigMultiFeaturePaths struct {
   NS       TargetFile
 }
 
-func (config *ConfigMultiFeaturePaths) GetTargetFile(state string) TargetFile {
+func (config *ConfigChromatinStatePaths) GetTargetFile(state string) TargetFile {
   switch strings.ToUpper(state) {
   case "EA": return config.EA
   case "PA": return config.PA
@@ -329,7 +329,7 @@ func (config *ConfigMultiFeaturePaths) GetTargetFile(state string) TargetFile {
   }
 }
 
-func (config *ConfigMultiFeaturePaths) CompletePaths(dir, prefix, suffix string) {
+func (config *ConfigChromatinStatePaths) CompletePaths(dir, prefix, suffix string) {
   config.PA.Filename = completePath(dir, prefix, config.PA.Filename, fmt.Sprintf("PA%s", suffix))
   config.EA.Filename = completePath(dir, prefix, config.EA.Filename, fmt.Sprintf("EA%s", suffix))
   config.BI.Filename = completePath(dir, prefix, config.BI.Filename, fmt.Sprintf("BI%s", suffix))
@@ -346,41 +346,41 @@ func (config *ConfigMultiFeaturePaths) CompletePaths(dir, prefix, suffix string)
 
 type ConfigModHmm struct {
   SessionConfig
-  OpenChromatinAssay         string                   `json:"Open Chromatin Assay"`
-  BamDir                     string                   `json:"Bam Directory"`
-  Bam                        ConfigBam                `json:"Bam Files"`
-  CoverageBinSize            int                      `json:"Coverage Bin Size`
-  CoverageThreads            int                      `json:"Coverage Threads"`
-  CoverageDir                string                   `json:"Coverage Directory"`
-  Coverage                   ConfigCoveragePaths      `json:"Coverage Files"`
-  CoverageCnts               ConfigCoveragePaths      `json:"Coverage Counts Files"`
-  CoverageFraglen            bool                     `json:"Coverage Fraglen"`
-  CoverageMAPQ               int                      `json:"Coverage MAPQ"`
-  SingleFeatureMethod        string                   `json:"Single-Feature Method"`
-  SingleFeatureModelDir      string                   `json:"Single-Feature Model Directory"`
-  SingleFeatureModel         ConfigSingleFeaturePaths `json:"Single-Feature Model Files"`
-  SingleFeatureComp          ConfigSingleFeaturePaths `json:"Single-Feature Model Component Files"`
-  SingleFeatureModelStatic   bool                     `json:"Single-Feature Model Static"`
-  SingleFeatureDir           string                   `json:"Single-Feature Directory"`
-  SingleFeatureProb          ConfigSingleFeaturePaths `json:"Single-Feature Probabilities"`
-  SingleFeaturePeak          ConfigSingleFeaturePaths `json:"Single-Feature Peaks"`
-  MultiFeatureDir            string                   `json:"Multi-Feature Directory"`
-  MultiFeatureProb           ConfigMultiFeaturePaths  `json:"Multi-Feature Probabilities"`
-  MultiFeaturePeak           ConfigMultiFeaturePaths  `json:"Multi-Feature Peaks"`
-  PosteriorProb              ConfigMultiFeaturePaths  `json:"Posterior Marginals"`
-  PosteriorPeak              ConfigMultiFeaturePaths  `json:"Posterior Marginals Peaks"`
-  PosteriorDir               string                   `json:"Posterior Marginals Directory"`
-  ModelEstimate              bool                     `json:"Model Estimate"`
-  ModelFallback              string                   `json:"Model Fallback"`
-  ModelUnconstrained         bool                     `json:"Model Unconstrained"`
-  Model                      TargetFile               `json:"Model File"`
-  ModelDir                   string                   `json:"Model Directory"`
-  Segmentation               TargetFile               `json:"Segmentation File"`
-  SegmentationDir            string                   `json:"Segmentation Directory"`
-  Directory                  string
-  Description                string
-  FontSize                   float64
-  XLim                    [2]float64
+  OpenChromatinAssay      string                     `json:"Open Chromatin Assay"`
+  BamDir                  string                     `json:"Bam Directory"`
+  Bam                     ConfigBam                  `json:"Bam Files"`
+  CoverageBinSize         int                        `json:"Coverage Bin Size`
+  CoverageThreads         int                        `json:"Coverage Threads"`
+  CoverageDir             string                     `json:"Coverage Directory"`
+  Coverage                ConfigCoveragePaths        `json:"Coverage Files"`
+  CoverageCnts            ConfigCoveragePaths        `json:"Coverage Counts Files"`
+  CoverageFraglen         bool                       `json:"Coverage Fraglen"`
+  CoverageMAPQ            int                        `json:"Coverage MAPQ"`
+  EnrichmentMethod        string                     `json:"Enrichment Method"`
+  EnrichmentModelDir      string                     `json:"Enrichment Model Directory"`
+  EnrichmentModel         ConfigEnrichmentPaths      `json:"Enrichment Model Files"`
+  EnrichmentComp          ConfigEnrichmentPaths      `json:"Enrichment Model Component Files"`
+  EnrichmentModelStatic   bool                       `json:"Enrichment Model Static"`
+  EnrichmentDir           string                     `json:"Enrichment Directory"`
+  EnrichmentProb          ConfigEnrichmentPaths      `json:"Enrichment Probabilities"`
+  EnrichmentPeak          ConfigEnrichmentPaths      `json:"Enrichment Peaks"`
+  ChromatinStateDir       string                     `json:"Chromatin-State Directory"`
+  ChromatinStateProb      ConfigChromatinStatePaths  `json:"Chromatin-State Probabilities"`
+  ChromatinStatePeak      ConfigChromatinStatePaths  `json:"Chromatin-State Peaks"`
+  PosteriorProb           ConfigChromatinStatePaths  `json:"Posterior Marginals"`
+  PosteriorPeak           ConfigChromatinStatePaths  `json:"Posterior Marginals Peaks"`
+  PosteriorDir            string                     `json:"Posterior Marginals Directory"`
+  ModelEstimate           bool                       `json:"Model Estimate"`
+  ModelFallback           string                     `json:"Model Fallback"`
+  ModelUnconstrained      bool                       `json:"Model Unconstrained"`
+  Model                   TargetFile                 `json:"Model File"`
+  ModelDir                string                     `json:"Model Directory"`
+  Segmentation            TargetFile                 `json:"Segmentation File"`
+  SegmentationDir         string                     `json:"Segmentation Directory"`
+  Directory               string
+  Description             string
+  FontSize                float64
+  XLim                 [2]float64
 }
 
 /* -------------------------------------------------------------------------- */
@@ -414,7 +414,7 @@ func DefaultModHmmConfig() ConfigModHmm {
   config.ModelFallback              = "mm10"
   config.FontSize                   = 12
   config.OpenChromatinAssay         = ""
-  config.SingleFeatureMethod        = "heuristic"
+  config.EnrichmentMethod        = "heuristic"
   config.Threads                    = 1
   config.Verbose                    = 0
   return config
@@ -482,15 +482,15 @@ func (config *ConfigModHmm) DetectOpenChromatinAssay() string {
   if config.Coverage.Dnase.Filename != "" && FileExists(config.Coverage.Dnase.Filename) {
     return "dnase"
   }
-  if config.SingleFeatureProb.Atac.Filename != "" && config.SingleFeatureProb.Dnase.Filename != "" {
-    if FileExists(config.SingleFeatureProb.Atac.Filename) && FileExists(config.SingleFeatureProb.Dnase.Filename) {
-      log.Fatal("SingleFeatureProb bigWig files exist for both ATAC- and DNase-seq. Please select a single open chromatin assay.")
+  if config.EnrichmentProb.Atac.Filename != "" && config.EnrichmentProb.Dnase.Filename != "" {
+    if FileExists(config.EnrichmentProb.Atac.Filename) && FileExists(config.EnrichmentProb.Dnase.Filename) {
+      log.Fatal("EnrichmentProb bigWig files exist for both ATAC- and DNase-seq. Please select a single open chromatin assay.")
     }
   }
-  if config.SingleFeatureProb.Atac.Filename != "" && FileExists(config.SingleFeatureProb.Atac.Filename) {
+  if config.EnrichmentProb.Atac.Filename != "" && FileExists(config.EnrichmentProb.Atac.Filename) {
     return "atac"
   }
-  if config.SingleFeatureProb.Dnase.Filename != "" && FileExists(config.SingleFeatureProb.Dnase.Filename) {
+  if config.EnrichmentProb.Dnase.Filename != "" && FileExists(config.EnrichmentProb.Dnase.Filename) {
     return "dnase"
   }
   // return default assay
@@ -502,17 +502,17 @@ func (config *ConfigModHmm) SetOpenChromatinAssay(assay string) {
   case "atac":
     config.Coverage          .Open = config.Coverage          .Atac
     config.CoverageCnts      .Open = config.CoverageCnts      .Atac
-    config.SingleFeatureModel.Open = config.SingleFeatureModel.Atac
-    config.SingleFeatureComp .Open = config.SingleFeatureComp .Atac
-    config.SingleFeaturePeak .Open = config.SingleFeaturePeak .Atac
-    config.SingleFeatureProb .Open = config.SingleFeatureProb .Atac
+    config.EnrichmentModel.Open = config.EnrichmentModel.Atac
+    config.EnrichmentComp .Open = config.EnrichmentComp .Atac
+    config.EnrichmentPeak .Open = config.EnrichmentPeak .Atac
+    config.EnrichmentProb .Open = config.EnrichmentProb .Atac
   case "dnase":
     config.Coverage          .Open = config.Coverage          .Dnase
     config.CoverageCnts      .Open = config.CoverageCnts      .Dnase
-    config.SingleFeatureModel.Open = config.SingleFeatureModel.Dnase
-    config.SingleFeatureComp .Open = config.SingleFeatureComp .Dnase
-    config.SingleFeaturePeak .Open = config.SingleFeaturePeak .Dnase
-    config.SingleFeatureProb .Open = config.SingleFeatureProb .Dnase
+    config.EnrichmentModel.Open = config.EnrichmentModel.Dnase
+    config.EnrichmentComp .Open = config.EnrichmentComp .Dnase
+    config.EnrichmentPeak .Open = config.EnrichmentPeak .Dnase
+    config.EnrichmentProb .Open = config.EnrichmentProb .Dnase
   default:
     log.Fatalf("invalid open chromatin assay `%s'", assay)
   }
@@ -522,52 +522,52 @@ func (config *ConfigModHmm) SetOpenChromatinAssay(assay string) {
 func (config *ConfigModHmm) CompletePaths(prefix string) {
   config.BamDir                 = config.setDefaultDir(prefix, config.BamDir               ,  "")
   config.CoverageDir            = config.setDefaultDir(prefix, config.CoverageDir          , config.BamDir)
-  config.SingleFeatureModelDir  = config.setDefaultDir(prefix, config.SingleFeatureModelDir, config.CoverageDir)
-  config.SingleFeatureDir       = config.setDefaultDir(prefix, config.SingleFeatureDir     , config.SingleFeatureModelDir)
-  config.MultiFeatureDir        = config.setDefaultDir(prefix, config.MultiFeatureDir      , config.SingleFeatureDir)
-  config.ModelDir               = config.setDefaultDir(prefix, config.ModelDir             , config.MultiFeatureDir)
+  config.EnrichmentModelDir     = config.setDefaultDir(prefix, config.EnrichmentModelDir, config.CoverageDir)
+  config.EnrichmentDir          = config.setDefaultDir(prefix, config.EnrichmentDir     , config.EnrichmentModelDir)
+  config.ChromatinStateDir      = config.setDefaultDir(prefix, config.ChromatinStateDir      , config.EnrichmentDir)
+  config.ModelDir               = config.setDefaultDir(prefix, config.ModelDir             , config.ChromatinStateDir)
   config.SegmentationDir        = config.setDefaultDir(prefix, config.SegmentationDir      , config.ModelDir)
   config.PosteriorDir           = config.setDefaultDir(prefix, config.PosteriorDir         , config.SegmentationDir)
   config.Model.Filename         = completePath(config.ModelDir, "", config.Model.Filename, "segmentation.json")
   config.Segmentation.Filename  = completePath(config.SegmentationDir, "", config.Segmentation.Filename, "segmentation.bed.gz")
   config.Bam                    .CompletePaths(config.BamDir, "", "")
   config.Coverage               .CompletePaths(config.CoverageDir, "coverage-", ".bw")
-  config.CoverageCnts           .CompletePaths(config.SingleFeatureModelDir, "", ".counts.json")
-  config.SingleFeatureModel     .CompletePaths(config.SingleFeatureModelDir, "", ".json")
-  config.SingleFeatureComp      .CompletePaths(config.SingleFeatureModelDir, "", ".components.json")
-  config.SingleFeaturePeak      .CompletePaths(config.SingleFeatureDir, "single-feature-peaks-", ".table")
-  config.SingleFeatureProb      .CompletePaths(config.SingleFeatureDir, "single-feature-", ".bw")
-  config.MultiFeatureProb       .CompletePaths(config.MultiFeatureDir, "multi-feature-", ".bw")
-  config.MultiFeaturePeak       .CompletePaths(config.MultiFeatureDir, "multi-feature-peaks-", ".table")
+  config.CoverageCnts           .CompletePaths(config.EnrichmentModelDir, "", ".counts.json")
+  config.EnrichmentModel        .CompletePaths(config.EnrichmentModelDir, "", ".json")
+  config.EnrichmentComp         .CompletePaths(config.EnrichmentModelDir, "", ".components.json")
+  config.EnrichmentPeak         .CompletePaths(config.EnrichmentDir, "enrichment-peaks-", ".table")
+  config.EnrichmentProb         .CompletePaths(config.EnrichmentDir, "enrichment-", ".bw")
+  config.ChromatinStateProb     .CompletePaths(config.ChromatinStateDir, "chromatin-state-", ".bw")
+  config.ChromatinStatePeak     .CompletePaths(config.ChromatinStateDir, "chromatin-state-", ".table")
   config.PosteriorProb          .CompletePaths(config.PosteriorDir, "posterior-marginal-", ".bw")
   config.PosteriorPeak          .CompletePaths(config.PosteriorDir, "posterior-marginal-peaks-", ".table")
   config.SetOpenChromatinAssay(config.DetectOpenChromatinAssay())
-  if config.SingleFeatureModelStatic {
-    config.CoverageCnts      .SetStatic(true)
-    config.SingleFeatureModel.SetStatic(true)
-    config.SingleFeatureComp .SetStatic(true)
+  if config.EnrichmentModelStatic {
+    config.CoverageCnts   .SetStatic(true)
+    config.EnrichmentModel.SetStatic(true)
+    config.EnrichmentComp .SetStatic(true)
   }
 }
 
-func (config *ConfigModHmm) SingleFeatureFiles(feature string) SingleFeatureFiles {
+func (config *ConfigModHmm) EnrichmentFiles(feature string) EnrichmentFiles {
 
-  if !SingleFeatureList.Contains(strings.ToLower(feature)) {
+  if !EnrichmentList.Contains(strings.ToLower(feature)) {
     log.Fatalf("unknown feature: %s", feature)
   }
-  files := SingleFeatureFiles{}
+  files := EnrichmentFiles{}
   files.Feature = config.CoerceOpenChromatinAssay(strings.ToLower(feature))
 
   switch files.Feature {
   case "rna-low":
-    files.Probabilities = config.SingleFeatureProb .Rna_low
-    files.Model         = config.SingleFeatureModel.Rna
-    files.Components    = config.SingleFeatureComp .Rna_low
+    files.Probabilities = config.EnrichmentProb .Rna_low
+    files.Model         = config.EnrichmentModel.Rna
+    files.Components    = config.EnrichmentComp .Rna_low
     files.Coverage      = config.Coverage    .Rna
     files.CoverageCnts  = config.CoverageCnts.Rna
   default:
-    files.Probabilities = config.SingleFeatureProb .GetTargetFile(feature)
-    files.Model         = config.SingleFeatureModel.GetTargetFile(feature)
-    files.Components    = config.SingleFeatureComp .GetTargetFile(feature)
+    files.Probabilities = config.EnrichmentProb .GetTargetFile(feature)
+    files.Model         = config.EnrichmentModel.GetTargetFile(feature)
+    files.Components    = config.EnrichmentComp .GetTargetFile(feature)
     files.Coverage      = config.Coverage          .GetTargetFile(feature)
     files.CoverageCnts  = config.CoverageCnts      .GetTargetFile(feature)
   }
@@ -632,7 +632,7 @@ func (config ConfigCoveragePaths) String(openChromatinAssay string) string {
   return buffer.String()
 }
 
-func (config ConfigSingleFeaturePaths) String(openChromatinAssay string) string {
+func (config ConfigEnrichmentPaths) String(openChromatinAssay string) string {
   var buffer bytes.Buffer
 
   switch strings.ToLower(openChromatinAssay) {
@@ -654,7 +654,7 @@ func (config ConfigSingleFeaturePaths) String(openChromatinAssay string) string 
   return buffer.String()
 }
 
-func (config ConfigMultiFeaturePaths) String() string {
+func (config ConfigChromatinStatePaths) String() string {
   var buffer bytes.Buffer
 
   fmt.Fprintf(&buffer, " -> PA                   : %v\n", config.PA)
@@ -683,29 +683,29 @@ func (config ConfigModHmm) String() string {
     fmt.Fprintf(&buffer, "Coverage files (bigWig):\n")
     fmt.Fprintf(&buffer, "%v\n", config.Coverage.String(config.OpenChromatinAssay))
   }
-  if config.Verbose > 1 && config.SingleFeatureMethod == "model" {
-    fmt.Fprintf(&buffer, "Single-feature mixture distributions:\n")
-    fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureModel.String(config.OpenChromatinAssay))
-    fmt.Fprintf(&buffer, "Single-feature count statistics:\n")
+  if config.Verbose > 1 && config.EnrichmentMethod == "model" {
+    fmt.Fprintf(&buffer, "Enrichment mixture distributions:\n")
+    fmt.Fprintf(&buffer, "%v\n", config.EnrichmentModel.String(config.OpenChromatinAssay))
+    fmt.Fprintf(&buffer, "Enrichment count statistics:\n")
     fmt.Fprintf(&buffer, "%v\n", config.CoverageCnts.String(config.OpenChromatinAssay))
-    fmt.Fprintf(&buffer, "Single-feature foreground mixture components:\n")
-    fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureComp.String(config.OpenChromatinAssay))
+    fmt.Fprintf(&buffer, "Enrichment mixture components:\n")
+    fmt.Fprintf(&buffer, "%v\n", config.EnrichmentComp.String(config.OpenChromatinAssay))
   }
   if config.Verbose > 0 {
-    fmt.Fprintf(&buffer, "Single-feature foreground probabilities:\n")
-    fmt.Fprintf(&buffer, "%v\n", config.SingleFeatureProb.String(config.OpenChromatinAssay))
+    fmt.Fprintf(&buffer, "Enrichment probabilities:\n")
+    fmt.Fprintf(&buffer, "%v\n", config.EnrichmentProb.String(config.OpenChromatinAssay))
   }
   if config.Verbose > 1 {
-    fmt.Fprintf(&buffer, "Single-feature peaks:\n")
-    fmt.Fprintf(&buffer, "%v\n", config.SingleFeaturePeak.String(config.OpenChromatinAssay))
+    fmt.Fprintf(&buffer, "Enrichment peaks:\n")
+    fmt.Fprintf(&buffer, "%v\n", config.EnrichmentPeak.String(config.OpenChromatinAssay))
   }
   if config.Verbose > 0 {
-    fmt.Fprintf(&buffer, "Multi-feature probabilities:\n")
-    fmt.Fprintf(&buffer, "%v\n", config.MultiFeatureProb.String())
+    fmt.Fprintf(&buffer, "Chromatin state probabilities:\n")
+    fmt.Fprintf(&buffer, "%v\n", config.ChromatinStateProb.String())
   }
   if config.Verbose > 1 {
-    fmt.Fprintf(&buffer, "Multi-feature peaks:\n")
-    fmt.Fprintf(&buffer, "%v\n", config.MultiFeaturePeak.String())
+    fmt.Fprintf(&buffer, "Chromatin state peaks:\n")
+    fmt.Fprintf(&buffer, "%v\n", config.ChromatinStatePeak.String())
   }
   if config.Verbose > 0 {
     fmt.Fprintf(&buffer, "Posterior marginals:\n")

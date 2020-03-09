@@ -65,7 +65,7 @@ func modhmm_call_posterior_peaks_loop(config ConfigModHmm, states []string, thre
 }
 
 func modhmm_call_posterior_peaks_all(config ConfigModHmm, threshold float64) {
-  modhmm_call_posterior_peaks_loop(config, MultiFeatureList, threshold)
+  modhmm_call_posterior_peaks_loop(config, ChromatinStateList, threshold)
 }
 
 func modhmm_call_posterior_peaks_main(config ConfigModHmm, args []string) {

@@ -38,7 +38,7 @@ import   "github.com/pborman/getopt"
 
 func getStateIndices(modhmm ModHmm, state string) []int {
   stateMap := modhmm.Hmm.StateMap
-  iState   := MultiFeatureList.Index(strings.ToLower(state))
+  iState   := ChromatinStateList.Index(strings.ToLower(state))
   result   := []int{}
   for i := 0; i < len(stateMap); i++ {
     if stateMap[i] == iState {
@@ -56,7 +56,7 @@ func posterior(config ConfigModHmm, state string, trackFiles []string, tracks []
   states := getStateIndices(modhmm, state)
   printStderr(config, 2, "State %s maps to state indices %v\n", strings.ToUpper(state), states)
 
-  result, err := ImportAndClassifyMultiTrack(config.SessionConfig, matrixClassifier.HmmPosterior{&modhmm.Hmm, states, false}, trackFiles, true, MultiFeatureFilterZeros{}); if err != nil {
+  result, err := ImportAndClassifyMultiTrack(config.SessionConfig, matrixClassifier.HmmPosterior{&modhmm.Hmm, states, false}, trackFiles, true, ChromatinStateFilterZeros{}); if err != nil {
     panic(err)
   }
   err = ExportTrack(config.SessionConfig, result, filenameResult); if err != nil {
@@ -68,16 +68,16 @@ func posterior(config ConfigModHmm, state string, trackFiles []string, tracks []
 /* -------------------------------------------------------------------------- */
 
 func modhmm_posterior_tracks(config ConfigModHmm) []string {
-  files := make([]string, len(MultiFeatureList))
-  for i, state := range MultiFeatureList {
-    files[i] = config.MultiFeatureProb.GetTargetFile(state).Filename
+  files := make([]string, len(ChromatinStateList))
+  for i, state := range ChromatinStateList {
+    files[i] = config.ChromatinStateProb.GetTargetFile(state).Filename
   }
   return files
 }
 
 func modhmm_posterior(config ConfigModHmm, state string, tracks []Track) []Track {
 
-  if !MultiFeatureList.Contains(strings.ToLower(state)) {
+  if !ChromatinStateList.Contains(strings.ToLower(state)) {
     log.Fatalf("unknown state: %s", state)
   }
 
@@ -86,15 +86,15 @@ func modhmm_posterior(config ConfigModHmm, state string, tracks []Track) []Track
     dependencies  = append(dependencies, config.Model.Filename)
   }
   dependencies  = append(dependencies, modhmm_segmentation_dep(config)...)
-  dependencies  = append(dependencies, modhmm_multi_feature_eval_dep(config)...)
-  dependencies  = append(dependencies, modhmm_single_feature_eval_dep(config)...)
+  dependencies  = append(dependencies, modhmm_chromatin_state_eval_dep(config)...)
+  dependencies  = append(dependencies, modhmm_enrichment_eval_dep(config)...)
   dependencies  = append(dependencies, modhmm_coverage_dep(config)...)
 
   trackFiles     := modhmm_posterior_tracks(config)
   filenameResult := config.PosteriorProb.GetTargetFile(state)
 
   if updateRequired(config, filenameResult, dependencies...) {
-    modhmm_multi_feature_eval_all(config)
+    modhmm_chromatin_state_eval_all(config)
     modhmm_segmentation(config, "default")
 
     printStderr(config, 1, "==> Evaluating Posterior Marginals (%s) <==\n", strings.ToUpper(state))
@@ -111,7 +111,7 @@ func modhmm_posterior_loop(config ConfigModHmm, states []string) {
 }
 
 func modhmm_posterior_all(config ConfigModHmm) {
-  modhmm_posterior_loop(config, MultiFeatureList)
+  modhmm_posterior_loop(config, ChromatinStateList)
 }
 
 /* -------------------------------------------------------------------------- */
