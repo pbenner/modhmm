@@ -6,7 +6,7 @@ State name | Description
 -----------|------------------------------------------
 PA         | active promoter
 EA         | active enhancer
-BI         | bivalet region
+BI         | bivalent region
 PR         | primed region
 EA:tr      | active enhancer in a transcribed region
 BI:tr      | bivalet region in a transcribed region
