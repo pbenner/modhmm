@@ -299,6 +299,44 @@ func (config *ConfigEnrichmentPaths) SetStatic(static bool) {
 
 /* -------------------------------------------------------------------------- */
 
+type ConfigEnrichmentParameters struct {
+  Open     []float64 `json:"Open"`
+  H3k27ac  []float64 `json:"H3K27ac"`
+  H3k27me3 []float64 `json:"H3K27me3"`
+  H3k9me3  []float64 `json:"H3K9me3"`
+  H3k4me1  []float64 `json:"H3K4me1"`
+  H3k4me3  []float64 `json:"H3K4me3"`
+  Rna      []float64 `json:"RNA"`
+  Control  []float64 `json:"Control"`
+}
+
+func (config *ConfigEnrichmentParameters) getParameters(feature string) []float64 {
+  switch strings.ToLower(feature) {
+  case "open"    : return config.Open
+  case "atac"    : return config.Open
+  case "dnase"   : return config.Open
+  case "h3k27ac" : return config.H3k27ac
+  case "h3k27me3": return config.H3k27me3
+  case "h3k9me3" : return config.H3k9me3
+  case "h3k4me1" : return config.H3k4me1
+  case "h3k4me3" : return config.H3k4me3
+  case "rna"     : return config.Rna
+  case "control" : return config.Control
+  default:
+    panic("internal error")
+  }
+}
+
+func (config *ConfigEnrichmentParameters) GetParameters(feature string) []float64 {
+  parameters := config.getParameters(feature)
+  if len(parameters) != 3 {
+    log.Fatalf("config file has invalid number of enrichment parameters for feature `%s'", feature)
+  }
+  return parameters
+}
+
+/* -------------------------------------------------------------------------- */
+
 type ConfigChromatinStatePaths struct {
   EA       TargetFile
   PA       TargetFile
@@ -364,6 +402,7 @@ type ConfigModHmm struct {
   EnrichmentDir           string                     `json:"Enrichment Directory"`
   EnrichmentProb          ConfigEnrichmentPaths      `json:"Enrichment Probabilities"`
   EnrichmentPeak          ConfigEnrichmentPaths      `json:"Enrichment Peaks"`
+  EnrichmentParameters    ConfigEnrichmentParameters `json:"Enrichment Parameters"`
   ChromatinStateDir       string                     `json:"Chromatin-State Directory"`
   ChromatinStateProb      ConfigChromatinStatePaths  `json:"Chromatin-State Probabilities"`
   ChromatinStatePeak      ConfigChromatinStatePaths  `json:"Chromatin-State Peaks"`
@@ -405,18 +444,27 @@ func (config *ConfigModHmm) ImportFile(filename string) error {
 func DefaultModHmmConfig() ConfigModHmm {
   config := ConfigModHmm{}
   // set default values
-  config.BinSize                    = 200
-  config.BinSummaryStatistics       = "mean"
-  config.CoverageThreads            = 1
-  config.CoverageFraglen            = false
-  config.CoverageBinSize            = 10
-  config.CoverageMAPQ               = 30
-  config.ModelFallback              = "mm10"
-  config.FontSize                   = 12
-  config.OpenChromatinAssay         = ""
-  config.EnrichmentMethod        = "heuristic"
-  config.Threads                    = 1
-  config.Verbose                    = 0
+  config.BinSize              = 200
+  config.BinSummaryStatistics = "mean"
+  config.CoverageThreads      = 1
+  config.CoverageFraglen      = false
+  config.CoverageBinSize      = 10
+  config.CoverageMAPQ         = 30
+  config.ModelFallback        = "mm10"
+  config.FontSize             = 12
+  config.OpenChromatinAssay   = ""
+  config.EnrichmentMethod     = "heuristic"
+  config.Threads              = 1
+  config.Verbose              = 0
+  // default parameters for assigning enrichment probabilities
+  config.EnrichmentParameters.Open     = []float64{0.80, 0.01, 0.50}
+  config.EnrichmentParameters.H3k27ac  = []float64{0.80, 0.01, 0.50}
+  config.EnrichmentParameters.H3k27me3 = []float64{0.90, 0.01, 0.50}
+  config.EnrichmentParameters.H3k9me3  = []float64{0.90, 0.01, 0.50}
+  config.EnrichmentParameters.H3k4me1  = []float64{0.80, 0.01, 0.50}
+  config.EnrichmentParameters.H3k4me3  = []float64{0.95, 0.01, 0.50}
+  config.EnrichmentParameters.Rna      = []float64{0.50, 0.01, 0.50}
+  config.EnrichmentParameters.Control  = []float64{0.95, 0.01, 0.50}
   return config
 }
 
@@ -500,15 +548,15 @@ func (config *ConfigModHmm) DetectOpenChromatinAssay() string {
 func (config *ConfigModHmm) SetOpenChromatinAssay(assay string) {
   switch strings.ToLower(assay) {
   case "atac":
-    config.Coverage          .Open = config.Coverage          .Atac
-    config.CoverageCnts      .Open = config.CoverageCnts      .Atac
+    config.Coverage       .Open = config.Coverage       .Atac
+    config.CoverageCnts   .Open = config.CoverageCnts   .Atac
     config.EnrichmentModel.Open = config.EnrichmentModel.Atac
     config.EnrichmentComp .Open = config.EnrichmentComp .Atac
     config.EnrichmentPeak .Open = config.EnrichmentPeak .Atac
     config.EnrichmentProb .Open = config.EnrichmentProb .Atac
   case "dnase":
-    config.Coverage          .Open = config.Coverage          .Dnase
-    config.CoverageCnts      .Open = config.CoverageCnts      .Dnase
+    config.Coverage       .Open = config.Coverage       .Dnase
+    config.CoverageCnts   .Open = config.CoverageCnts   .Dnase
     config.EnrichmentModel.Open = config.EnrichmentModel.Dnase
     config.EnrichmentComp .Open = config.EnrichmentComp .Dnase
     config.EnrichmentPeak .Open = config.EnrichmentPeak .Dnase
@@ -522,9 +570,9 @@ func (config *ConfigModHmm) SetOpenChromatinAssay(assay string) {
 func (config *ConfigModHmm) CompletePaths(prefix string) {
   config.BamDir                 = config.setDefaultDir(prefix, config.BamDir               ,  "")
   config.CoverageDir            = config.setDefaultDir(prefix, config.CoverageDir          , config.BamDir)
-  config.EnrichmentModelDir     = config.setDefaultDir(prefix, config.EnrichmentModelDir, config.CoverageDir)
-  config.EnrichmentDir          = config.setDefaultDir(prefix, config.EnrichmentDir     , config.EnrichmentModelDir)
-  config.ChromatinStateDir      = config.setDefaultDir(prefix, config.ChromatinStateDir      , config.EnrichmentDir)
+  config.EnrichmentModelDir     = config.setDefaultDir(prefix, config.EnrichmentModelDir   , config.CoverageDir)
+  config.EnrichmentDir          = config.setDefaultDir(prefix, config.EnrichmentDir        , config.EnrichmentModelDir)
+  config.ChromatinStateDir      = config.setDefaultDir(prefix, config.ChromatinStateDir    , config.EnrichmentDir)
   config.ModelDir               = config.setDefaultDir(prefix, config.ModelDir             , config.ChromatinStateDir)
   config.SegmentationDir        = config.setDefaultDir(prefix, config.SegmentationDir      , config.ModelDir)
   config.PosteriorDir           = config.setDefaultDir(prefix, config.PosteriorDir         , config.SegmentationDir)
@@ -562,14 +610,14 @@ func (config *ConfigModHmm) EnrichmentFiles(feature string) EnrichmentFiles {
     files.Probabilities = config.EnrichmentProb .Rna_low
     files.Model         = config.EnrichmentModel.Rna
     files.Components    = config.EnrichmentComp .Rna_low
-    files.Coverage      = config.Coverage    .Rna
-    files.CoverageCnts  = config.CoverageCnts.Rna
+    files.Coverage      = config.Coverage       .Rna
+    files.CoverageCnts  = config.CoverageCnts   .Rna
   default:
     files.Probabilities = config.EnrichmentProb .GetTargetFile(feature)
     files.Model         = config.EnrichmentModel.GetTargetFile(feature)
     files.Components    = config.EnrichmentComp .GetTargetFile(feature)
-    files.Coverage      = config.Coverage          .GetTargetFile(feature)
-    files.CoverageCnts  = config.CoverageCnts      .GetTargetFile(feature)
+    files.Coverage      = config.Coverage       .GetTargetFile(feature)
+    files.CoverageCnts  = config.CoverageCnts   .GetTargetFile(feature)
   }
   return files
 }
@@ -654,6 +702,20 @@ func (config ConfigEnrichmentPaths) String(openChromatinAssay string) string {
   return buffer.String()
 }
 
+func (config ConfigEnrichmentParameters) String() string {
+  var buffer bytes.Buffer
+
+  fmt.Fprintf(&buffer, " -> Open                 : %v\n", config.Open)
+  fmt.Fprintf(&buffer, " -> H3K27ac              : %v\n", config.H3k27ac)
+  fmt.Fprintf(&buffer, " -> H3K27me3             : %v\n", config.H3k27me3)
+  fmt.Fprintf(&buffer, " -> H3K4me1              : %v\n", config.H3k4me1)
+  fmt.Fprintf(&buffer, " -> H3K4me3              : %v\n", config.H3k4me3)
+  fmt.Fprintf(&buffer, " -> RNA                  : %v\n", config.Rna)
+  fmt.Fprintf(&buffer, " -> Control              : %v\n", config.Control)
+
+  return buffer.String()
+}
+
 func (config ConfigChromatinStatePaths) String() string {
   var buffer bytes.Buffer
 
@@ -698,6 +760,10 @@ func (config ConfigModHmm) String() string {
   if config.Verbose > 1 {
     fmt.Fprintf(&buffer, "Enrichment peaks:\n")
     fmt.Fprintf(&buffer, "%v\n", config.EnrichmentPeak.String(config.OpenChromatinAssay))
+  }
+  if config.Verbose > 1 {
+    fmt.Fprintf(&buffer, "Enrichment parameters:\n")
+    fmt.Fprintf(&buffer, "%v\n", config.EnrichmentParameters.String())
   }
   if config.Verbose > 0 {
     fmt.Fprintf(&buffer, "Chromatin state probabilities:\n")

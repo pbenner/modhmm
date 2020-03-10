@@ -116,18 +116,9 @@ func enrichment_eval_heuristic_loop(config ConfigModHmm, result MutableTrack, da
 }
 
 func enrichment_eval_heuristic_parameters(config ConfigModHmm, files EnrichmentFiles, counts Counts) (float64, float64) {
-  // default parameters
-  q  := 0.80
-  p1 := 0.01
-  p2 := 0.50
-  // update parameters
-  switch files.Feature {
-  case "control" : q = 0.95
-  case "h3k4me3" : q = 0.95
-  case "h3k27me3": q = 0.90
-  case "h3k9me3" : q = 0.90
-  case "rna"     : q = 0.50
-  }
+  q  := config.EnrichmentParameters.GetParameters(files.Feature)[0]
+  p1 := config.EnrichmentParameters.GetParameters(files.Feature)[1]
+  p2 := config.EnrichmentParameters.GetParameters(files.Feature)[2]
   m1 := counts.Quantile(q)
   m2 := counts.ThresholdedMean(m1)
   return compute_sigmoid_parameters(m1, m2, p1, p2)
