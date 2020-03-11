@@ -122,13 +122,13 @@ func enrichment_eval_heuristic_parameters(config ConfigModHmm, files EnrichmentF
   m1 := counts.Quantile(q)
   m2 := counts.ThresholdedMean(m1)
   a, b := compute_sigmoid_parameters(m1, m2, p1, p2)
-  return q, a, b
+  return m1, a, b
 }
 
 func enrichment_eval_heuristic(config ConfigModHmm, files EnrichmentFiles) {
   data    := enrichment_import_heuristic(config, files)
   counts  := compute_counts(config, data)
-  q, a, b := enrichment_eval_heuristic_parameters(config, files, counts)
+  m, a, b := enrichment_eval_heuristic_parameters(config, files, counts)
   result  := AllocSimpleTrack("classification", data.GetGenome(), data.GetBinSize())
 
   // compute probabilities
@@ -136,7 +136,7 @@ func enrichment_eval_heuristic(config ConfigModHmm, files EnrichmentFiles) {
 
   // rna-low is a special case
   if files.Feature == "rna" {
-    enrichment_eval_rna_low(config, result, data, q)
+    enrichment_eval_rna_low(config, result, data, m)
   }
   if err := ExportTrack(config.SessionConfig, result, files.Probabilities.Filename); err != nil {
     log.Fatal(err)
