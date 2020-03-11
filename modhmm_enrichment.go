@@ -53,12 +53,12 @@ func enrichment_import_and_normalize(config ConfigModHmm, filenameData, filename
 
 /* -------------------------------------------------------------------------- */
 
-func enrichment_eval_rna_low(config ConfigModHmm, rnaProb MutableTrack, rnaData Track) {
+func enrichment_eval_rna_low(config ConfigModHmm, rnaProb MutableTrack, rnaData Track, q float64) {
   files  := config.EnrichmentFiles("rna-low")
   result := rnaProb.CloneMutableTrack()
 
   if err := (GenericMutableTrack{result}).MapList([]Track{rnaProb, rnaData}, func(seqname string, position int, value... float64) float64 {
-    if value[1] > 0.0 {
+    if value[1] > q {
       return 1.0 - value[0]
     } else {
       return 1e-8

@@ -115,27 +115,28 @@ func enrichment_eval_heuristic_loop(config ConfigModHmm, result MutableTrack, da
   pool.Wait(group)
 }
 
-func enrichment_eval_heuristic_parameters(config ConfigModHmm, files EnrichmentFiles, counts Counts) (float64, float64) {
+func enrichment_eval_heuristic_parameters(config ConfigModHmm, files EnrichmentFiles, counts Counts) (float64, float64, float64) {
   q  := config.EnrichmentParameters.GetParameters(files.Feature)[0]
   p1 := config.EnrichmentParameters.GetParameters(files.Feature)[1]
   p2 := config.EnrichmentParameters.GetParameters(files.Feature)[2]
   m1 := counts.Quantile(q)
   m2 := counts.ThresholdedMean(m1)
-  return compute_sigmoid_parameters(m1, m2, p1, p2)
+  a, b := compute_sigmoid_parameters(m1, m2, p1, p2)
+  return q, a, b
 }
 
 func enrichment_eval_heuristic(config ConfigModHmm, files EnrichmentFiles) {
-  data   := enrichment_import_heuristic(config, files)
-  counts := compute_counts(config, data)
-  a, b   := enrichment_eval_heuristic_parameters(config, files, counts)
-  result := AllocSimpleTrack("classification", data.GetGenome(), data.GetBinSize())
+  data    := enrichment_import_heuristic(config, files)
+  counts  := compute_counts(config, data)
+  q, a, b := enrichment_eval_heuristic_parameters(config, files, counts)
+  result  := AllocSimpleTrack("classification", data.GetGenome(), data.GetBinSize())
 
   // compute probabilities
   enrichment_eval_heuristic_loop(config, result, data, a, b)
 
   // rna-low is a special case
   if files.Feature == "rna" {
-    enrichment_eval_rna_low(config, result, data)
+    enrichment_eval_rna_low(config, result, data, q)
   }
   if err := ExportTrack(config.SessionConfig, result, files.Probabilities.Filename); err != nil {
     log.Fatal(err)

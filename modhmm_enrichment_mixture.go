@@ -65,7 +65,7 @@ func enrichment_eval_classifier(config ConfigModHmm, files EnrichmentFiles) {
   }
   // rna-low is a special case
   if files.Feature == "rna" {
-    enrichment_eval_rna_low(config, result, data)
+    enrichment_eval_rna_low(config, result, data, 0.0)
   }
   if err := (GenericMutableTrack{result}).Map(result, func(seqname string, position int, value float64) float64 {
     return math.Exp(value)

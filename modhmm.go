@@ -65,24 +65,17 @@ func main() {
     "     modhmm -c CONFIG.json segmentation\n\n" +
     " Commands:\n" +
     "     coverage                 [stage 1]   - compute single-feature coverages from bam files\n" +
-    "     estimate-single-feature  [stage 1.1] - estimate mixture distribution for single-feature\n" +
-    "                                            enrichment analysis\n" +
-    "     eval-single-feature      [stage 2]   - evaluate single-feature models\n" +
-    "     eval-multi-feature       [stage 3]   - evaluate  multi-feature models\n" +
+    "     eval-enrichment          [stage 2]   - compute enrichment probabbilities\n" +
+    "     eval-chromatin-state     [stage 3]   - apply chromatin state classifiers\n" +
     "     segmentation             [stage 4]   - compute genome segmentation\n" +
     "     eval-posterior-marginals [stage 5]   - compute posterior marginals of hidden states\n\n" +
     " ModHMM commands are structured in stages. Executing a command also executes all commands with\n" +
-    " lower stage number. An exception is stage 1.1 that must be executed manually. By default,\n" +
-    " stage 1.1 is bypassed and a default single-feature model is used.\n\n" +
-    " Plotting and printing commands:\n" +
-    "     plot-single-feature                  - plot fitted single-feature mixture distributions used\n" +
-    "                                            for enrichment analysis\n" +
-    "     print-single-feature                 - print components and parameters of single-feature\n" +
-    "                                            mixture distributions\n" +
+    " lower stage number.\n\n" +
+    " Printing commands:\n" +
     "     print-transition-matrix              - print estimated transition rates\n" +
     " Peak calling commands:\n" +
-    "     call-single-feature-peaks            - call peaks of single-feature enrichment analysis\n" +
-    "     call-multi-feature-peaks             - call peaks of multi-feature classifications\n" +
+    "     call-enrichment-peaks                - call peaks of single-feature enrichment analysis\n" +
+    "     call-chromatin-state-peaks           - call peaks of multi-feature classifications\n" +
     "     call-posterior-marginal-peaks        - call peaks of HMM marginal posterior tracks\n")
   options.Parse(os.Args)
 
@@ -136,25 +129,25 @@ func main() {
   switch command {
   case "coverage":
     modhmm_coverage_main(config, options.Args())
-  case "estimate-single-feature":
+  case "estimate-enrichment-model":
     modhmm_enrichment_estimate_main(config, options.Args())
-  case "plot-single-feature":
+  case "plot-enrichment-model":
     modhmm_enrichment_plot_main(config, options.Args())
-  case "print-single-feature":
+  case "print-enrichment-model":
     modhmm_enrichment_print_main(config, options.Args())
   case "print-transition-matrix":
     modhmm_transition_matrix_print_main(config, options.Args())
-  case "eval-single-feature":
+  case "eval-enrichment":
     modhmm_enrichment_eval_main(config, options.Args())
-  case "eval-multi-feature":
+  case "eval-chromatin-state":
     modhmm_chromatin_state_eval_main(config, options.Args())
   case "eval-posterior-marginals":
     modhmm_posterior_main(config, options.Args())
   case "segmentation":
     modhmm_segmentation_main(config, options.Args())
-  case "call-single-feature-peaks":
+  case "call-enrichment-peaks":
     modhmm_call_enrichment_peaks_main(config, options.Args())
-  case "call-multi-feature-peaks":
+  case "call-chromatin-state-peaks":
     modhmm_call_chromatin_state_peaks_main(config, options.Args())
   case "call-posterior-marginal-peaks":
     modhmm_call_posterior_peaks_main(config, options.Args())
