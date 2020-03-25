@@ -132,7 +132,7 @@ func segment(config ConfigModHmm, trackFiles []string) {
       desc = fmt.Sprintf("Segmentation ModHMM [%s]", config.Description)
     }
     printStderr(config, 1, "Writing genome segmentation to `%s'... ", config.Segmentation.Filename)
-    if err := ExportTrackSegmentation(config.SessionConfig, result, config.Segmentation.Filename, name, desc, true, modhmm.StateNames, nil); err != nil {
+    if err := ExportTrackSegmentation(config.SessionConfig, result, config.Segmentation.Filename, name, desc, true, modhmm.StateNames, nil, nil); err != nil {
       printStderr(config, 1, "failed\n")
       log.Fatal(err)
     }
