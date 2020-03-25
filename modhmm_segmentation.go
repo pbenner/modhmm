@@ -23,6 +23,7 @@ import   "log"
 import   "path"
 import   "os"
 
+import . "github.com/pbenner/gonetics"
 import . "github.com/pbenner/ngstat/classification"
 import . "github.com/pbenner/ngstat/estimation"
 import . "github.com/pbenner/ngstat/track"
@@ -120,7 +121,16 @@ func estimate(config ConfigModHmm, trackFiles []string, model string) {
 func segment(config ConfigModHmm, trackFiles []string) {
   modhmm := ImportHMM(config)
 
-  if result, err := ImportAndClassifyMultiTrack(config.SessionConfig, matrixClassifier.HmmClassifier{&modhmm.Hmm}, trackFiles, true, ChromatinStateFilterZeros{}); err != nil {
+  // import track files
+  tracks := make([]Track, len(trackFiles))
+  for i := 0; i < len(trackFiles); i++ {
+    track, err := ImportTrack(config.SessionConfig, trackFiles[i]); if err != nil {
+      log.Fatal(err)
+    }
+    tracks[i] = track
+  }
+  // compute segmentation
+  if result, err := ClassifyMultiTrack(config.SessionConfig, matrixClassifier.HmmClassifier{&modhmm.Hmm}, tracks, true, ChromatinStateFilterZeros{}); err != nil {
     log.Fatal(err)
   } else {
     var name, desc string
@@ -129,10 +139,16 @@ func segment(config ConfigModHmm, trackFiles []string) {
       desc = "Segmentation ModHMM"
     } else {
       name = fmt.Sprintf("ModHMM [%s]", config.Description)
-      desc = fmt.Sprintf("Segmentation ModHMM [%s]", config.Description)
+      desc = fmt.Sprintf("Segmentation ModHMM:%s [%s]", Version, config.Description)
+    }
+    tracksEquivalent := make([]Track, modhmm.NStates())
+    for i, state := range ChromatinStateList {
+      for _, j := range getStateIndices(modhmm, state) {
+        tracksEquivalent[j] = tracks[i]
+      }
     }
     printStderr(config, 1, "Writing genome segmentation to `%s'... ", config.Segmentation.Filename)
-    if err := ExportTrackSegmentation(config.SessionConfig, result, config.Segmentation.Filename, name, desc, true, modhmm.StateNames, nil, nil); err != nil {
+    if err := ExportTrackSegmentation(config.SessionConfig, result, config.Segmentation.Filename, name, desc, true, modhmm.StateNames, nil, tracksEquivalent); err != nil {
       printStderr(config, 1, "failed\n")
       log.Fatal(err)
     }
