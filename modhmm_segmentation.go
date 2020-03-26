@@ -22,6 +22,7 @@ import   "fmt"
 import   "log"
 import   "path"
 import   "os"
+import   "math"
 
 import . "github.com/pbenner/gonetics"
 import . "github.com/pbenner/ngstat/classification"
@@ -71,6 +72,9 @@ func (ChromatinStateFilterZeros) Eval(x Matrix) Matrix {
   for i := 0; i < n; i++ {
     allZero := true
     for j := 0; j < m; j++ {
+      if math.IsNaN(x.ValueAt(i, j)) {
+        panic("interal error")
+      }
       if x.ValueAt(i, j) != 0.0 {
         allZero = false; break
       }

@@ -69,6 +69,14 @@ func (obj BasicClassifier) PeakSym_(x ConstMatrix, m, min, k0 int) float64 {
     }
     r += t
   }
+  if r > 1.0 {
+    if r > 1.0 + 1e-8 {
+      panic("interal error")
+    } else {
+      // numerical error
+      r = 1.0
+    }
+  }
   return r
 }
 

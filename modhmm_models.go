@@ -82,6 +82,9 @@ func (obj *EmissionDistribution) CloneVectorPdf() VectorPdf {
 
 func (obj *EmissionDistribution) LogPdf(r Scalar, x ConstVector) error {
   r.SetValue(math.Log(x.ValueAt(obj.i)))
+  if math.IsNaN(r.GetValue()) {
+    panic("internal error")
+  }
   return nil
 }
 
