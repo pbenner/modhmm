@@ -428,6 +428,29 @@ func (ClassifierR2) CloneMatrixBatchClassifier() MatrixBatchClassifier {
 
 /* -------------------------------------------------------------------------- */
 
+type ClassifierCL struct {
+  BasicClassifier
+}
+
+func (obj ClassifierCL) Eval(s Scalar, x ConstMatrix) error {
+  r := 1.0
+  { // control peak at any position
+    r *= obj.PeakAny(x, jControl)
+  }
+  s.SetValue(r)
+  return nil
+}
+
+func (ClassifierCL) Dims() (int, int) {
+  return 9, 1
+}
+
+func (ClassifierCL) CloneMatrixBatchClassifier() MatrixBatchClassifier {
+  return ClassifierCL{}
+}
+
+/* -------------------------------------------------------------------------- */
+
 type ClassifierNS struct {
   BasicClassifier
 }
@@ -471,27 +494,4 @@ func (ClassifierNS) Dims() (int, int) {
 
 func (ClassifierNS) CloneMatrixBatchClassifier() MatrixBatchClassifier {
   return ClassifierNS{}
-}
-
-/* -------------------------------------------------------------------------- */
-
-type ClassifierCL struct {
-  BasicClassifier
-}
-
-func (obj ClassifierCL) Eval(s Scalar, x ConstMatrix) error {
-  r := 1.0
-  { // control peak at any position
-    r *= obj.PeakAny(x, jControl)
-  }
-  s.SetValue(r)
-  return nil
-}
-
-func (ClassifierCL) Dims() (int, int) {
-  return 9, 1
-}
-
-func (ClassifierCL) CloneMatrixBatchClassifier() MatrixBatchClassifier {
-  return ClassifierCL{}
 }
