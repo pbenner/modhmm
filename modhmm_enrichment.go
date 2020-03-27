@@ -140,7 +140,7 @@ func modhmm_enrichment_eval(config ConfigModHmm, feature string) {
     if EnrichmentIsOptional(files.Feature) && !FileExists(files.Coverage.Filename) {
       return
     }
-    printStderr(config, 1, "==> Evaluating Single-Feature Model (%s) <==\n", feature)
+    printStderr(config, 1, "==> Computing Enrichment Probabilities (%s) <==\n", feature)
     enrichment_eval(config, files)
   }
 }

@@ -118,7 +118,7 @@ func modhmm_chromatin_state_eval(config ConfigModHmm, state string, tracks []Tra
 
   if updateRequired(config, filenameResult, dependencies...) {
     modhmm_enrichment_eval_all(config)
-    printStderr(config, 1, "==> Evaluating Multi-Feature Model (%s) <==\n", strings.ToUpper(state))
+    printStderr(config, 1, "==> Evaluating Chromatin State Classifier (%s) <==\n", strings.ToUpper(state))
     classifier := get_chromatin_state_model(config, state)
     tracks = chromatin_state_eval(localConfig, classifier, trackFiles, tracks, filenameResult.Filename)
   }

@@ -33,7 +33,7 @@ import   "github.com/pborman/getopt"
 /* -------------------------------------------------------------------------- */
 
 func modhmm_call_chromatin_state_peaks(config ConfigModHmm, state string, threshold float64) {
-  printStderr(config, 1, "==> Calling Multi-Feature Peaks (%s) <==\n", state)
+  printStderr(config, 1, "==> Calling Chromatin State Peaks (%s) <==\n", state)
   filenameIn  := config.ChromatinStateProb.GetTargetFile(state).Filename
   filenameOut := config.ChromatinStatePeak.GetTargetFile(state)
 
