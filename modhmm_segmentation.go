@@ -101,7 +101,15 @@ func estimate(config ConfigModHmm, trackFiles []string, model string) {
     log.Fatalf("ERROR: invalid model name `%s'", model)
   }
 
-  if err := ImportAndEstimateOnMultiTrack(config.SessionConfig, estimator, trackFiles, true, ChromatinStateFilterZeros{}); err != nil {
+  // import track files
+  tracks := make([]Track, len(trackFiles))
+  for i := 0; i < len(trackFiles); i++ {
+    track, err := ImportTrack(config.SessionConfig, trackFiles[i]); if err != nil {
+      log.Fatal(err)
+    }
+    tracks[i] = track
+  }
+  if err := EstimateOnMultiTrack(config.SessionConfig, estimator, tracks, true, ChromatinStateFilterZeros{}); err != nil {
     log.Fatalf("ERROR: %s", err)
   }
   modhmm := ModHmm{}
