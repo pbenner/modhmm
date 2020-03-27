@@ -101,7 +101,7 @@ func estimate(config ConfigModHmm, trackFiles []string, model string) {
     log.Fatalf("ERROR: invalid model name `%s'", model)
   }
 
-  // import track files
+  // import track files (do not use ImportAndEstimateOnMultiTrack, which uses lazy imports)
   tracks := make([]Track, len(trackFiles))
   for i := 0; i < len(trackFiles); i++ {
     track, err := ImportTrack(config.SessionConfig, trackFiles[i]); if err != nil {
@@ -133,7 +133,7 @@ func estimate(config ConfigModHmm, trackFiles []string, model string) {
 func segment(config ConfigModHmm, trackFiles []string) {
   modhmm := ImportHMM(config)
 
-  // import track files
+  // import track files (do not use ImportAndEstimateOnMultiTrack, which uses lazy imports)
   tracks := make([]Track, len(trackFiles))
   for i := 0; i < len(trackFiles); i++ {
     track, err := ImportTrack(config.SessionConfig, trackFiles[i]); if err != nil {
