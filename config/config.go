@@ -457,14 +457,14 @@ func DefaultModHmmConfig() ConfigModHmm {
   config.Threads              = 1
   config.Verbose              = 0
   // default parameters for assigning enrichment probabilities
-  config.EnrichmentParameters.Open     = []float64{0.80, 0.01, 0.50}
-  config.EnrichmentParameters.H3k27ac  = []float64{0.80, 0.01, 0.50}
-  config.EnrichmentParameters.H3k27me3 = []float64{0.90, 0.01, 0.50}
-  config.EnrichmentParameters.H3k9me3  = []float64{0.90, 0.01, 0.50}
-  config.EnrichmentParameters.H3k4me1  = []float64{0.80, 0.01, 0.50}
-  config.EnrichmentParameters.H3k4me3  = []float64{0.95, 0.01, 0.50}
-  config.EnrichmentParameters.Rna      = []float64{0.50, 0.01, 0.50}
-  config.EnrichmentParameters.Control  = []float64{0.95, 0.01, 0.50}
+  config.EnrichmentParameters.Open     = []float64{0.95, 0.01, 0.90}
+  config.EnrichmentParameters.H3k27ac  = []float64{0.95, 0.01, 0.90}
+  config.EnrichmentParameters.H3k27me3 = []float64{0.95, 0.01, 0.90}
+  config.EnrichmentParameters.H3k9me3  = []float64{0.95, 0.01, 0.90}
+  config.EnrichmentParameters.H3k4me1  = []float64{0.80, 0.01, 0.90}
+  config.EnrichmentParameters.H3k4me3  = []float64{0.95, 0.01, 0.40}
+  config.EnrichmentParameters.Rna      = []float64{0.60, 0.01, 0.90}
+  config.EnrichmentParameters.Control  = []float64{0.95, 0.01, 0.90}
   return config
 }
 

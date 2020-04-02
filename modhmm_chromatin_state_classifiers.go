@@ -27,6 +27,20 @@ import . "github.com/pbenner/modhmm/utility"
 
 /* -------------------------------------------------------------------------- */
 
+func checkNumerics(r float64) float64 {
+  if r > 1.0 {
+    if r > 1.0 + 1e-8 {
+      panic("interal error")
+    } else {
+      // numerical error
+      r = 1.0
+    }
+  }
+  return r
+}
+
+/* -------------------------------------------------------------------------- */
+
 type BasicClassifier struct {
 }
 
@@ -69,15 +83,7 @@ func (obj BasicClassifier) PeakSym_(x ConstMatrix, m, min, k0 int) float64 {
     }
     r += t
   }
-  if r > 1.0 {
-    if r > 1.0 + 1e-8 {
-      panic("interal error")
-    } else {
-      // numerical error
-      r = 1.0
-    }
-  }
-  return r
+  return checkNumerics(r)
 }
 
 func (obj BasicClassifier) PeakSym(x ConstMatrix, m, min int) float64 {
@@ -86,23 +92,23 @@ func (obj BasicClassifier) PeakSym(x ConstMatrix, m, min int) float64 {
 
 func (obj BasicClassifier) PeakAny(x ConstMatrix, i int) float64 {
   _, n := x.Dims()
-  t    :=     x.ValueAt(i, 0)
-  r    := 1.0-x.ValueAt(i, 0)
+  r    :=     x.ValueAt(i, 0)
+  t    := 1.0-x.ValueAt(i, 0)
   for k := 1; k < n; k++ {
-    t +=   r*x.ValueAt(i, k)
-    r *= 1.0-x.ValueAt(i, k)
+    r +=   t*x.ValueAt(i, k)
+    t *= 1.0-x.ValueAt(i, k)
   }
-  return t
+  return checkNumerics(r)
 }
 
 func (obj BasicClassifier) PeakAnyRange(x ConstMatrix, i, k1, k2 int) float64 {
-  t    := 0.0
-  r    := 1.0
+  r    := 0.0
+  t    := 1.0
   for k := k1; k < k2; k++ {
-    t +=   r*x.ValueAt(i, k)
-    r *= 1.0-x.ValueAt(i, k)
+    r +=   t*x.ValueAt(i, k)
+    t *= 1.0-x.ValueAt(i, k)
   }
-  return t
+  return checkNumerics(r)
 }
 
 func (obj BasicClassifier) PeakAt(x ConstMatrix, i, k int) float64 {
@@ -136,7 +142,7 @@ func (obj BasicClassifier) NoPeakRange(x ConstMatrix, i, k1, k2 int) float64 {
   for j := k1; j < k2; j++ {
     r *= 1.0-x.ValueAt(i, j)
   }
-  return r
+  return checkNumerics(r)
 }
 
 func (obj BasicClassifier) NoPeakAt(x ConstMatrix, i, k int) float64 {
@@ -145,7 +151,7 @@ func (obj BasicClassifier) NoPeakAt(x ConstMatrix, i, k int) float64 {
 
 func (obj BasicClassifier) NoPeakAtCenter(x ConstMatrix, i int) float64 {
   _, n := x.Dims()
-  return 1.0-x.ValueAt(i, n/2)
+  return checkNumerics(1.0-x.ValueAt(i, n/2))
 }
 
 func (obj BasicClassifier) NoPeakAll(x ConstMatrix, i int) float64 {
@@ -154,7 +160,7 @@ func (obj BasicClassifier) NoPeakAll(x ConstMatrix, i int) float64 {
   for k := 0; k < n; k++ {
     r *= 1.0-x.ValueAt(i, k)
   }
-  return r
+  return checkNumerics(r)
 }
 
 /* -------------------------------------------------------------------------- */
@@ -306,11 +312,10 @@ type ClassifierTR struct {
 
 func (obj ClassifierTR) Eval(s Scalar, x ConstMatrix) error {
   r := 1.0
-  { // no atac peak at center
-    r *= obj.NoPeakAll(x, jOpen)
-  }
-  { // no h3k4me1 peak at center
-    //r *= obj.NoPeakAll(x, jH3k4me1)
+  { // no atac and h3k4me1 peak
+    t := obj.PeakAll(x, jOpen)
+    t *= obj.PeakAll(x, jH3k4me1)
+    r  = 1.0 - t
   }
   { // no h3k4me3 peak at center
     r *= obj.NoPeakAll(x, jH3k4me3)
@@ -373,9 +378,6 @@ func (obj ClassifierR1) Eval(s Scalar, x ConstMatrix) error {
   { // h3k27me3 peak at any position
     r *= obj.PeakAny(x, jH3k27me3)
   }
-  { // no h3k4me1 peak at all positions
-    //r *= obj.NoPeakAll(x, jH3k4me1)
-  }
   { // no h3k4me3 peak at all positions
     r *= obj.NoPeakAll(x, jH3k4me3)
   }
@@ -404,9 +406,6 @@ func (obj ClassifierR2) Eval(s Scalar, x ConstMatrix) error {
   r := 1.0
   { // h3k9me3 peak at any position
     r *= obj.PeakAny(x, jH3k9me3)
-  }
-  { // no h3k4me1 peak at all positions
-    //r *= obj.NoPeakAll(x, jH3k4me1)
   }
   { // no h3k4me3 peak at all positions
     r *= obj.NoPeakAll(x, jH3k4me3)
@@ -457,8 +456,10 @@ type ClassifierNS struct {
 
 func (obj ClassifierNS) Eval(s Scalar, x ConstMatrix) error {
   r := 1.0
-  { // no atac peak at any position
-    r *= obj.NoPeakAll(x, jOpen)
+  { // no atac and h3k4me1 peak
+    t := obj.PeakAll(x, jOpen)
+    t *= obj.PeakAll(x, jH3k4me1)
+    r  = 1.0 - t
   }
   { // no h3k27ac peak at any position
     r *= obj.NoPeakAll(x, jH3k27ac)
@@ -468,9 +469,6 @@ func (obj ClassifierNS) Eval(s Scalar, x ConstMatrix) error {
   }
   { // no h3k9me3 peak at any position
     r *= obj.NoPeakAll(x, jH3k9me3)
-  }
-  { // no h3k4me1 peak at all positions
-    //r *= obj.NoPeakAll(x, jH3k4me1)
   }
   { // no h3k4me3 peak at all positions
     r *= obj.NoPeakAll(x, jH3k4me3)

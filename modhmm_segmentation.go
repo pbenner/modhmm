@@ -63,6 +63,24 @@ func ImportHMM(config ConfigModHmm) ModHmm {
 
 /* -------------------------------------------------------------------------- */
 
+func import_chromatin_state_tracks(config ConfigModHmm, tracks []Track, trackFiles []string) []Track {
+  if len(tracks) == 0 {
+    tracks = make([]Track, len(trackFiles))
+  }
+  // import track files (do not use ImportAndEstimateOnMultiTrack, which uses lazy imports)
+  for i := 0; i < len(trackFiles); i++ {
+    if tracks[i] == nil {
+      track, err := ImportTrack(config.SessionConfig, trackFiles[i]); if err != nil {
+        log.Fatal(err)
+      }
+      tracks[i] = track
+    }
+  }
+  return tracks
+}
+
+/* -------------------------------------------------------------------------- */
+
 type ChromatinStateFilterZeros struct {
 }
 
@@ -88,7 +106,7 @@ func (ChromatinStateFilterZeros) Eval(x Matrix) Matrix {
 
 /* -------------------------------------------------------------------------- */
 
-func estimate(config ConfigModHmm, trackFiles []string, model string) {
+func estimate(config ConfigModHmm, tracks []Track, trackFiles []string, model string) {
   var estimator  *matrixEstimator.HmmEstimator
   var stateNames []string
 
@@ -100,15 +118,8 @@ func estimate(config ConfigModHmm, trackFiles []string, model string) {
   default:
     log.Fatalf("ERROR: invalid model name `%s'", model)
   }
+  tracks = import_chromatin_state_tracks(config, nil, trackFiles)
 
-  // import track files (do not use ImportAndEstimateOnMultiTrack, which uses lazy imports)
-  tracks := make([]Track, len(trackFiles))
-  for i := 0; i < len(trackFiles); i++ {
-    track, err := ImportTrack(config.SessionConfig, trackFiles[i]); if err != nil {
-      log.Fatal(err)
-    }
-    tracks[i] = track
-  }
   if err := EstimateOnMultiTrack(config.SessionConfig, estimator, tracks, true, ChromatinStateFilterZeros{}); err != nil {
     log.Fatalf("ERROR: %s", err)
   }
@@ -130,17 +141,10 @@ func estimate(config ConfigModHmm, trackFiles []string, model string) {
 
 /* -------------------------------------------------------------------------- */
 
-func segment(config ConfigModHmm, trackFiles []string) {
+func segment(config ConfigModHmm, tracks []Track, trackFiles []string) {
   modhmm := ImportHMM(config)
+  tracks  = import_chromatin_state_tracks(config, tracks, trackFiles)
 
-  // import track files (do not use ImportAndEstimateOnMultiTrack, which uses lazy imports)
-  tracks := make([]Track, len(trackFiles))
-  for i := 0; i < len(trackFiles); i++ {
-    track, err := ImportTrack(config.SessionConfig, trackFiles[i]); if err != nil {
-      log.Fatal(err)
-    }
-    tracks[i] = track
-  }
   // compute segmentation
   if result, err := ClassifyMultiTrack(config.SessionConfig, matrixClassifier.HmmClassifier{&modhmm.Hmm}, tracks, true, ChromatinStateFilterZeros{}); err != nil {
     log.Fatal(err)
@@ -187,6 +191,7 @@ func modhmm_segmentation(config ConfigModHmm, model string) {
   dependencies  = append(dependencies, modhmm_coverage_dep(config)...)
 
   trackFiles := modhmm_segmentation_dep(config)
+  tracks     := make([]Track, len(trackFiles))
 
   filenameModel        := config.Model
   filenameSegmentation := config.Segmentation
@@ -195,7 +200,7 @@ func modhmm_segmentation(config ConfigModHmm, model string) {
     modhmm_chromatin_state_eval_all(config)
 
     printStderr(config, 1, "==> Estimating ModHmm transition parameters <==\n")
-    estimate(config, trackFiles, model)
+    estimate(config, tracks, trackFiles, model)
   }
   if config.ModelEstimate {
     dependencies = append(dependencies, filenameModel.Filename)
@@ -204,7 +209,7 @@ func modhmm_segmentation(config ConfigModHmm, model string) {
     modhmm_chromatin_state_eval_all(config)
 
     printStderr(config, 1, "==> Computing Segmentation <==\n")
-    segment(config, trackFiles)
+    segment(config, tracks, trackFiles)
   }
 }
 
