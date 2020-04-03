@@ -55,7 +55,7 @@ func posterior(config ConfigModHmm, state string, trackFiles []string, tracks []
 
   states := getStateIndices(modhmm, state)
   printStderr(config, 2, "State %s maps to state indices %v\n", strings.ToUpper(state), states)
-  tracks  = import_chromatin_state_tracks(config, nil, trackFiles)
+  tracks  = import_chromatin_state_tracks(config, tracks, trackFiles)
 
   result, err := ClassifyMultiTrack(config.SessionConfig, matrixClassifier.HmmPosterior{&modhmm.Hmm, states, false}, tracks, true, ChromatinStateFilterZeros{}); if err != nil {
     panic(err)
