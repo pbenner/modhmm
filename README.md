@@ -12,7 +12,6 @@ EA:tr      | active enhancer in a transcribed region
 BI:tr      | bivalet region in a transcribed region
 PR:tr      | primed region in a transcribed region
 TR         | transcribed region
-TL         | low transcription
 R1         | H3K27me3 repressed
 R2         | H3K9me3 repressed
 NS         | no signal

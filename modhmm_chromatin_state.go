@@ -43,11 +43,10 @@ func get_chromatin_state_model(config ConfigModHmm, state string) MatrixBatchCla
   case "bi": return ClassifierBI{}
   case "pr": return ClassifierPR{}
   case "tr": return ClassifierTR{}
-  case "tl": return ClassifierTL{}
   case "r1": return ClassifierR1{}
   case "r2": return ClassifierR2{}
-  case "ns": return ClassifierNS{}
   case "cl": return ClassifierCL{}
+  case "ns": return ClassifierNS{}
   default:
     log.Fatalf("unknown state: %s", state)
   }

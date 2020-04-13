@@ -40,6 +40,25 @@ func init() {
 
 /* -------------------------------------------------------------------------- */
 
+func getRGBMap() map[string]string {
+  m := make(map[string]string)
+  m["PA"   ] = "0,100,0"
+  m["EA"   ] = "30,144,255"
+  m["EA:tr"] = "30,144,255"
+  m["PR"   ] = "112,128,144"
+  m["PR:tr"] = "112,128,144"
+  m["BI"   ] = "178,34,34"
+  m["BI:tr"] = "178,34,34"
+  m["R1"   ] = "255,69,0"
+  m["R2"   ] = "255,69,0"
+  m["TR"   ] = "255,215,0"
+  m["CL"   ] = "255,0,255"
+  m["NS"   ] = ""
+  return m
+}
+
+/* -------------------------------------------------------------------------- */
+
 type ModHmm struct {
   matrixDistribution.Hmm
   StateNames []string
@@ -127,9 +146,9 @@ func (obj *EmissionDistribution) ExportConfig() ConfigDistribution {
 
 func getModHmmDenseEstimator(config ConfigModHmm) (*matrixEstimator.HmmEstimator, []string) {
   stateNames := []string{
-    "PA", "EA", "BI", "TR", "TL", "R1", "R2", "CL", "NS"}
+    "PA", "EA", "BI", "TR", "R1", "R2", "CL", "NS"}
 
-  n := 10
+  n := 8
 
   pi := NullVector(BareRealType, n)
   tr := NullMatrix(BareRealType, n, n)
@@ -162,7 +181,7 @@ func getModHmmDenseEstimator(config ConfigModHmm) (*matrixEstimator.HmmEstimator
 func getModHmmDefaultEstimator(config ConfigModHmm) (*matrixEstimator.HmmEstimator, []string) {
   const jEA   =  0 // enhancer active
   const jPR   =  1 // enhancer active
-  const jTL   =  2 // transcribed (low)
+  const jT3   =  2 // transcribed
   const jR1   =  3 // repressed h3k27me3
   const jR2   =  4 // repressed h3k9me3
   const jNS   =  5 // no signal
@@ -180,9 +199,9 @@ func getModHmmDefaultEstimator(config ConfigModHmm) (*matrixEstimator.HmmEstimat
   const jPRt2 = 17 // bivalent
 
   stateNames := []string{
-    "EA", "PR", "TL", "R1", "R2", "NS", "CL", "PA", "PA", "BI", "TR", "TR", "EA:tr", "EA:tr", "BI:tr", "BI:tr", "PR:tr", "PR:tr"}
+    "EA", "PR", "TR", "R1", "R2", "NS", "CL", "PA", "PA", "BI", "TR", "TR", "EA:tr", "EA:tr", "BI:tr", "BI:tr", "PR:tr", "PR:tr"}
 
-  n := 10
+  n :=  9
   m := 18
 
   stateMap := make([]int, m)
@@ -199,7 +218,7 @@ func getModHmmDefaultEstimator(config ConfigModHmm) (*matrixEstimator.HmmEstimat
   stateMap[jBIt2] = iBI
   stateMap[jT1]   = iTR
   stateMap[jT2]   = iTR
-  stateMap[jTL]   = iTL
+  stateMap[jT3]   = iTR
   stateMap[jR1]   = iR1
   stateMap[jR2]   = iR2
   stateMap[jNS]   = iNS
@@ -218,29 +237,27 @@ func getModHmmDefaultEstimator(config ConfigModHmm) (*matrixEstimator.HmmEstimat
   tr.At(jEA  ,jNS  ).SetValue(1.0)
   tr.At(jEA  ,jR1  ).SetValue(1.0)
   tr.At(jEA  ,jR2  ).SetValue(1.0)
-  tr.At(jEA  ,jTL  ).SetValue(1.0)
+  tr.At(jEA  ,jT3  ).SetValue(1.0)
   // bivalent
   tr.At(jBI  ,jCL  ).SetValue(1.0)
   tr.At(jBI  ,jNS  ).SetValue(1.0)
   tr.At(jBI  ,jR1  ).SetValue(1.0)
   tr.At(jBI  ,jR2  ).SetValue(1.0)
-  tr.At(jBI  ,jTL  ).SetValue(1.0)
+  tr.At(jBI  ,jT3  ).SetValue(1.0)
   // primed
   tr.At(jPR  ,jCL  ).SetValue(1.0)
   tr.At(jPR  ,jNS  ).SetValue(1.0)
   tr.At(jPR  ,jR1  ).SetValue(1.0)
   tr.At(jPR  ,jR2  ).SetValue(1.0)
-  tr.At(jPR  ,jTL  ).SetValue(1.0)
+  tr.At(jPR  ,jT3  ).SetValue(1.0)
   // transcribed (low)
-  tr.At(jTL  ,jCL  ).SetValue(1.0)
-  tr.At(jTL  ,jEA  ).SetValue(1.0)
-  tr.At(jTL  ,jNS  ).SetValue(1.0)
-  tr.At(jTL  ,jR1  ).SetValue(1.0)
-  tr.At(jTL  ,jR2  ).SetValue(1.0)
-  tr.At(jTL  ,jPA1 ).SetValue(1.0)
-  tr.At(jTL  ,jBI  ).SetValue(1.0)
-  tr.At(jTL  ,jPR  ).SetValue(1.0)
-  tr.At(jTL  ,jT1  ).SetValue(1.0)
+  tr.At(jT3  ,jCL  ).SetValue(1.0)
+  tr.At(jT3  ,jEA  ).SetValue(1.0)
+  tr.At(jT3  ,jNS  ).SetValue(1.0)
+  tr.At(jT3  ,jR1  ).SetValue(1.0)
+  tr.At(jT3  ,jR2  ).SetValue(1.0)
+  tr.At(jT3  ,jBI  ).SetValue(1.0)
+  tr.At(jT3  ,jPR  ).SetValue(1.0)
   // no signal
   tr.At(jNS  ,jCL  ).SetValue(1.0)
   tr.At(jNS  ,jEA  ).SetValue(1.0)
@@ -250,7 +267,7 @@ func getModHmmDefaultEstimator(config ConfigModHmm) (*matrixEstimator.HmmEstimat
   tr.At(jNS  ,jBI  ).SetValue(1.0)
   tr.At(jNS  ,jPR  ).SetValue(1.0)
   tr.At(jNS  ,jT1  ).SetValue(1.0)
-  tr.At(jNS  ,jTL  ).SetValue(1.0)
+  tr.At(jNS  ,jT3  ).SetValue(1.0)
   // control
   tr.At(jCL  ,jEA  ).SetValue(1.0)
   tr.At(jCL  ,jNS  ).SetValue(1.0)
@@ -260,7 +277,7 @@ func getModHmmDefaultEstimator(config ConfigModHmm) (*matrixEstimator.HmmEstimat
   tr.At(jCL  ,jBI  ).SetValue(1.0)
   tr.At(jCL  ,jPR  ).SetValue(1.0)
   tr.At(jCL  ,jT1  ).SetValue(1.0)
-  tr.At(jCL  ,jTL  ).SetValue(1.0)
+  tr.At(jCL  ,jT3  ).SetValue(1.0)
   // repressed 1
   tr.At(jR1  ,jCL  ).SetValue(1.0)
   tr.At(jR1  ,jEA  ).SetValue(1.0)
@@ -270,7 +287,7 @@ func getModHmmDefaultEstimator(config ConfigModHmm) (*matrixEstimator.HmmEstimat
   tr.At(jR1  ,jBI  ).SetValue(1.0)
   tr.At(jR1  ,jPR  ).SetValue(1.0)
   tr.At(jR1  ,jT1  ).SetValue(1.0)
-  tr.At(jR1  ,jTL  ).SetValue(1.0)
+  tr.At(jR1  ,jT3  ).SetValue(1.0)
   // repressed 2
   tr.At(jR2  ,jCL  ).SetValue(1.0)
   tr.At(jR2  ,jEA  ).SetValue(1.0)
@@ -280,7 +297,7 @@ func getModHmmDefaultEstimator(config ConfigModHmm) (*matrixEstimator.HmmEstimat
   tr.At(jR2  ,jBI  ).SetValue(1.0)
   tr.At(jR2  ,jPR  ).SetValue(1.0)
   tr.At(jR2  ,jT1  ).SetValue(1.0)
-  tr.At(jR2  ,jTL  ).SetValue(1.0)
+  tr.At(jR2  ,jT3  ).SetValue(1.0)
   // promoter active 1
   tr.At(jPA1 ,jT2  ).SetValue(1.0)
   // promoter active 2
@@ -289,7 +306,6 @@ func getModHmmDefaultEstimator(config ConfigModHmm) (*matrixEstimator.HmmEstimat
   tr.At(jPA2 ,jNS  ).SetValue(1.0)
   tr.At(jPA2 ,jR1  ).SetValue(1.0)
   tr.At(jPA2 ,jR2  ).SetValue(1.0)
-  tr.At(jPA2 ,jTL  ).SetValue(1.0)
   // transcribed 1
   tr.At(jT1  ,jPA2 ).SetValue(1.0)
   tr.At(jT1  ,jEAt1).SetValue(1.0)
@@ -304,7 +320,6 @@ func getModHmmDefaultEstimator(config ConfigModHmm) (*matrixEstimator.HmmEstimat
   tr.At(jT2  ,jNS  ).SetValue(1.0)
   tr.At(jT2  ,jR1  ).SetValue(1.0)
   tr.At(jT2  ,jR2  ).SetValue(1.0)
-  tr.At(jT2  ,jTL  ).SetValue(1.0)
   // ea/bi/pr transcribed
   tr.At(jEAt1,jT1  ).SetValue(1.0)
   tr.At(jBIt1,jT1  ).SetValue(1.0)
@@ -341,7 +356,7 @@ func getModHmmDefaultEstimator(config ConfigModHmm) (*matrixEstimator.HmmEstimat
     constraints = append(constraints, generic.EqualityConstraint{
       [2]int{jPR, jPR}, [2]int{jPRt1, jPRt1}, [2]int{jPRt2, jPRt2}})
     constraints = append(constraints, generic.EqualityConstraint{
-      [2]int{jT1, jT1}, [2]int{jT2, jT2}})
+      [2]int{jT1, jT1}, [2]int{jT2, jT2}, [2]int{jT3, jT3}})
   }
   // emissions
   estimators := make([]VectorEstimator, n)

@@ -27,7 +27,6 @@ var iEA int // enhancer active
 var iBI int // bivalent state
 var iPR int // primed state
 var iTR int // transcribed
-var iTL int // transcribed (low)
 var iR1 int // repressed h3k27me3
 var iR2 int // repressed h3k9me3
 var iCL int // control
@@ -42,7 +41,6 @@ var jH3k9me3   int
 var jH3k4me1   int
 var jH3k4me3   int
 var jRna       int
-var jRnaLow    int
 var jControl   int
 
 /* -------------------------------------------------------------------------- */
@@ -56,7 +54,6 @@ func init() {
   jH3k4me1  = EnrichmentList.Index("h3k4me1")
   jH3k4me3  = EnrichmentList.Index("h3k4me3")
   jRna      = EnrichmentList.Index("rna")
-  jRnaLow   = EnrichmentList.Index("rna-low")
   jControl  = EnrichmentList.Index("control")
   // track indices for modhmm
   iPA = ChromatinStateList.Index("pa")
@@ -64,7 +61,6 @@ func init() {
   iBI = ChromatinStateList.Index("bi")
   iPR = ChromatinStateList.Index("pr")
   iTR = ChromatinStateList.Index("tr")
-  iTL = ChromatinStateList.Index("tl")
   iR1 = ChromatinStateList.Index("r1")
   iR2 = ChromatinStateList.Index("r2")
   iCL = ChromatinStateList.Index("cl")

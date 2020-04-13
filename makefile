@@ -1,5 +1,5 @@
 
-VERSION   = 1.2.1
+VERSION   = 1.2.2
 FILES     = modhmm.go $(filter-out %_gen.go %_test.go modhmm.go,$(wildcard *.go))
 FILES_DEP = modhmm.go $(filter-out          %_test.go modhmm.go,$(wildcard *.go config/*.go))
 GOBIN     = $(shell echo $${GOPATH}/bin)

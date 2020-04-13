@@ -42,12 +42,12 @@ var EnrichmentModelList = StringList{
 /* -------------------------------------------------------------------------- */
 
 var EnrichmentList = StringList{
-  "open", "h3k27ac", "h3k27me3", "h3k9me3", "h3k4me1", "h3k4me3", "rna", "rna-low", "control"}
+  "open", "h3k27ac", "h3k27me3", "h3k9me3", "h3k4me1", "h3k4me3", "rna", "control"}
 
 /* -------------------------------------------------------------------------- */
 
 var ChromatinStateList = StringList{
-  "pa", "ea", "bi", "pr", "tr", "tl", "r1", "r2", "ns", "cl"}
+  "pa", "ea", "bi", "pr", "tr", "r1", "r2", "cl", "ns"}
 
 /* -------------------------------------------------------------------------- */
 
@@ -268,20 +268,14 @@ func (config *ConfigCoveragePaths) SetStatic(static bool) {
 
 type ConfigEnrichmentPaths struct {
   ConfigCoveragePaths
-  Rna_low     TargetFile `json:"RNA low"`
 }
 
 func (config *ConfigEnrichmentPaths) GetTargetFile(feature string) TargetFile {
-  switch strings.ToLower(feature) {
-  case "rna_low"  : return config.Rna_low
-  case "rna-low"  : return config.Rna_low
-  default         : return config.ConfigCoveragePaths.GetTargetFile(feature)
-  }
+  return config.ConfigCoveragePaths.GetTargetFile(feature)
 }
 
 func (config *ConfigEnrichmentPaths) CompletePaths(dir, prefix, suffix string) {
   config.ConfigCoveragePaths.CompletePaths(dir, prefix, suffix)
-  config.Rna_low.Filename = completePath(dir, prefix, config.Rna_low  .Filename, fmt.Sprintf("rna-low%s", suffix))
 }
 
 func (config *ConfigEnrichmentPaths) GetFilenames() []string {
@@ -294,7 +288,6 @@ func (config *ConfigEnrichmentPaths) GetFilenames() []string {
 
 func (config *ConfigEnrichmentPaths) SetStatic(static bool) {
   config.ConfigCoveragePaths.SetStatic(static)
-  config.Rna_low.Static = static
 }
 
 /* -------------------------------------------------------------------------- */
@@ -329,8 +322,15 @@ func (config *ConfigEnrichmentParameters) getParameters(feature string) []float6
 
 func (config *ConfigEnrichmentParameters) GetParameters(feature string) []float64 {
   parameters := config.getParameters(feature)
-  if len(parameters) != 3 {
-    log.Fatalf("config file has invalid number of enrichment parameters for feature `%s'", feature)
+  switch strings.ToLower(feature) {
+  case "rna":
+    if len(parameters) != 2 {
+      log.Fatalf("config file has invalid number of enrichment parameters for feature `%s'", feature)
+    }
+  default:
+    if len(parameters) != 3 {
+      log.Fatalf("config file has invalid number of enrichment parameters for feature `%s'", feature)
+    }
   }
   return parameters
 }
@@ -343,7 +343,6 @@ type ConfigChromatinStatePaths struct {
   BI       TargetFile
   PR       TargetFile
   TR       TargetFile
-  TL       TargetFile
   R1       TargetFile
   R2       TargetFile
   CL       TargetFile
@@ -357,7 +356,6 @@ func (config *ConfigChromatinStatePaths) GetTargetFile(state string) TargetFile 
   case "BI": return config.BI
   case "PR": return config.PR
   case "TR": return config.TR
-  case "TL": return config.TL
   case "R1": return config.R1
   case "R2": return config.R2
   case "CL": return config.CL
@@ -373,7 +371,6 @@ func (config *ConfigChromatinStatePaths) CompletePaths(dir, prefix, suffix strin
   config.BI.Filename = completePath(dir, prefix, config.BI.Filename, fmt.Sprintf("BI%s", suffix))
   config.PR.Filename = completePath(dir, prefix, config.PR.Filename, fmt.Sprintf("PR%s", suffix))
   config.TR.Filename = completePath(dir, prefix, config.TR.Filename, fmt.Sprintf("TR%s", suffix))
-  config.TL.Filename = completePath(dir, prefix, config.TL.Filename, fmt.Sprintf("TL%s", suffix))
   config.R1.Filename = completePath(dir, prefix, config.R1.Filename, fmt.Sprintf("R1%s", suffix))
   config.R2.Filename = completePath(dir, prefix, config.R2.Filename, fmt.Sprintf("R2%s", suffix))
   config.CL.Filename = completePath(dir, prefix, config.CL.Filename, fmt.Sprintf("CL%s", suffix))
@@ -457,14 +454,14 @@ func DefaultModHmmConfig() ConfigModHmm {
   config.Threads              = 1
   config.Verbose              = 0
   // default parameters for assigning enrichment probabilities
-  config.EnrichmentParameters.Open     = []float64{0.95, 0.01, 0.90}
-  config.EnrichmentParameters.H3k27ac  = []float64{0.95, 0.01, 0.90}
-  config.EnrichmentParameters.H3k27me3 = []float64{0.95, 0.01, 0.90}
-  config.EnrichmentParameters.H3k9me3  = []float64{0.95, 0.01, 0.90}
-  config.EnrichmentParameters.H3k4me1  = []float64{0.80, 0.01, 0.90}
-  config.EnrichmentParameters.H3k4me3  = []float64{0.95, 0.01, 0.40}
-  config.EnrichmentParameters.Rna      = []float64{0.60, 0.01, 0.90}
-  config.EnrichmentParameters.Control  = []float64{0.95, 0.01, 0.90}
+  config.EnrichmentParameters.Open     = []float64{0.60, 1e-4, 0.80}
+  config.EnrichmentParameters.H3k27ac  = []float64{0.60, 1e-4, 0.80}
+  config.EnrichmentParameters.H3k27me3 = []float64{0.80, 1e-4, 0.80}
+  config.EnrichmentParameters.H3k9me3  = []float64{0.60, 1e-4, 0.80}
+  config.EnrichmentParameters.H3k4me1  = []float64{0.60, 1e-4, 0.80}
+  config.EnrichmentParameters.H3k4me3  = []float64{0.95, 1e-4, 0.40}
+  config.EnrichmentParameters.Rna      = []float64{0.80, 0.9}
+  config.EnrichmentParameters.Control  = []float64{0.95, 1e-4, 0.80}
   return config
 }
 
@@ -605,20 +602,11 @@ func (config *ConfigModHmm) EnrichmentFiles(feature string) EnrichmentFiles {
   files := EnrichmentFiles{}
   files.Feature = config.CoerceOpenChromatinAssay(strings.ToLower(feature))
 
-  switch files.Feature {
-  case "rna-low":
-    files.Probabilities = config.EnrichmentProb .Rna_low
-    files.Model         = config.EnrichmentModel.Rna
-    files.Components    = config.EnrichmentComp .Rna_low
-    files.Coverage      = config.Coverage       .Rna
-    files.CoverageCnts  = config.CoverageCnts   .Rna
-  default:
-    files.Probabilities = config.EnrichmentProb .GetTargetFile(feature)
-    files.Model         = config.EnrichmentModel.GetTargetFile(feature)
-    files.Components    = config.EnrichmentComp .GetTargetFile(feature)
-    files.Coverage      = config.Coverage       .GetTargetFile(feature)
-    files.CoverageCnts  = config.CoverageCnts   .GetTargetFile(feature)
-  }
+  files.Probabilities = config.EnrichmentProb .GetTargetFile(feature)
+  files.Model         = config.EnrichmentModel.GetTargetFile(feature)
+  files.Components    = config.EnrichmentComp .GetTargetFile(feature)
+  files.Coverage      = config.Coverage       .GetTargetFile(feature)
+  files.CoverageCnts  = config.CoverageCnts   .GetTargetFile(feature)
   return files
 }
 
@@ -696,7 +684,6 @@ func (config ConfigEnrichmentPaths) String(openChromatinAssay string) string {
   fmt.Fprintf(&buffer, " -> H3K4me1              : %v\n", config.H3k4me1)
   fmt.Fprintf(&buffer, " -> H3K4me3              : %v\n", config.H3k4me3)
   fmt.Fprintf(&buffer, " -> RNA                  : %v\n", config.Rna)
-  fmt.Fprintf(&buffer, " -> RNA (low)            : %v\n", config.Rna_low)
   fmt.Fprintf(&buffer, " -> Control              : %v\n", config.Control)
 
   return buffer.String()
@@ -724,7 +711,6 @@ func (config ConfigChromatinStatePaths) String() string {
   fmt.Fprintf(&buffer, " -> BI                   : %v\n", config.BI)
   fmt.Fprintf(&buffer, " -> PR                   : %v\n", config.PR)
   fmt.Fprintf(&buffer, " -> TR                   : %v\n", config.TR)
-  fmt.Fprintf(&buffer, " -> TL                   : %v\n", config.TL)
   fmt.Fprintf(&buffer, " -> R1                   : %v\n", config.R1)
   fmt.Fprintf(&buffer, " -> R2                   : %v\n", config.R2)
   fmt.Fprintf(&buffer, " -> CL                   : %v\n", config.CL)

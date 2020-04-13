@@ -164,7 +164,7 @@ func segment(config ConfigModHmm, tracks []Track, trackFiles []string) {
       }
     }
     printStderr(config, 1, "Writing genome segmentation to `%s'... ", config.Segmentation.Filename)
-    if err := ExportTrackSegmentation(config.SessionConfig, result, config.Segmentation.Filename, name, desc, true, modhmm.StateNames, nil, tracksEquivalent); err != nil {
+    if err := ExportTrackSegmentation(config.SessionConfig, result, config.Segmentation.Filename, name, desc, true, modhmm.StateNames, getRGBMap(), tracksEquivalent); err != nil {
       printStderr(config, 1, "failed\n")
       log.Fatal(err)
     }

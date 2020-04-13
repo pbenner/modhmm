@@ -53,20 +53,14 @@ func enrichment_import_and_normalize(config ConfigModHmm, filenameData, filename
 
 /* -------------------------------------------------------------------------- */
 
-func enrichment_eval_rna_low(config ConfigModHmm, rnaProb MutableTrack, rnaData Track, q float64) {
-  files  := config.EnrichmentFiles("rna-low")
-  result := rnaProb.CloneMutableTrack()
-
-  if err := (GenericMutableTrack{result}).MapList([]Track{rnaProb, rnaData}, func(seqname string, position int, value... float64) float64 {
-    if value[1] > q {
-      return 1.0 - value[0]
+func enrichment_eval_rna(config ConfigModHmm, result MutableTrack, data Track, t float64) {
+  if err := (GenericMutableTrack{result}).Map(data, func(seqname string, position int, value float64) float64 {
+    if value > t {
+      return 1.0 - 1e-8
     } else {
-      return 1e-8
+      return 0.01
     }
   }); err != nil {
-    log.Fatal(err)
-  }
-  if err := ExportTrack(config.SessionConfig, result, files.Probabilities.Filename); err != nil {
     log.Fatal(err)
   }
 }
@@ -102,19 +96,9 @@ func enrichment_filter_update(config ConfigModHmm, features []string) []string {
 
     dependencies := []string{}
     dependencies  = append(dependencies, files.Dependencies()...)
-
-    switch files.Feature {
-    case "rna-low":
-      dependencies  = append(dependencies, modhmm_coverage_dep(config, "rna")...)
-    default:
-      dependencies  = append(dependencies, modhmm_coverage_dep(config, files.Feature)...)
-    }
+    dependencies  = append(dependencies, modhmm_coverage_dep(config, files.Feature)...)
     if updateRequired(config, files.Probabilities, dependencies...) {
-      if files.Feature == "rna-low" {
-        r = append(r, "rna")
-      } else {
-        r = append(r, files.Feature)
-      }
+      r = append(r, files.Feature)
     }
   }
   return uniqueStrings(r)

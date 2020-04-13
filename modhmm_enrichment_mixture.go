@@ -63,14 +63,17 @@ func enrichment_eval_classifier(config ConfigModHmm, files EnrichmentFiles) {
   result, err := BatchClassifySingleTrack(config.SessionConfig, vectorClassifier, data); if err != nil {
     log.Fatal(err)
   }
-  // rna-low is a special case
   if files.Feature == "rna" {
-    enrichment_eval_rna_low(config, result, data, 0.0)
-  }
-  if err := (GenericMutableTrack{result}).Map(result, func(seqname string, position int, value float64) float64 {
-    return math.Exp(value)
-  }); err != nil {
-    log.Fatal(err)
+    counts := compute_counts(config, data)
+    q := config.EnrichmentParameters.GetParameters(files.Feature)[0]
+    t := counts.Quantile(q)
+    enrichment_eval_rna(config, result, data, t)
+  } else {
+    if err := (GenericMutableTrack{result}).Map(result, func(seqname string, position int, value float64) float64 {
+      return math.Exp(value)
+    }); err != nil {
+      log.Fatal(err)
+    }
   }
   if err := ExportTrack(config.SessionConfig, result, files.Probabilities.Filename); err != nil {
     log.Fatal(err)

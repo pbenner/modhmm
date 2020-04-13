@@ -186,7 +186,6 @@ func modhmm_enrichment_estimate_default(config ConfigModHmm, feature string, for
     case "h3k4me3" : n = []int{1, 1, 3}; components = []int{3, 4}
     case "h3k9me3" : n = []int{2, 4, 1}; components = []int{5, 6}
     case "rna"     : n = []int{1, 0, 4}; components = []int{2, 3, 4}
-    case "rna-low" :                     components = []int{1, 2}
     case "control" : n = []int{7, 2, 1}; components = []int{9}
     }
   case "hg19":
@@ -200,7 +199,6 @@ func modhmm_enrichment_estimate_default(config ConfigModHmm, feature string, for
     case "h3k4me3" : n = []int{1, 2, 1}; components = []int{3}
     case "h3k9me3" : n = []int{2, 4, 1}; components = []int{5, 6}
     case "rna"     : n = []int{1, 0, 4}; components = []int{2, 3, 4}
-    case "rna-low" :                     components = []int{1, 2}
     case "control" : n = []int{7, 2, 1}; components = []int{9}
     }
   default:

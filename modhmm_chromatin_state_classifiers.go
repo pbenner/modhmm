@@ -191,7 +191,7 @@ func (obj ClassifierPA) Eval(s Scalar, x ConstMatrix) error {
 }
 
 func (ClassifierPA) Dims() (int, int) {
-  return 9, 5
+  return 8, 5
 }
 
 func (ClassifierPA) CloneMatrixBatchClassifier() MatrixBatchClassifier {
@@ -226,7 +226,7 @@ func (obj ClassifierEA) Eval(s Scalar, x ConstMatrix) error {
 }
 
 func (ClassifierEA) Dims() (int, int) {
-  return 9, 7
+  return 8, 7
 }
 
 func (ClassifierEA) CloneMatrixBatchClassifier() MatrixBatchClassifier {
@@ -260,7 +260,7 @@ func (obj ClassifierBI) Eval(s Scalar, x ConstMatrix) error {
 }
 
 func (ClassifierBI) Dims() (int, int) {
-  return 9, 7
+  return 8, 7
 }
 
 func (ClassifierBI) CloneMatrixBatchClassifier() MatrixBatchClassifier {
@@ -297,7 +297,7 @@ func (obj ClassifierPR) Eval(s Scalar, x ConstMatrix) error {
 }
 
 func (ClassifierPR) Dims() (int, int) {
-  return 9, 7
+  return 8, 7
 }
 
 func (ClassifierPR) CloneMatrixBatchClassifier() MatrixBatchClassifier {
@@ -328,43 +328,11 @@ func (obj ClassifierTR) Eval(s Scalar, x ConstMatrix) error {
 }
 
 func (ClassifierTR) Dims() (int, int) {
-  return 9, 1
+  return 8, 1
 }
 
 func (ClassifierTR) CloneMatrixBatchClassifier() MatrixBatchClassifier {
   return ClassifierTR{}
-}
-
-/* -------------------------------------------------------------------------- */
-
-type ClassifierTL struct {
-  BasicClassifier
-}
-
-func (obj ClassifierTL) Eval(s Scalar, x ConstMatrix) error {
-  r := 1.0
-  { // no atac peak at center
-    r *= obj.NoPeakAll(x, jOpen)
-  }
-  { // no h3k4me1 peak at center
-    //r *= obj.NoPeakAll(x, jH3k4me1)
-  }
-  { // no h3k4me3 peak at center
-    r *= obj.NoPeakAll(x, jH3k4me3)
-  }
-  { // rna peak at center
-    r *= obj.PeakAtCenter(x, jRnaLow)
-  }
-  s.SetValue(r)
-  return nil
-}
-
-func (ClassifierTL) Dims() (int, int) {
-  return 9, 1
-}
-
-func (ClassifierTL) CloneMatrixBatchClassifier() MatrixBatchClassifier {
-  return ClassifierTL{}
 }
 
 /* -------------------------------------------------------------------------- */
@@ -389,7 +357,7 @@ func (obj ClassifierR1) Eval(s Scalar, x ConstMatrix) error {
 }
 
 func (ClassifierR1) Dims() (int, int) {
-  return 9, 1
+  return 8, 1
 }
 
 func (ClassifierR1) CloneMatrixBatchClassifier() MatrixBatchClassifier {
@@ -418,7 +386,7 @@ func (obj ClassifierR2) Eval(s Scalar, x ConstMatrix) error {
 }
 
 func (ClassifierR2) Dims() (int, int) {
-  return 9, 1
+  return 8, 1
 }
 
 func (ClassifierR2) CloneMatrixBatchClassifier() MatrixBatchClassifier {
@@ -441,7 +409,7 @@ func (obj ClassifierCL) Eval(s Scalar, x ConstMatrix) error {
 }
 
 func (ClassifierCL) Dims() (int, int) {
-  return 9, 1
+  return 8, 1
 }
 
 func (ClassifierCL) CloneMatrixBatchClassifier() MatrixBatchClassifier {
@@ -476,9 +444,6 @@ func (obj ClassifierNS) Eval(s Scalar, x ConstMatrix) error {
   { // no rna peak at all positions
     r *= obj.NoPeakAll(x, jRna)
   }
-  { // no rna-low peak at all positions
-    r *= obj.NoPeakAll(x, jRnaLow)
-  }
   { // no control peak at all positions
     r *= obj.NoPeakAll(x, jControl)
   }
@@ -487,7 +452,7 @@ func (obj ClassifierNS) Eval(s Scalar, x ConstMatrix) error {
 }
 
 func (ClassifierNS) Dims() (int, int) {
-  return 9, 1
+  return 8, 1
 }
 
 func (ClassifierNS) CloneMatrixBatchClassifier() MatrixBatchClassifier {
