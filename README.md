@@ -19,7 +19,7 @@ CL         | control signal
 
 References:
 
-Philipp Benner and Martin Vingron. *ModHMM: A Modular Supra-Bayesian Genome Segmentation Method*. International Conference on Research in Computational Molecular Biology (RECOMB). Springer, Cham, 2019. S. 35-50. [[Link]](https://link.springer.com/chapter/10.1007/978-3-030-17083-7_3)
+Philipp Benner and Martin Vingron. *ModHMM: A Modular Supra-Bayesian Genome Segmentation Method*. Journal of Computational Biology. Apr 2020. 442-457. [[Link]](http://doi.org/10.1089/cmb.2019.0280)
 
 <center><img src="https://raw.githubusercontent.com/pbenner/modhmm/master/README_example1.png" alt="ModHMM" width="720" height="429" /></center>
 
