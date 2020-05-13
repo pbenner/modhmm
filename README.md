@@ -1,6 +1,6 @@
 ## ModHMM
 
-ModHMM is a genome segmentation method that is easy to apply and requires no manual interpretation of hidden states. It provides highly accurate annotations of chromatin states inlcuding active promoters and enhancers. The following is a list of states detected by ModHMM:
+ModHMM is a genome segmentation method that is easy to apply and requires no manual interpretation of hidden states. It provides highly accurate annotations of chromatin states including active promoters and enhancers. The following is a list of states detected by ModHMM:
 
 State name | Description
 -----------|------------------------------------------
