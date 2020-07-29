@@ -69,13 +69,13 @@ func (obj SortableMixture) Swap(i, j int) {
 func distToValue(dist ScalarPdf) (int, float64) {
   switch a := dist.(type) {
   case *scalarDistribution.DeltaDistribution:
-    return 0, a.GetParameters().ValueAt(0)
+    return 0, a.GetParameters().Float64At(0)
   case *scalarDistribution.PoissonDistribution:
-    return 1, a.GetParameters().ValueAt(0)
+    return 1, a.GetParameters().Float64At(0)
   case *scalarDistribution.PdfTranslation:
     return distToValue(a.ScalarPdf)
   case *scalarDistribution.GeometricDistribution:
-    return 2, -a.GetParameters().ValueAt(0)
+    return 2, -a.GetParameters().Float64At(0)
   default:
     panic("internal error")
   }

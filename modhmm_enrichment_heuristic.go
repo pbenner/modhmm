@@ -47,29 +47,29 @@ func compute_sigmoid_parameters(x1, x2, p1, p2 float64) (float64, float64) {
     r.Add(r, b)
     r.Neg(r)
     r.Exp(r)
-    r.Add(r, ConstReal(1.0))
-    r.Div(ConstReal(1.0), r)
+    r.Add(r, ConstFloat64(1.0))
+    r.Div(ConstFloat64(1.0), r)
   }
-  generator := func(x1, x2 float64) func(Vector) (Scalar, error) {
-    f := func(a Vector) (Scalar, error) {
-      r := NullDenseRealVector(2)
-      sigmoid(r[0], ConstReal(x1), a.At(0), a.At(1))
-      sigmoid(r[1], ConstReal(x2), a.At(0), a.At(1))
-      r[0].Sub(r[0], ConstReal(p1))
-      r[1].Sub(r[1], ConstReal(p2))
-      r[0].Mul(r[0], r[0])
-      r[1].Mul(r[1], r[1])
-      r[0].Add(r[0], r[1])
-      return r[0], nil
+  generator := func(x1, x2 float64) func(ConstVector) (MagicScalar, error) {
+    f := func(a ConstVector) (MagicScalar, error) {
+      r := NullDenseReal64Vector(2)
+      sigmoid(r.At(0), ConstFloat64(x1), a.ConstAt(0), a.ConstAt(1))
+      sigmoid(r.At(1), ConstFloat64(x2), a.ConstAt(0), a.ConstAt(1))
+      r.At(0).Sub(r.ConstAt(0), ConstFloat64(p1))
+      r.At(1).Sub(r.ConstAt(1), ConstFloat64(p2))
+      r.At(0).Mul(r.ConstAt(0), r.ConstAt(0))
+      r.At(1).Mul(r.ConstAt(1), r.ConstAt(1))
+      r.At(0).Add(r.ConstAt(0), r.ConstAt(1))
+      return r.MagicAt(0), nil
     }
     return f
   }
   objective := generator(x1, x2)
 
-  if x, err := rprop.Run(objective, NewDenseRealVector([]float64{0.01,0.01}), 0.01, []float64{1.05,0.95}, rprop.Epsilon{1e-10}); err != nil {
+  if x, err := rprop.Run(objective, NewDenseFloat64Vector([]float64{0.01,0.01}), 0.01, []float64{1.05,0.95}, rprop.Epsilon{1e-10}); err != nil {
     panic(err)
   } else {
-    return x.ValueAt(0), x.ValueAt(1)
+    return x.Float64At(0), x.Float64At(1)
   }
 }
 

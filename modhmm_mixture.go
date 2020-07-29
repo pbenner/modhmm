@@ -72,13 +72,13 @@ func ImportDefaultDistribution(config ConfigModHmm, filename string, distributio
 func ImportMixtureDistribution(config ConfigModHmm, filename string) *scalarDistribution.Mixture {
   mixture := &scalarDistribution.Mixture{}
   printStderr(config, 1, "Importing mixture model from `%s'... ", filename)
-  if err := ImportDistribution(filename, mixture, BareRealType); err != nil {
+  if err := ImportDistribution(filename, mixture, Float64Type); err != nil {
     printStderr(config, 1, "failed\n")
     // remove directory from filename
     _, filename = path.Split(filename)
     filename = path.Join(config.ModelFallbackPath(), filename)
     printStderr(config, 1, "Importing `%s' fallback mixture model... ", config.ModelFallback)
-    if err := ImportDefaultDistribution(config, filename, mixture, BareRealType); err != nil {
+    if err := ImportDefaultDistribution(config, filename, mixture, Float64Type); err != nil {
       printStderr(config, 1, "failed\n")
       log.Fatal(err)
     }
@@ -173,10 +173,10 @@ func ImportMixtureWeights(config ConfigModHmm, filenameModel, filenameComp strin
   q := math.Inf(-1)
 
   for _, i := range k {
-    p = LogAdd(p, mixture.LogWeights.ValueAt(i))
+    p = LogAdd(p, mixture.LogWeights.Float64At(i))
   }
   for _, i := range r {
-    q = LogAdd(q, mixture.LogWeights.ValueAt(i))
+    q = LogAdd(q, mixture.LogWeights.Float64At(i))
   }
   return p, q
 }

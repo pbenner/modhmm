@@ -45,7 +45,7 @@ func modhmm_transition_matrix_print(config ConfigModHmm) {
   for i := 0; i < n; i++ {
     fmt.Printf("%5s", sn[i])
     for j := 0; j < n; j++ {
-      fmt.Printf(" %8.2e", math.Exp(tr.ValueAt(i,j)))
+      fmt.Printf(" %8.2e", math.Exp(tr.Float64At(i,j)))
     }
     fmt.Println()
   }

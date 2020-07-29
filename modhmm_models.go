@@ -100,8 +100,8 @@ func (obj *EmissionDistribution) CloneVectorPdf() VectorPdf {
 }
 
 func (obj *EmissionDistribution) LogPdf(r Scalar, x ConstVector) error {
-  r.SetValue(math.Log(x.ValueAt(obj.i)))
-  if math.IsNaN(r.GetValue()) {
+  r.SetFloat64(math.Log(x.Float64At(obj.i)))
+  if math.IsNaN(r.GetFloat64()) {
     panic("internal error")
   }
   return nil
@@ -112,19 +112,19 @@ func (obj *EmissionDistribution) Dim() int {
 }
 
 func (obj *EmissionDistribution) ScalarType() ScalarType {
-  return BareRealType
+  return Float64Type
 }
 
 func (obj *EmissionDistribution) GetParameters() Vector {
-  p := NullVector(BareRealType, 2)
-  p.At(0).SetValue(float64(obj.i))
-  p.At(1).SetValue(float64(obj.n))
+  p := NullDenseVector(Float64Type, 2)
+  p.At(0).SetFloat64(float64(obj.i))
+  p.At(1).SetFloat64(float64(obj.n))
   return p
 }
 
 func (obj *EmissionDistribution) SetParameters(parameters Vector) error {
-  obj.i = int(parameters.At(0).GetValue())
-  obj.n = int(parameters.At(1).GetValue())
+  obj.i = int(parameters.At(0).GetFloat64())
+  obj.n = int(parameters.At(1).GetFloat64())
   return nil
 }
 
@@ -150,10 +150,10 @@ func getModHmmDenseEstimator(config ConfigModHmm) (*matrixEstimator.HmmEstimator
 
   n := 8
 
-  pi := NullVector(BareRealType, n)
-  tr := NullMatrix(BareRealType, n, n)
-  pi.Map(func(x Scalar) { x.SetValue(1.0) })
-  tr.Map(func(x Scalar) { x.SetValue(1.0) })
+  pi := NullDenseVector(Float64Type, n)
+  tr := NullDenseMatrix(Float64Type, n, n)
+  pi.Map(func(x Scalar) { x.SetFloat64(1.0) })
+  tr.Map(func(x Scalar) { x.SetFloat64(1.0) })
 
   // emissions
   estimators := make([]VectorEstimator, n)
@@ -224,104 +224,104 @@ func getModHmmDefaultEstimator(config ConfigModHmm) (*matrixEstimator.HmmEstimat
   stateMap[jNS]   = iNS
   stateMap[jCL]   = iCL
 
-  pi := NullVector(BareRealType, m)
-  tr := NullMatrix(BareRealType, m, m)
-  pi.Map(func(x Scalar) { x.SetValue(1.0) })
+  pi := NullDenseVector(Float64Type, m)
+  tr := NullDenseMatrix(Float64Type, m, m)
+  pi.Map(func(x Scalar) { x.SetFloat64(1.0) })
 
   // allow self-transitions for all states
   for i := 0; i < m; i++ {
-    tr.At(i,i).SetValue(1.0)
+    tr.At(i,i).SetFloat64(1.0)
   }
   // enhancer active
-  tr.At(jEA  ,jCL  ).SetValue(1.0)
-  tr.At(jEA  ,jNS  ).SetValue(1.0)
-  tr.At(jEA  ,jR1  ).SetValue(1.0)
-  tr.At(jEA  ,jR2  ).SetValue(1.0)
+  tr.At(jEA  ,jCL  ).SetFloat64(1.0)
+  tr.At(jEA  ,jNS  ).SetFloat64(1.0)
+  tr.At(jEA  ,jR1  ).SetFloat64(1.0)
+  tr.At(jEA  ,jR2  ).SetFloat64(1.0)
   // bivalent
-  tr.At(jBI  ,jCL  ).SetValue(1.0)
-  tr.At(jBI  ,jNS  ).SetValue(1.0)
-  tr.At(jBI  ,jR1  ).SetValue(1.0)
-  tr.At(jBI  ,jR2  ).SetValue(1.0)
+  tr.At(jBI  ,jCL  ).SetFloat64(1.0)
+  tr.At(jBI  ,jNS  ).SetFloat64(1.0)
+  tr.At(jBI  ,jR1  ).SetFloat64(1.0)
+  tr.At(jBI  ,jR2  ).SetFloat64(1.0)
   // primed
-  tr.At(jPR  ,jCL  ).SetValue(1.0)
-  tr.At(jPR  ,jNS  ).SetValue(1.0)
-  tr.At(jPR  ,jR1  ).SetValue(1.0)
-  tr.At(jPR  ,jR2  ).SetValue(1.0)
+  tr.At(jPR  ,jCL  ).SetFloat64(1.0)
+  tr.At(jPR  ,jNS  ).SetFloat64(1.0)
+  tr.At(jPR  ,jR1  ).SetFloat64(1.0)
+  tr.At(jPR  ,jR2  ).SetFloat64(1.0)
   // transcribed (low)
-  tr.At(jT3  ,jCL  ).SetValue(1.0)
-  tr.At(jT3  ,jNS  ).SetValue(1.0)
-  tr.At(jT3  ,jR1  ).SetValue(1.0)
-  tr.At(jT3  ,jR2  ).SetValue(1.0)
+  tr.At(jT3  ,jCL  ).SetFloat64(1.0)
+  tr.At(jT3  ,jNS  ).SetFloat64(1.0)
+  tr.At(jT3  ,jR1  ).SetFloat64(1.0)
+  tr.At(jT3  ,jR2  ).SetFloat64(1.0)
   // no signal
-  tr.At(jNS  ,jCL  ).SetValue(1.0)
-  tr.At(jNS  ,jEA  ).SetValue(1.0)
-  tr.At(jNS  ,jR1  ).SetValue(1.0)
-  tr.At(jNS  ,jR2  ).SetValue(1.0)
-  tr.At(jNS  ,jPA1 ).SetValue(1.0)
-  tr.At(jNS  ,jBI  ).SetValue(1.0)
-  tr.At(jNS  ,jPR  ).SetValue(1.0)
-  tr.At(jNS  ,jT1  ).SetValue(1.0)
-  tr.At(jNS  ,jT3  ).SetValue(1.0)
+  tr.At(jNS  ,jCL  ).SetFloat64(1.0)
+  tr.At(jNS  ,jEA  ).SetFloat64(1.0)
+  tr.At(jNS  ,jR1  ).SetFloat64(1.0)
+  tr.At(jNS  ,jR2  ).SetFloat64(1.0)
+  tr.At(jNS  ,jPA1 ).SetFloat64(1.0)
+  tr.At(jNS  ,jBI  ).SetFloat64(1.0)
+  tr.At(jNS  ,jPR  ).SetFloat64(1.0)
+  tr.At(jNS  ,jT1  ).SetFloat64(1.0)
+  tr.At(jNS  ,jT3  ).SetFloat64(1.0)
   // control
-  tr.At(jCL  ,jEA  ).SetValue(1.0)
-  tr.At(jCL  ,jNS  ).SetValue(1.0)
-  tr.At(jCL  ,jR1  ).SetValue(1.0)
-  tr.At(jCL  ,jR2  ).SetValue(1.0)
-  tr.At(jCL  ,jPA1 ).SetValue(1.0)
-  tr.At(jCL  ,jBI  ).SetValue(1.0)
-  tr.At(jCL  ,jPR  ).SetValue(1.0)
-  tr.At(jCL  ,jT1  ).SetValue(1.0)
-  tr.At(jCL  ,jT3  ).SetValue(1.0)
+  tr.At(jCL  ,jEA  ).SetFloat64(1.0)
+  tr.At(jCL  ,jNS  ).SetFloat64(1.0)
+  tr.At(jCL  ,jR1  ).SetFloat64(1.0)
+  tr.At(jCL  ,jR2  ).SetFloat64(1.0)
+  tr.At(jCL  ,jPA1 ).SetFloat64(1.0)
+  tr.At(jCL  ,jBI  ).SetFloat64(1.0)
+  tr.At(jCL  ,jPR  ).SetFloat64(1.0)
+  tr.At(jCL  ,jT1  ).SetFloat64(1.0)
+  tr.At(jCL  ,jT3  ).SetFloat64(1.0)
   // repressed 1
-  tr.At(jR1  ,jCL  ).SetValue(1.0)
-  tr.At(jR1  ,jEA  ).SetValue(1.0)
-  tr.At(jR1  ,jNS  ).SetValue(1.0)
-  tr.At(jR1  ,jR2  ).SetValue(1.0)
-  tr.At(jR1  ,jPA1 ).SetValue(1.0)
-  tr.At(jR1  ,jBI  ).SetValue(1.0)
-  tr.At(jR1  ,jPR  ).SetValue(1.0)
-  tr.At(jR1  ,jT1  ).SetValue(1.0)
-  tr.At(jR1  ,jT3  ).SetValue(1.0)
+  tr.At(jR1  ,jCL  ).SetFloat64(1.0)
+  tr.At(jR1  ,jEA  ).SetFloat64(1.0)
+  tr.At(jR1  ,jNS  ).SetFloat64(1.0)
+  tr.At(jR1  ,jR2  ).SetFloat64(1.0)
+  tr.At(jR1  ,jPA1 ).SetFloat64(1.0)
+  tr.At(jR1  ,jBI  ).SetFloat64(1.0)
+  tr.At(jR1  ,jPR  ).SetFloat64(1.0)
+  tr.At(jR1  ,jT1  ).SetFloat64(1.0)
+  tr.At(jR1  ,jT3  ).SetFloat64(1.0)
   // repressed 2
-  tr.At(jR2  ,jCL  ).SetValue(1.0)
-  tr.At(jR2  ,jEA  ).SetValue(1.0)
-  tr.At(jR2  ,jNS  ).SetValue(1.0)
-  tr.At(jR2  ,jR1  ).SetValue(1.0)
-  tr.At(jR2  ,jPA1 ).SetValue(1.0)
-  tr.At(jR2  ,jBI  ).SetValue(1.0)
-  tr.At(jR2  ,jPR  ).SetValue(1.0)
-  tr.At(jR2  ,jT1  ).SetValue(1.0)
-  tr.At(jR2  ,jT3  ).SetValue(1.0)
+  tr.At(jR2  ,jCL  ).SetFloat64(1.0)
+  tr.At(jR2  ,jEA  ).SetFloat64(1.0)
+  tr.At(jR2  ,jNS  ).SetFloat64(1.0)
+  tr.At(jR2  ,jR1  ).SetFloat64(1.0)
+  tr.At(jR2  ,jPA1 ).SetFloat64(1.0)
+  tr.At(jR2  ,jBI  ).SetFloat64(1.0)
+  tr.At(jR2  ,jPR  ).SetFloat64(1.0)
+  tr.At(jR2  ,jT1  ).SetFloat64(1.0)
+  tr.At(jR2  ,jT3  ).SetFloat64(1.0)
   // promoter active 1
-  tr.At(jPA1 ,jT2  ).SetValue(1.0)
+  tr.At(jPA1 ,jT2  ).SetFloat64(1.0)
   // promoter active 2
-  tr.At(jPA2 ,jT2  ).SetValue(1.0)
-  tr.At(jPA2 ,jCL  ).SetValue(1.0)
-  tr.At(jPA2 ,jNS  ).SetValue(1.0)
-  tr.At(jPA2 ,jR1  ).SetValue(1.0)
-  tr.At(jPA2 ,jR2  ).SetValue(1.0)
+  tr.At(jPA2 ,jT2  ).SetFloat64(1.0)
+  tr.At(jPA2 ,jCL  ).SetFloat64(1.0)
+  tr.At(jPA2 ,jNS  ).SetFloat64(1.0)
+  tr.At(jPA2 ,jR1  ).SetFloat64(1.0)
+  tr.At(jPA2 ,jR2  ).SetFloat64(1.0)
   // transcribed 1
-  tr.At(jT1  ,jPA2 ).SetValue(1.0)
-  tr.At(jT1  ,jEAt1).SetValue(1.0)
-  tr.At(jT1  ,jBIt1).SetValue(1.0)
-  tr.At(jT1  ,jPRt1).SetValue(1.0)
+  tr.At(jT1  ,jPA2 ).SetFloat64(1.0)
+  tr.At(jT1  ,jEAt1).SetFloat64(1.0)
+  tr.At(jT1  ,jBIt1).SetFloat64(1.0)
+  tr.At(jT1  ,jPRt1).SetFloat64(1.0)
   // transcribed 2
-  tr.At(jT2  ,jPA2 ).SetValue(1.0)
-  tr.At(jT2  ,jEAt2).SetValue(1.0)
-  tr.At(jT2  ,jBIt2).SetValue(1.0)
-  tr.At(jT2  ,jPRt2).SetValue(1.0)
-  tr.At(jT2  ,jCL  ).SetValue(1.0)
-  tr.At(jT2  ,jNS  ).SetValue(1.0)
-  tr.At(jT2  ,jR1  ).SetValue(1.0)
-  tr.At(jT2  ,jR2  ).SetValue(1.0)
+  tr.At(jT2  ,jPA2 ).SetFloat64(1.0)
+  tr.At(jT2  ,jEAt2).SetFloat64(1.0)
+  tr.At(jT2  ,jBIt2).SetFloat64(1.0)
+  tr.At(jT2  ,jPRt2).SetFloat64(1.0)
+  tr.At(jT2  ,jCL  ).SetFloat64(1.0)
+  tr.At(jT2  ,jNS  ).SetFloat64(1.0)
+  tr.At(jT2  ,jR1  ).SetFloat64(1.0)
+  tr.At(jT2  ,jR2  ).SetFloat64(1.0)
   // ea/bi/pr transcribed
-  tr.At(jEAt1,jT1  ).SetValue(1.0)
-  tr.At(jBIt1,jT1  ).SetValue(1.0)
-  tr.At(jPRt1,jT1  ).SetValue(1.0)
+  tr.At(jEAt1,jT1  ).SetFloat64(1.0)
+  tr.At(jBIt1,jT1  ).SetFloat64(1.0)
+  tr.At(jPRt1,jT1  ).SetFloat64(1.0)
   // ea/bi/pr transcribed
-  tr.At(jEAt2,jT2  ).SetValue(1.0)
-  tr.At(jBIt2,jT2  ).SetValue(1.0)
-  tr.At(jPRt2,jT2  ).SetValue(1.0)
+  tr.At(jEAt2,jT2  ).SetFloat64(1.0)
+  tr.At(jBIt2,jT2  ).SetFloat64(1.0)
+  tr.At(jPRt2,jT2  ).SetFloat64(1.0)
 
   constraints := []generic.EqualityConstraint{}
   if config.ModelUnconstrained {
@@ -334,7 +334,7 @@ func getModHmmDefaultEstimator(config ConfigModHmm) (*matrixEstimator.HmmEstimat
         if i == j {
           continue
         }
-        if tr.ConstAt(i, j).GetValue() != 0 {
+        if tr.ConstAt(i, j).GetFloat64() != 0 {
           constraint = append(constraint, [2]int{i,j})
         }
       }

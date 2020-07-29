@@ -172,7 +172,7 @@ func eval_counts(counts Counts, xlim [2]float64) (plotter.XYs, float64) {
 }
 
 func eval_component(mixture *scalarDistribution.Mixture, k_ []int, counts Counts, xlim [2]float64, y_min float64) plotter.XYs {
-  r  := NullBareReal()
+  r  := NullFloat64()
   xy := make(plotter.XYs, 0)
   for i := 0; i < len(counts.X); i++ {
     if (xlim[0] != 0 || xlim[1] != 0) && counts.X[i] < xlim[0] {
@@ -183,10 +183,10 @@ func eval_component(mixture *scalarDistribution.Mixture, k_ []int, counts Counts
     }
     y := 0.0
     for _, k := range k_ {
-      if err := mixture.Edist[k].LogPdf(r, ConstReal(counts.X[i])); err != nil {
+      if err := mixture.Edist[k].LogPdf(r, ConstFloat64(counts.X[i])); err != nil {
         log.Fatal("evaluating mixture component failed:", err)
       } else {
-        y += math.Exp(mixture.LogWeights.ValueAt(k) + r.GetValue())
+        y += math.Exp(mixture.LogWeights.Float64At(k) + r.GetFloat64())
       }
     }
     if math.IsInf(y, 0) || y == 0.0 || y < y_min {
@@ -198,8 +198,8 @@ func eval_component(mixture *scalarDistribution.Mixture, k_ []int, counts Counts
 }
 
 func eval_delta_component(mixture *scalarDistribution.Mixture, k int, xlim [2]float64, y_min float64) plotter.XYs {
-  x := mixture.Edist[k].(*scalarDistribution.DeltaDistribution).X.GetValue()
-  y := math.Exp(mixture.LogWeights.ValueAt(k))
+  x := mixture.Edist[k].(*scalarDistribution.DeltaDistribution).X.GetFloat64()
+  y := math.Exp(mixture.LogWeights.Float64At(k))
   if (xlim[0] != 0 || xlim[1] != 0) && x < xlim[0] {
     return nil
   }

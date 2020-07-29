@@ -35,11 +35,11 @@ import   "github.com/pborman/getopt"
 func modhmm_enrichment_print_component(k int, pdf ScalarPdf) {
   switch a := pdf.(type) {
   case *scalarDistribution.DeltaDistribution:
-    fmt.Printf(": %2d Delta     %e", k+1, a.X.GetValue())
+    fmt.Printf(": %2d Delta     %e", k+1, a.X.GetFloat64())
   case *scalarDistribution.PoissonDistribution:
-    fmt.Printf(": %2d Poisson   %e", k+1, a.GetParameters().ValueAt(0))
+    fmt.Printf(": %2d Poisson   %e", k+1, a.GetParameters().Float64At(0))
   case *scalarDistribution.GeometricDistribution:
-    fmt.Printf(": %2d Geometric %e", k+1, a.GetParameters().ValueAt(0))
+    fmt.Printf(": %2d Geometric %e", k+1, a.GetParameters().Float64At(0))
   case *scalarDistribution.PdfTranslation:
     modhmm_enrichment_print_component(k, a.ScalarPdf)
   default:

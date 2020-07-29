@@ -118,7 +118,7 @@ func (config *Counts) Export(writer io.Writer) error {
 }
 
 func (config *Counts) ImportFile(filename string) error {
-  if err := ImportFile(config, filename, BareRealType); err != nil {
+  if err := ImportFile(config, filename, Float64Type); err != nil {
     return err
   }
   return nil

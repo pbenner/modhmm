@@ -62,8 +62,8 @@ func (obj BasicClassifier) PeakSym_(x ConstMatrix, m, min, k0 int) float64 {
       if j - i + 1 < min {
         break
       }
-      xi := x.ValueAt(m, i)
-      xj := x.ValueAt(m, j)
+      xi := x.Float64At(m, i)
+      xj := x.Float64At(m, j)
       if i >= k {
         // positive
         if i == j {
@@ -92,11 +92,11 @@ func (obj BasicClassifier) PeakSym(x ConstMatrix, m, min int) float64 {
 
 func (obj BasicClassifier) PeakAny(x ConstMatrix, i int) float64 {
   _, n := x.Dims()
-  r    :=     x.ValueAt(i, 0)
-  t    := 1.0-x.ValueAt(i, 0)
+  r    :=     x.Float64At(i, 0)
+  t    := 1.0-x.Float64At(i, 0)
   for k := 1; k < n; k++ {
-    r +=   t*x.ValueAt(i, k)
-    t *= 1.0-x.ValueAt(i, k)
+    r +=   t*x.Float64At(i, k)
+    t *= 1.0-x.Float64At(i, k)
   }
   return checkNumerics(r)
 }
@@ -105,26 +105,26 @@ func (obj BasicClassifier) PeakAnyRange(x ConstMatrix, i, k1, k2 int) float64 {
   r    := 0.0
   t    := 1.0
   for k := k1; k < k2; k++ {
-    r +=   t*x.ValueAt(i, k)
-    t *= 1.0-x.ValueAt(i, k)
+    r +=   t*x.Float64At(i, k)
+    t *= 1.0-x.Float64At(i, k)
   }
   return checkNumerics(r)
 }
 
 func (obj BasicClassifier) PeakAt(x ConstMatrix, i, k int) float64 {
-  return x.ValueAt(i, k)
+  return x.Float64At(i, k)
 }
 
 func (obj BasicClassifier) PeakAtCenter(x ConstMatrix, i int) float64 {
   _, n := x.Dims()
-  return x.ValueAt(i, n/2)
+  return x.Float64At(i, n/2)
 }
 
 func (obj BasicClassifier) PeakAll(x ConstMatrix, i int) float64 {
   _, n := x.Dims()
   r    := 1.0
   for k := 0; k < n; k++ {
-    r *= x.ValueAt(i, k)
+    r *= x.Float64At(i, k)
   }
   return r
 }
@@ -132,7 +132,7 @@ func (obj BasicClassifier) PeakAll(x ConstMatrix, i int) float64 {
 func (obj BasicClassifier) PeakRange(x ConstMatrix, i, k1, k2 int) float64 {
   r := 1.0
   for j := k1; j < k2; j++ {
-    r *= x.ValueAt(i, j)
+    r *= x.Float64At(i, j)
   }
   return r
 }
@@ -140,25 +140,25 @@ func (obj BasicClassifier) PeakRange(x ConstMatrix, i, k1, k2 int) float64 {
 func (obj BasicClassifier) NoPeakRange(x ConstMatrix, i, k1, k2 int) float64 {
   r := 1.0
   for j := k1; j < k2; j++ {
-    r *= 1.0-x.ValueAt(i, j)
+    r *= 1.0-x.Float64At(i, j)
   }
   return checkNumerics(r)
 }
 
 func (obj BasicClassifier) NoPeakAt(x ConstMatrix, i, k int) float64 {
-  return 1.0-x.ValueAt(i, k)
+  return 1.0-x.Float64At(i, k)
 }
 
 func (obj BasicClassifier) NoPeakAtCenter(x ConstMatrix, i int) float64 {
   _, n := x.Dims()
-  return checkNumerics(1.0-x.ValueAt(i, n/2))
+  return checkNumerics(1.0-x.Float64At(i, n/2))
 }
 
 func (obj BasicClassifier) NoPeakAll(x ConstMatrix, i int) float64 {
   _, n := x.Dims()
   r    := 1.0
   for k := 0; k < n; k++ {
-    r *= 1.0-x.ValueAt(i, k)
+    r *= 1.0-x.Float64At(i, k)
   }
   return checkNumerics(r)
 }
@@ -186,7 +186,7 @@ func (obj ClassifierPA) Eval(s Scalar, x ConstMatrix) error {
   { // no control peak at all positions
     r *= obj.NoPeakAll(x, jControl)
   }
-  s.SetValue(r)
+  s.SetFloat64(r)
   return nil
 }
 
@@ -221,7 +221,7 @@ func (obj ClassifierEA) Eval(s Scalar, x ConstMatrix) error {
   { // no control peak at all positions
     r *= obj.NoPeakAll(x, jControl)
   }
-  s.SetValue(r)
+  s.SetFloat64(r)
   return nil
 }
 
@@ -255,7 +255,7 @@ func (obj ClassifierBI) Eval(s Scalar, x ConstMatrix) error {
   { // no control peak at all positions
     r *= obj.NoPeakRange(x, jControl, 1, 6)
   }
-  s.SetValue(r)
+  s.SetFloat64(r)
   return nil
 }
 
@@ -292,7 +292,7 @@ func (obj ClassifierPR) Eval(s Scalar, x ConstMatrix) error {
   { // no control peak at all positions
     r *= obj.NoPeakRange(x, jControl, 1, 6)
   }
-  s.SetValue(r)
+  s.SetFloat64(r)
   return nil
 }
 
@@ -323,7 +323,7 @@ func (obj ClassifierTR) Eval(s Scalar, x ConstMatrix) error {
   { // rna peak at center
     r *= obj.PeakAtCenter(x, jRna)
   }
-  s.SetValue(r)
+  s.SetFloat64(r)
   return nil
 }
 
@@ -352,7 +352,7 @@ func (obj ClassifierR1) Eval(s Scalar, x ConstMatrix) error {
   { // no control peak at all positions
     r *= obj.NoPeakAll(x, jControl)
   }
-  s.SetValue(r)
+  s.SetFloat64(r)
   return nil
 }
 
@@ -381,7 +381,7 @@ func (obj ClassifierR2) Eval(s Scalar, x ConstMatrix) error {
   { // no control peak at all positions
     r *= obj.NoPeakAll(x, jControl)
   }
-  s.SetValue(r)
+  s.SetFloat64(r)
   return nil
 }
 
@@ -404,7 +404,7 @@ func (obj ClassifierCL) Eval(s Scalar, x ConstMatrix) error {
   { // control peak at any position
     r *= obj.PeakAny(x, jControl)
   }
-  s.SetValue(r)
+  s.SetFloat64(r)
   return nil
 }
 
@@ -447,7 +447,7 @@ func (obj ClassifierNS) Eval(s Scalar, x ConstMatrix) error {
   { // no control peak at all positions
     r *= obj.NoPeakAll(x, jControl)
   }
-  s.SetValue(r)
+  s.SetFloat64(r)
   return nil
 }
 

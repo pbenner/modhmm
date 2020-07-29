@@ -44,13 +44,13 @@ func ImportHMM(config ConfigModHmm) ModHmm {
   modhmm   := ModHmm{}
   filename := config.Model.Filename
   printStderr(config, 2, "Importing HMM model from `%s'... ", config.Model.Filename)
-  if err := ImportDistribution(filename, &modhmm, BareRealType); err != nil {
+  if err := ImportDistribution(filename, &modhmm, Float64Type); err != nil {
     printStderr(config, 2, "failed\n")
     // remove directory from filename
     _, filename = path.Split(filename)
     filename = fmt.Sprintf("%s.json", config.ModelFallbackPath())
     printStderr(config, 2, "Importing HMM fallback model (%s)... ", config.ModelFallback)
-    if err := ImportDefaultDistribution(config, filename, &modhmm, BareRealType); err != nil {
+    if err := ImportDefaultDistribution(config, filename, &modhmm, Float64Type); err != nil {
       printStderr(config, 2, "failed\n")
       log.Fatal(err)
     }
@@ -90,15 +90,15 @@ func (ChromatinStateFilterZeros) Eval(x Matrix) Matrix {
   for i := 0; i < n; i++ {
     allZero := true
     for j := 0; j < m; j++ {
-      if math.IsNaN(x.ValueAt(i, j)) {
+      if math.IsNaN(x.Float64At(i, j)) {
         panic("interal error")
       }
-      if x.ValueAt(i, j) != 0.0 {
+      if x.Float64At(i, j) != 0.0 {
         allZero = false; break
       }
     }
     if allZero {
-      x.At(i, iNS).SetValue(1.0)
+      x.At(i, iNS).SetFloat64(1.0)
     }
   }
   return x

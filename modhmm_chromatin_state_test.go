@@ -28,9 +28,9 @@ import . "github.com/pbenner/autodiff"
 
 func TestCl1(t *testing.T) {
   m  := BasicClassifier{}
-  x  := NewMatrix(BareRealType, 2, 3, []float64{
+  x  := NewDenseFloat64Matrix([]float64{
     0.7, 0.4, 0.8,
-    0.3, 0.6, 0.2 })
+    0.3, 0.6, 0.2 }, 2, 3)
 
   if math.Abs(m.PeakSym(x, 0, 0) - 0.736) > 1e-2 {
     t.Error("test failed")
@@ -39,9 +39,9 @@ func TestCl1(t *testing.T) {
 
 func TestCl2(t *testing.T) {
   m  := BasicClassifier{}
-  x  := NewMatrix(BareRealType, 2, 4, []float64{
+  x  := NewDenseFloat64Matrix([]float64{
     0.7, 0.4, 0.8, 0.3,
-    0.3, 0.6, 0.2, 0.7 })
+    0.3, 0.6, 0.2, 0.7 }, 2, 4)
 
   if math.Abs(m.PeakSym(x, 0, 0) - 0.4628) > 1e-3 {
     t.Error("test failed")
@@ -50,9 +50,9 @@ func TestCl2(t *testing.T) {
 
 func TestCl3(t *testing.T) {
   m  := BasicClassifier{}
-  x  := NewMatrix(BareRealType, 2, 5, []float64{
+  x  := NewDenseFloat64Matrix([]float64{
     0.7, 0.4, 0.8, 0.3, 0.1,
-    0.3, 0.6, 0.2, 0.7, 0.9 })
+    0.3, 0.6, 0.2, 0.7, 0.9 }, 2, 5)
 
   if math.Abs(m.PeakSym(x, 0, 0) - 0.83632) > 1e-4 {
     t.Error("test failed")
