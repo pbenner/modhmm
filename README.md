@@ -80,8 +80,13 @@ ModHMM can be installed by either downloading a binary from the [binary reposito
 
 To compile ModHMM you must first install the [Go compiler](https://golang.org/dl/). Afterwards, ModHMM can be installed as follows:
 ```sh
-  go get -v github.com/pbenner/modhmm
-  cd $GOPATH/src/github.com/pbenner/modhmm
+  go install -v github.com/pbenner/modhmm@latest
+```
+
+Alternatively, it is also possible to clone the repository and compile modhmm manually
+```sh
+  git clone github.com/pbenner/modhmm
+  make
   make install
 ```
 
