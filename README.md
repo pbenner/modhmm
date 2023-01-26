@@ -23,6 +23,10 @@ Philipp Benner and Martin Vingron. *ModHMM: A Modular Supra-Bayesian Genome Segm
 
 <center><img src="https://raw.githubusercontent.com/pbenner/modhmm/master/README_example1.png" alt="ModHMM" width="720" height="429" /></center>
 
+## Contact
+
+E-Mail: <philipp.benner@bäm.de> (replace `ä` with `a`).
+
 ### Available Segmentations
 
 ModHMM segmentations are available for several ENCODE data sets:
